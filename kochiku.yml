@@ -1,0 +1,12 @@
+test_command: 'scripts/ci-build.sh'
+
+targets:
+  - type: buildDebug
+    write_to_cache:
+      - sample-app/build/outputs/apk/debug/*.apk
+
+  - type: publishDebug
+    requires:
+      - buildDebug
+    read_from_cache:
+      - sample-app/build/outputs/apk/debug/*.apk
