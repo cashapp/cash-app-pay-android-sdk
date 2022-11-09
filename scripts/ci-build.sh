@@ -51,7 +51,7 @@ publishDebug() {
   echo "publishing"
   pwd
 
-  source scripts/ci/mobile-releases.sh
+  source $SCRIPT_DIR/mobile-releases.sh
 
   # For signing with release cert
   # sign_apk "android/app/build/outputs/apk/release/app-release.apk" "android/app/build/outputs/apk/release/app-release-signed.apk"

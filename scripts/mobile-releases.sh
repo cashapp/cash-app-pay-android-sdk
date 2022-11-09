@@ -85,8 +85,8 @@ function upload_artifact() {
   echo "Uploading artifact"
   echo "======================"
 
-  # if [[ "$GIT_BRANCH" == "master" ]]; then
-  VERSION="master"
+  # if [[ "$GIT_BRANCH" == "main" ]]; then
+  VERSION="main"
   # else
   # VERSION=$(echo "$GIT_BRANCH" | sed -n 's/^release\///p')
   # fi
