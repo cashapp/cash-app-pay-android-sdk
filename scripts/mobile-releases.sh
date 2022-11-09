@@ -80,6 +80,7 @@ function upload_artifact() {
   SIGNED_ARTIFACT_PATH="$1"
   VARIANT="$2"
   ARTIFACT_TYPE="$3"
+  #TODO version?
 
   echo "======================"
   echo "Uploading artifact"

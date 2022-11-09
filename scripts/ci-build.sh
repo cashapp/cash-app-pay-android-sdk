@@ -55,7 +55,7 @@ publishDebug() {
 
   # For signing with release cert
   # sign_apk "android/app/build/outputs/apk/release/app-release.apk" "android/app/build/outputs/apk/release/app-release-signed.apk"
-  upload_artifact "sample-app/build/outputs/apk/debug/sample-app-debug.apk" "debug" "apk" "$PACKAGE_VERSION"
+  upload_artifact "sample-app/build/outputs/apk/debug/sample-app-debug.apk" "debug" "apk"
 
   # we are publishing when uploading. no need to set visibility
   # publish_artifact "release" "$GIT_COMMIT"
