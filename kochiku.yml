@@ -17,4 +17,6 @@ targets:
     read_from_cache:
       - sample-app/build/outputs/apk/debug/*.apk
 
-  - type: lint
+  - type: paykit:lint
+
+  - type: sample-app:lint
