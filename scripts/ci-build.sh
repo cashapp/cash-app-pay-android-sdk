@@ -62,10 +62,10 @@ publishDebug() {
 }
 
 lint() {
-  echo "linting"
+  echo "Android linting"
   pwd
 
-  JAVA_OPTS="-Xmx2048M" ./gradlew paykit:lint --no-daemon
+  JAVA_OPTS="-Xmx2048M" ./gradlew lint --no-daemon
 }
 
 echo "Running ${TEST_RUNNER}..."
