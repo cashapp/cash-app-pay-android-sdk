@@ -1,15 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issues format="6" by="lint 7.3.1" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.1)" variant="all" version="7.3.1">
 
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.test.ext:junit than 1.1.3 is available: 1.1.4"
-        errorLine1="  androidTestImplementation &apos;androidx.test.ext:junit:1.1.3&apos;"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle"
-            line="48"
-            column="29"/>
-    </issue>
-
 </issues>

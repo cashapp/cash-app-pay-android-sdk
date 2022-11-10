@@ -28,6 +28,13 @@ android {
   kotlinOptions {
     jvmTarget = '1.8'
   }
+  lintOptions {
+    abortOnError true
+    htmlReport true
+    checkAllWarnings true
+    warningsAsErrors true
+    baseline file("lint-baseline.xml")
+  }
 }
 
 dependencies {
