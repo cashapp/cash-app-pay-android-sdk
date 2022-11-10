@@ -30,6 +30,8 @@ android {
   kotlinOptions {
     jvmTarget = '1.8'
   }
+
+  resourcePrefix 'cashpaykit_'
 }
 
 dependencies {
