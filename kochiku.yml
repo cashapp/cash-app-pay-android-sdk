@@ -1,5 +1,11 @@
 test_command: 'scripts/ci-build.sh'
 
+log_file_globs:
+  - "**/hs_err_pid*.log"
+  - "java-*.hprof"
+  - "**/build/reports/lint-results.html"
+  - "**/build/reports/lint-results*.txt"
+
 targets:
   - type: buildDebug
     write_to_cache:
@@ -10,3 +16,7 @@ targets:
       - buildDebug
     read_from_cache:
       - sample-app/build/outputs/apk/debug/*.apk
+
+  - type: paykit:lint
+
+  - type: sample-app:lint

@@ -61,10 +61,20 @@ publishDebug() {
   # publish_artifact "release" "$GIT_COMMIT"
 }
 
+lint() {
+  echo "Android linting"
+  pwd
+
+  JAVA_OPTS="-Xmx2048M" ./gradlew paykit:lint sample-app:lint --no-daemon
+}
+
 echo "Running ${TEST_RUNNER}..."
 
 # TEST_RUNNER cases should match targets.type in kochiku.yml
 case "${TEST_RUNNER}" in
+paykit:lint)
+  lint
+  ;;
 buildDebug)
   buildDebug
   ;;
