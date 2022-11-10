@@ -32,11 +32,19 @@ android {
   }
 
   resourcePrefix 'cashpaykit_'
+
+  lintOptions {
+    abortOnError true
+    htmlReport true
+    checkAllWarnings true
+    warningsAsErrors true
+    baseline file("lint-baseline.xml")
+  }
 }
 
 dependencies {
 
   testImplementation 'junit:junit:4.13.2'
-  androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+  androidTestImplementation 'androidx.test.ext:junit-ktx:1.1.4'
 
 }
