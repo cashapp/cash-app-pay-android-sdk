@@ -1,6 +1,7 @@
 plugins {
   id 'com.android.library'
   id 'org.jetbrains.kotlin.android'
+  id("com.google.devtools.ksp").version("1.6.21-1.0.5")
 }
 
 android {
@@ -44,7 +45,12 @@ android {
 
 dependencies {
 
+  // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
+  //noinspection GradleDependency
+  ksp("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
+  //noinspection GradleDependency
+  implementation("com.squareup.moshi:moshi-kotlin:$moshi_version")
+
   testImplementation "junit:junit:$junit_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"
-
 }
