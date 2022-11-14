@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
-    findViewById<Button>(R.id.button).setOnClickListener {
+    findViewById<Button>(R.id.createCustomerBtn).setOnClickListener {
       val payKitSdk = CashPayKit(sandboxClientID)
       payKitSdk.registerListener(this)
       payKitSdk.createCustomerRequest(sandboxBrandID)
