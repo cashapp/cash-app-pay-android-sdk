@@ -24,7 +24,7 @@ private const val REQUESTS_ENDPOINT = "${BASE_URL}requests"
 object NetworkManager {
 
   @Throws(IOException::class)
-  @OptIn(ExperimentalStdlibApi::class) fun createCustomerRequest(
+  fun createCustomerRequest(
     clientId: String,
     scopeId: String
   ): CreateCustomerResponse {
@@ -37,6 +37,22 @@ object NetworkManager {
       customerRequestData = requestData
     )
 
+    return postRequest(clientId, createCustomerRequest)
+  }
+
+  @Throws(IOException::class)
+  @OptIn(ExperimentalStdlibApi::class)
+  /**
+   * POST Request.
+   * @param In Class for serializing the request
+   * @param Out Class for deserializing the response
+   * @param clientId Client ID for authenticating the request
+   * @param requestPayload Request payload, an instance of the `In` class.
+   */
+  private inline fun <reified In : Any, reified Out : Any> postRequest(
+    clientId: String,
+    requestPayload: In
+  ): Out {
     val url = URL(REQUESTS_ENDPOINT)
     val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
     urlConnection.requestMethod = "POST"
@@ -46,16 +62,16 @@ object NetworkManager {
     urlConnection.setChunkedStreamingMode(0)
 
     try {
-      val out: OutputStream = BufferedOutputStream(urlConnection.outputStream)
+      val outStream: OutputStream = BufferedOutputStream(urlConnection.outputStream)
       val writer = BufferedWriter(
         OutputStreamWriter(
-          out, "UTF-8"
+          outStream, "UTF-8"
         )
       )
 
       val moshi: Moshi = Moshi.Builder().build()
-      val requestJsonAdapter: JsonAdapter<CreateCustomerRequest> = moshi.adapter()
-      val jsonData: String = requestJsonAdapter.toJson(createCustomerRequest)
+      val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
+      val jsonData: String = requestJsonAdapter.toJson(requestPayload)
 
       writer.write(jsonData)
       writer.flush()
@@ -73,7 +89,7 @@ object NetworkManager {
           responseLines.forEach { sb.append(it) }
           val responseJson = sb.toString()
 
-          val jsonAdapterResponse: JsonAdapter<CreateCustomerResponse> = moshi.adapter()
+          val jsonAdapterResponse: JsonAdapter<Out> = moshi.adapter()
 
           val responseModel = jsonAdapterResponse.fromJson(responseJson)
           return responseModel ?: throw IOException("Failed to deserialize response data")
