@@ -28,6 +28,11 @@ android {
   kotlinOptions {
     jvmTarget = '1.8'
   }
+
+  buildFeatures {
+    viewBinding true
+  }
+
   lintOptions {
     abortOnError true
     htmlReport true

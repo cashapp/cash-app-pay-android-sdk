@@ -1,23 +1,26 @@
 package com.squareup.cash.paykit.sampleapp
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.squareup.cash.paykit.CashPayKit
 import com.squareup.cash.paykit.CashPayKitListener
 import com.squareup.cash.paykit.models.response.CreateCustomerResponseData
+import com.squareup.cash.paykit.sampleapp.databinding.ActivityMainBinding
 
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
 const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
 
 class MainActivity : AppCompatActivity(), CashPayKitListener {
 
+  private lateinit var binding: ActivityMainBinding
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    setContentView(R.layout.activity_main)
+    binding = ActivityMainBinding.inflate(layoutInflater)
+    val view = binding.root
+    setContentView(view)
 
-    findViewById<Button>(R.id.createCustomerBtn).setOnClickListener {
+    binding.createCustomerBtn.setOnClickListener {
       val payKitSdk = CashPayKit(sandboxClientID)
       payKitSdk.registerListener(this)
       payKitSdk.createCustomerRequest(sandboxBrandID)
@@ -29,6 +32,6 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
    */
 
   override fun customerCreated(customerData: CreateCustomerResponseData) {
-    findViewById<TextView>(R.id.statusText).text = customerData.toString()
+    binding.statusText.text = customerData.toString()
   }
 }
