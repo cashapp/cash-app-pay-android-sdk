@@ -26,12 +26,17 @@ object NetworkManager {
   @Throws(IOException::class)
   fun createCustomerRequest(
     clientId: String,
-    scopeId: String
+    scopeId: String,
+    redirectUri: String
   ): CreateCustomerResponse {
     // Create request data.
     val requestAction =
       Action(amount_cents = 500, currency = "USD", scopeId = scopeId, type = "ONE_TIME_PAYMENT")
-    val requestData = CustomerRequestData(actions = listOf(requestAction), channel = "IN_APP")
+    val requestData = CustomerRequestData(
+      actions = listOf(requestAction),
+      channel = "IN_APP",
+      redirectUri = redirectUri
+    )
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
       customerRequestData = requestData

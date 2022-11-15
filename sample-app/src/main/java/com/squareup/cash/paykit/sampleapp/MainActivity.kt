@@ -10,9 +10,13 @@ import com.squareup.cash.paykit.sampleapp.databinding.ActivityMainBinding
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
 const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
 
+const val redirectURI = "cashpaykit://checkout"
+
 class MainActivity : AppCompatActivity(), CashPayKitListener {
 
   private lateinit var binding: ActivityMainBinding
+
+  private val payKitSdk = CashPayKit(sandboxClientID)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -20,10 +24,17 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
     val view = binding.root
     setContentView(view)
 
+    registerButtons()
+  }
+
+  private fun registerButtons() {
     binding.createCustomerBtn.setOnClickListener {
-      val payKitSdk = CashPayKit(sandboxClientID)
       payKitSdk.registerListener(this)
-      payKitSdk.createCustomerRequest(sandboxBrandID)
+      payKitSdk.createCustomerRequest(sandboxBrandID, redirectURI)
+    }
+
+    binding.authorizeCustomerBtn.setOnClickListener {
+      payKitSdk.authorizeCustomer(this)
     }
   }
 
