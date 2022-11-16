@@ -1,5 +1,7 @@
 package com.squareup.cash.paykit
 
+import com.squareup.cash.paykit.RequestType.GET
+import com.squareup.cash.paykit.RequestType.POST
 import com.squareup.cash.paykit.models.common.Action
 import com.squareup.cash.paykit.models.request.CreateCustomerRequest
 import com.squareup.cash.paykit.models.request.CustomerRequestData
@@ -19,7 +21,16 @@ import java.util.UUID
 private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
 private const val BASE_URL_RELEASE = "https://api.cash.app/customer-request/v1/"
 private const val BASE_URL = BASE_URL_SANDBOX
-private const val REQUESTS_ENDPOINT = "${BASE_URL}requests"
+private const val CREATE_USER_ENDPOINT = "${BASE_URL}requests"
+private const val RETRIEVE_REQUEST_ENDPOINT = "${BASE_URL}requests/"
+
+enum class RequestType {
+  GET,
+  POST,
+  PATCH
+}
+
+// TODO: Define more sensible network timeouts.
 
 object NetworkManager {
 
@@ -42,7 +53,11 @@ object NetworkManager {
       customerRequestData = requestData
     )
 
-    return postRequest(clientId, createCustomerRequest)
+    return executeNetworkRequest(POST, CREATE_USER_ENDPOINT, clientId, createCustomerRequest)
+  }
+
+  fun retrieveRequest(clientId: String, requestId: String): CreateCustomerResponse {
+    return executeNetworkRequest(GET, RETRIEVE_REQUEST_ENDPOINT + requestId, clientId, null)
   }
 
   @Throws(IOException::class)
@@ -54,35 +69,42 @@ object NetworkManager {
    * @param clientId Client ID for authenticating the request
    * @param requestPayload Request payload, an instance of the `In` class.
    */
-  private inline fun <reified In : Any, reified Out : Any> postRequest(
+  private inline fun <reified In : Any, reified Out : Any> executeNetworkRequest(
+    requestType: RequestType,
+    endpointUrl: String,
     clientId: String,
-    requestPayload: In
+    requestPayload: In?
   ): Out {
-    val url = URL(REQUESTS_ENDPOINT)
+    val url = URL(endpointUrl)
     val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
-    urlConnection.requestMethod = "POST"
+    urlConnection.requestMethod = requestType.name
     urlConnection.setRequestProperty("Content-Type", "application/json")
     urlConnection.setRequestProperty("Authorization", "Client $clientId")
-    urlConnection.doOutput = true
-    urlConnection.setChunkedStreamingMode(0)
+
+    if (requestType == POST) {
+      urlConnection.doOutput = true
+      urlConnection.setChunkedStreamingMode(0)
+    }
 
     try {
-      val outStream: OutputStream = BufferedOutputStream(urlConnection.outputStream)
-      val writer = BufferedWriter(
-        OutputStreamWriter(
-          outStream, "UTF-8"
-        )
-      )
-
       val moshi: Moshi = Moshi.Builder().build()
-      val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
-      val jsonData: String = requestJsonAdapter.toJson(requestPayload)
 
-      writer.write(jsonData)
-      writer.flush()
+      if (requestPayload != null) {
+        val outStream: OutputStream = BufferedOutputStream(urlConnection.outputStream)
+        val writer = BufferedWriter(
+          OutputStreamWriter(
+            outStream, "UTF-8"
+          )
+        )
+
+        val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
+        val jsonData: String = requestJsonAdapter.toJson(requestPayload)
+        writer.write(jsonData)
+        writer.flush()
+      }
 
       val code = urlConnection.responseCode
-      if (code != HttpURLConnection.HTTP_CREATED) {
+      if (code != HttpURLConnection.HTTP_CREATED && code != HttpURLConnection.HTTP_OK) {
         throw IOException("Invalid response code from server: $code")
       }
 

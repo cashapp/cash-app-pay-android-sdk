@@ -1,5 +1,6 @@
 package com.squareup.cash.paykit.sampleapp
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.squareup.cash.paykit.CashPayKit
@@ -16,7 +17,7 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
 
   private lateinit var binding: ActivityMainBinding
 
-  private val payKitSdk = CashPayKit(sandboxClientID)
+  private val payKitSdk = CashPayKit(lifecycle, sandboxClientID)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -44,5 +45,10 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
 
   override fun customerCreated(customerData: CreateCustomerResponseData) {
     binding.statusText.text = customerData.toString()
+  }
+
+  @SuppressLint("SetTextI18n")
+  override fun transactionFinished(wasSuccessful: Boolean) {
+    binding.statusText.text = "APPROVED!\n\n ${payKitSdk.customerResponseData?.toString()}"
   }
 }

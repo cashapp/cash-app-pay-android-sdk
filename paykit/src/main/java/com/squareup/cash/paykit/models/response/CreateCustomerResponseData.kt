@@ -9,7 +9,7 @@ data class CreateCustomerResponseData(
   @Json(name = "actions")
   val actions: List<Action>,
   @Json(name = "auth_flow_triggers")
-  val authFlowTriggers: AuthFlowTriggers,
+  val authFlowTriggers: AuthFlowTriggers?,
   @Json(name = "channel")
   val channel: String,
   @Json(name = "created_at")

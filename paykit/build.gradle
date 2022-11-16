@@ -10,6 +10,7 @@ android {
 
   defaultConfig {
     minSdk 21
+
     // We target the minimum API that meets Google Play's target level, for higher compatibility: https://developer.android.com/google/play/requirements/target-sdk
     //noinspection OldTargetApi
     targetSdk 31
@@ -44,6 +45,10 @@ android {
 }
 
 dependencies {
+
+  // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
+  //noinspection GradleDependency
+  implementation 'androidx.lifecycle:lifecycle-common:2.4.1'
 
   // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
   //noinspection GradleDependency
