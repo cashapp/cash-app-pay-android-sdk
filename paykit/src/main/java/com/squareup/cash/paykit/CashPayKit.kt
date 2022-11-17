@@ -78,6 +78,7 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
   }
 
   fun authorizeCustomer(context: Context, customerData: CreateCustomerResponseData) {
+    // TODO: Check if Cash App is installed, otherwise send to Play Store. Handle deferred deep linking?
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(customerData.authFlowTriggers?.mobileUrl)
     context.startActivity(intent)
@@ -135,7 +136,7 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
 
   private fun setStateFinished(wasSuccessful: Boolean) {
     currentState = StateFinished(wasSuccessful)
-    callbackListener?.transactionFinished(wasSuccessful).orElse {
+    callbackListener?.authorizationResult(wasSuccessful).orElse {
       logError(
         "Created User with success, but callback wasn't registered. " +
           "Double check that you've used `registerListener`."
@@ -180,7 +181,7 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
 interface CashPayKitListener {
   fun customerCreated(customerData: CreateCustomerResponseData)
 
-  fun transactionFinished(wasSuccessful: Boolean)
+  fun authorizationResult(wasSuccessful: Boolean)
 }
 
 fun runOnUiThread(mainHandler: Handler, action: Runnable) {

@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
   }
 
   @SuppressLint("SetTextI18n")
-  override fun transactionFinished(wasSuccessful: Boolean) {
+  override fun authorizationResult(wasSuccessful: Boolean) {
     binding.statusText.text = "APPROVED!\n\n ${payKitSdk.customerResponseData?.toString()}"
   }
 }
