@@ -38,6 +38,7 @@ android {
     htmlReport true
     checkAllWarnings true
     warningsAsErrors true
+    disable 'UnusedIds'
     baseline file("lint-baseline.xml")
   }
 }
