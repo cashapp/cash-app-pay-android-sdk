@@ -34,10 +34,6 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
   private var currentState: PayKitState = StateStarted
   private var isPaused = AtomicBoolean(false)
 
-  init {
-    PayKitLifecycleObserver.register(this)
-  }
-
   /**
    * @param brandId The Brand Identifier that was provided to you by the Cash Pay console.
    * @param redirectUri: The URI to deep link back into your application once the transaction is approved.
@@ -71,6 +67,7 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
 
   fun authorizeCustomer(context: Context, customerData: CreateCustomerResponseData) {
     // TODO: Check if Cash App is installed, otherwise send to Play Store. Handle deferred deep linking?
+    PayKitLifecycleObserver.register(this)
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(customerData.authFlowTriggers?.mobileUrl)
     context.startActivity(intent)
@@ -132,6 +129,7 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
   }
 
   private fun setStateFinished(wasSuccessful: Boolean) {
+    PayKitLifecycleObserver.unregister(this)
     currentState = StateFinished(wasSuccessful)
     callbackListener?.authorizationResult(wasSuccessful).orElse {
       logError(
