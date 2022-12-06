@@ -75,6 +75,9 @@ case "${TEST_RUNNER}" in
 paykit:lint)
   lint
   ;;
+sample-app:lint)
+  lint
+  ;;
 buildDebug)
   buildDebug
   ;;
