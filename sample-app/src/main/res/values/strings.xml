@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">Cash PayKit Sample</string>
+  <string name="app_name">PayKit Dev App</string>
   <string name="payment_type_title">Payment Type</string>
   <string name="payment_type_one_time">One-Time</string>
   <string name="payment_type_on_fine">On File</string>
