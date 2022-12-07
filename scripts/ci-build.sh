@@ -85,7 +85,7 @@ paykit:lint)
 sample-app:lint)
   lint
   ;;
-unitTests)
+test)
   unitTests
   ;;
 buildDebug)
