@@ -68,6 +68,13 @@ lint() {
   JAVA_OPTS="-Xmx2048M" ./gradlew paykit:lint sample-app:lint --no-daemon
 }
 
+unitTests() {
+  echo "Unit Tests"
+  pwd
+
+  JAVA_OPTS="-Xmx2048M" ./gradlew test --no-daemon
+}
+
 echo "Running ${TEST_RUNNER}..."
 
 # TEST_RUNNER cases should match targets.type in kochiku.yml
@@ -77,6 +84,9 @@ paykit:lint)
   ;;
 sample-app:lint)
   lint
+  ;;
+unitTests)
+  unitTests
   ;;
 buildDebug)
   buildDebug
