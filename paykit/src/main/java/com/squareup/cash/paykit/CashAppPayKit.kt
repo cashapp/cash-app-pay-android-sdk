@@ -12,6 +12,7 @@ import com.squareup.cash.paykit.PayKitState.Declined
 import com.squareup.cash.paykit.PayKitState.NotStarted
 import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
 import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
+import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
 import com.squareup.cash.paykit.models.response.CreateCustomerResponseData
 import com.squareup.cash.paykit.utils.orElse
 import java.util.concurrent.atomic.AtomicBoolean
@@ -54,7 +55,8 @@ class CashAppPayKit(
    * @param redirectUri: The URI to deep link back into your application once the transaction is approved.
    */
   fun createCustomerRequest(brandId: String, redirectUri: String) {
-    // TODO: print error if there is no listener registered.
+    enforceRegisteredStateUpdatesListener()
+
     Thread {
       val customerData = NetworkManager.createCustomerRequest(clientId, brandId, redirectUri)
 
@@ -66,16 +68,37 @@ class CashAppPayKit(
     }.start()
   }
 
+  /**
+   * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
+   * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
+   *
+   */
   fun authorizeCustomerRequest(context: Context) {
-    // TODO: DO NOT THROW IN PROD.
     val customerData = customerResponseData
-      ?: throw NullPointerException("Can't call authorize user before calling `createCustomerRequest`. Alternatively provide your own customerData")
+
+    if (customerData == null) {
+      logOrThrow(PayKitIntegrationException("Can't call authorizeCustomerRequest user before calling `createCustomerRequest`. Alternatively provide your own customerData"))
+      return
+    }
 
     authorizeCustomerRequest(context, customerData)
   }
 
+  /**
+   * Authorize a customer request with a previously created `customerData`.
+   * This function will set this SDK instance internal state to the `customerData` provided here as a function parameter.
+   *
+   */
   fun authorizeCustomerRequest(context: Context, customerData: CreateCustomerResponseData) {
+    enforceRegisteredStateUpdatesListener()
+
+    // Replace internal state.
+    customerResponseData = customerData
+
+    // Register for process lifecycle updates.
     PayKitLifecycleObserver.register(this)
+
+    // Open Mobile URL provided by backend response.
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(customerData.authFlowTriggers?.mobileUrl)
     context.startActivity(intent)
@@ -95,6 +118,12 @@ class CashAppPayKit(
   fun unregisterFromStateUpdates() {
     callbackListener = null
     PayKitLifecycleObserver.unregister(this)
+  }
+
+  private fun enforceRegisteredStateUpdatesListener() {
+    if (callbackListener == null) {
+      logOrThrow(PayKitIntegrationException("Shouldn't call this function before registering for state updates via `registerForStateUpdates`."))
+    }
   }
 
   private fun checkTransactionStatus() {
@@ -126,8 +155,17 @@ class CashAppPayKit(
   }
 
   private fun logError(errorMessage: String) {
-    if (BuildConfig.DEBUG) {
-      Log.e("PayKit", errorMessage)
+    Log.e("PayKit", errorMessage)
+  }
+
+  /**
+   * This function will log in production, additionally it will throw an exception in sandbox or debug mode.
+   */
+  @Throws
+  private fun logOrThrow(exception: Exception) {
+    logError("Error occurred. E.: $exception")
+    if (useSandboxEnvironment || BuildConfig.DEBUG) {
+      throw exception
     }
   }
 
