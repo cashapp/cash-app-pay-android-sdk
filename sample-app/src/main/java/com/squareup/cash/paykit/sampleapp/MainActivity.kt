@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
 
   private lateinit var binding: ActivityMainBinding
 
-  private val payKitSdk = CashPayKit(lifecycle, sandboxClientID)
+  private val payKitSdk = CashPayKit(sandboxClientID)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -26,6 +26,11 @@ class MainActivity : AppCompatActivity(), CashPayKitListener {
     setContentView(view)
 
     registerButtons()
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    payKitSdk.unregisterListener()
   }
 
   private fun registerButtons() {

@@ -6,9 +6,6 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import com.squareup.cash.paykit.PayKitState.StateCustomerCreated
 import com.squareup.cash.paykit.PayKitState.StateFinished
 import com.squareup.cash.paykit.PayKitState.StatePendingDeliveryTransactionStatus
@@ -20,14 +17,9 @@ import com.squareup.cash.paykit.utils.orElse
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * @param lifecycle The lifecycle owner where CashPay SDK lives.
- *  This will typically be your Activity or Fragment. This property is required so that SDK can response
- *  accordingly to the app and/or screen being backgrounded and foregrounded when performing long-pooling operations.
- *
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
  */
-class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
-  DefaultLifecycleObserver {
+class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
 
   // TODO: Consider network errors.
   // TODO: Consider no internet available.
@@ -41,10 +33,6 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
 
   private var currentState: PayKitState = StateStarted
   private var isPaused = AtomicBoolean(false)
-
-  init {
-    lifecycle.addObserver(this)
-  }
 
   /**
    * @param brandId The Brand Identifier that was provided to you by the Cash Pay console.
@@ -79,6 +67,7 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
 
   fun authorizeCustomer(context: Context, customerData: CreateCustomerResponseData) {
     // TODO: Check if Cash App is installed, otherwise send to Play Store. Handle deferred deep linking?
+    PayKitLifecycleObserver.register(this)
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(customerData.authFlowTriggers?.mobileUrl)
     context.startActivity(intent)
@@ -90,6 +79,11 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
    */
   fun registerListener(listener: CashPayKitListener) {
     callbackListener = listener
+  }
+
+  fun unregisterListener() {
+    callbackListener = null
+    PayKitLifecycleObserver.unregister(this)
   }
 
   private fun checkTransactionStatus() {
@@ -135,6 +129,7 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
   }
 
   private fun setStateFinished(wasSuccessful: Boolean) {
+    PayKitLifecycleObserver.unregister(this)
     currentState = StateFinished(wasSuccessful)
     callbackListener?.authorizationResult(wasSuccessful).orElse {
       logError(
@@ -148,9 +143,8 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
    * Lifecycle callbacks.
    */
 
-  override fun onResume(owner: LifecycleOwner) {
-    super.onResume(owner)
-    logError("OnResume")
+  override fun onApplicationForegrounded() {
+    logError("onApplicationForegrounded")
     isPaused.set(false)
     when (currentState) {
       StateCustomerCreated -> {} // Ignored.
@@ -171,10 +165,9 @@ class CashPayKit(lifecycle: Lifecycle, private val clientId: String) :
     }
   }
 
-  override fun onPause(owner: LifecycleOwner) {
-    super.onPause(owner)
+  override fun onApplicationBackgrounded() {
     isPaused.set(true)
-    logError("OnPause")
+    logError("onApplicationBackgrounded")
   }
 }
 

@@ -42,13 +42,13 @@ android {
     warningsAsErrors true
     baseline file("lint-baseline.xml")
   }
+
+  testOptions {
+    unitTests.returnDefaultValues = true
+  }
 }
 
 dependencies {
-
-  // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
-  //noinspection GradleDependency
-  implementation 'androidx.lifecycle:lifecycle-common:2.4.1'
 
   // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
   //noinspection GradleDependency
@@ -56,6 +56,15 @@ dependencies {
   //noinspection GradleDependency
   implementation("com.squareup.moshi:moshi-kotlin:$moshi_version")
 
+  // Provides a lifecycle for the whole application process.
+  implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
+
+  // TEST RELATED.
+
   testImplementation "junit:junit:$junit_version"
+  testImplementation "io.mockk:mockk:$mockk_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"
+  testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_test_version"
+  //Test helpers for Lifecycle runtime
+  testImplementation "androidx.lifecycle:lifecycle-runtime-testing:$lifecycle_version"
 }
