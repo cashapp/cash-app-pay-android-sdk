@@ -6,6 +6,9 @@ import com.squareup.cash.paykit.models.common.Action
 import com.squareup.cash.paykit.models.request.CreateCustomerRequest
 import com.squareup.cash.paykit.models.request.CustomerRequestData
 import com.squareup.cash.paykit.models.response.CreateCustomerResponse
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFile
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTime
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
@@ -21,8 +24,8 @@ import java.util.UUID
 private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
 private const val BASE_URL_RELEASE = "https://api.cash.app/customer-request/v1/"
 private const val BASE_URL = BASE_URL_SANDBOX
-private const val CREATE_USER_ENDPOINT = "${BASE_URL}requests"
-private const val RETRIEVE_REQUEST_ENDPOINT = "${BASE_URL}requests/"
+private const val CREATE_CUSTOMER_REQUEST_ENDPOINT = "${BASE_URL}requests"
+private const val RETRIEVE_EXISTING_REQUEST_ENDPOINT = "${BASE_URL}requests/"
 
 enum class RequestType {
   GET,
@@ -34,30 +37,58 @@ enum class RequestType {
 
 object NetworkManager {
 
+  private const val CHANNEL_IN_APP = "IN_APP"
+  private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
+
   @Throws(IOException::class)
   fun createCustomerRequest(
     clientId: String,
-    scopeId: String,
-    redirectUri: String
+    paymentAction: PayKitPaymentAction
+  ): CreateCustomerResponse {
+    return when (paymentAction) {
+      is OnFile -> TODO()
+      is OneTime -> oneTimePaymentCustomerRequest(clientId, paymentAction)
+    }
+  }
+
+  fun retrieveUpdatedRequestData(clientId: String, requestId: String): CreateCustomerResponse {
+    return executeNetworkRequest(
+      GET,
+      RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
+      clientId,
+      null
+    )
+  }
+
+  private fun oneTimePaymentCustomerRequest(
+    clientId: String,
+    paymentAction: OneTime
   ): CreateCustomerResponse {
     // Create request data.
+    val scopeIdOrClientId = paymentAction.scopeId ?: clientId
     val requestAction =
-      Action(amount_cents = 500, currency = "USD", scopeId = scopeId, type = "ONE_TIME_PAYMENT")
+      Action(
+        amount_cents = paymentAction.amount,
+        currency = paymentAction.currency.backendValue,
+        scopeId = scopeIdOrClientId,
+        type = PAYMENT_TYPE_ONE_TIME
+      )
     val requestData = CustomerRequestData(
       actions = listOf(requestAction),
-      channel = "IN_APP",
-      redirectUri = redirectUri
+      channel = CHANNEL_IN_APP,
+      redirectUri = paymentAction.redirectUri
     )
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
       customerRequestData = requestData
     )
 
-    return executeNetworkRequest(POST, CREATE_USER_ENDPOINT, clientId, createCustomerRequest)
-  }
-
-  fun retrieveRequest(clientId: String, requestId: String): CreateCustomerResponse {
-    return executeNetworkRequest(GET, RETRIEVE_REQUEST_ENDPOINT + requestId, clientId, null)
+    return executeNetworkRequest(
+      POST,
+      CREATE_CUSTOMER_REQUEST_ENDPOINT,
+      clientId,
+      createCustomerRequest
+    )
   }
 
   @Throws(IOException::class)
@@ -108,7 +139,7 @@ object NetworkManager {
         throw IOException("Invalid response code from server: $code")
       }
 
-      // TODO: Could probably leverage OKIO to make this better.
+      // TODO: Could probably leverage OKIO to improve this code.
       urlConnection.inputStream.use { inputStream ->
         inputStream.bufferedReader().use { buffered ->
           val responseLines = buffered.readLines()

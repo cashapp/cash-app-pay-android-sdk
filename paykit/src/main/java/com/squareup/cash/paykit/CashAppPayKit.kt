@@ -14,6 +14,7 @@ import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
 import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
 import com.squareup.cash.paykit.models.response.CreateCustomerResponseData
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.utils.orElse
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -51,14 +52,14 @@ class CashAppPayKit(
   private var isPaused = AtomicBoolean(false)
 
   /**
-   * @param brandId The Brand Identifier that was provided to you by the Cash Pay console.
-   * @param redirectUri: The URI to deep link back into your application once the transaction is approved.
+   * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
+   *                      Look at [PayKitPaymentAction] for more details.
    */
-  fun createCustomerRequest(brandId: String, redirectUri: String) {
+  fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
 
     Thread {
-      val customerData = NetworkManager.createCustomerRequest(clientId, brandId, redirectUri)
+      val customerData = NetworkManager.createCustomerRequest(clientId, paymentAction)
 
       // TODO For now resorting to simple callbacks and thread switching. Need to investigate pros/cons of using coroutines internally as the default.
       runOnUiThread(mainHandler) {
@@ -69,9 +70,20 @@ class CashAppPayKit(
   }
 
   /**
+   * @param requestId ID of the request we intent do update.
+   * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
+   *                      Look at [PayKitPaymentAction] for more details.
+   */
+  fun updateCustomerRequest(requestId: String, paymentAction: PayKitPaymentAction) {
+    enforceRegisteredStateUpdatesListener()
+    TODO("Implement updateCustomerRequest")
+  }
+
+  /**
    * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
    * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
    *
+   * @param context Android context class.
    */
   fun authorizeCustomerRequest(context: Context) {
     val customerData = customerResponseData
@@ -130,7 +142,10 @@ class CashAppPayKit(
     logError("Executing checkTransactionStatus")
     Thread {
       customerResponseData =
-        NetworkManager.retrieveRequest(clientId, customerResponseData!!.id).customerResponseData
+        NetworkManager.retrieveUpdatedRequestData(
+          clientId,
+          customerResponseData!!.id
+        ).customerResponseData
       runOnUiThread(mainHandler) {
         if (customerResponseData?.status == "APPROVED") {
           logError("Transaction Approved!")
