@@ -13,7 +13,7 @@ import com.squareup.cash.paykit.PayKitState.NotStarted
 import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
 import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
-import com.squareup.cash.paykit.models.response.CreateCustomerResponseData
+import com.squareup.cash.paykit.models.response.CustomerResponseData
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.utils.orElse
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,8 +32,7 @@ class CashAppPayKit(
 
   private var callbackListener: CashAppPayKitListener? = null
 
-  var customerResponseData: CreateCustomerResponseData? = null
-    private set
+  private var customerResponseData: CustomerResponseData? = null
 
   private var mainHandler: Handler = Handler(Looper.getMainLooper())
 
@@ -101,7 +100,7 @@ class CashAppPayKit(
    * This function will set this SDK instance internal state to the `customerData` provided here as a function parameter.
    *
    */
-  fun authorizeCustomerRequest(context: Context, customerData: CreateCustomerResponseData) {
+  fun authorizeCustomerRequest(context: Context, customerData: CustomerResponseData) {
     enforceRegisteredStateUpdatesListener()
 
     // Replace internal state.
@@ -187,8 +186,7 @@ class CashAppPayKit(
   private fun setStateFinished(wasSuccessful: Boolean) {
     PayKitLifecycleObserver.unregister(this)
     currentState = if (wasSuccessful) {
-      // TODO: Expose Grants for successful state.
-      Approved(null)
+      Approved(customerResponseData!!)
     } else {
       Declined
     }

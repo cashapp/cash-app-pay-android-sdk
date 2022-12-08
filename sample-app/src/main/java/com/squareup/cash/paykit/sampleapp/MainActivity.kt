@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
   override fun payKitStateDidChange(newState: PayKitState) {
     when (newState) {
       is Approved -> {
-        binding.statusText.text = "APPROVED!\n\n ${payKitSdk.customerResponseData?.toString()}"
+        binding.statusText.text = "APPROVED!\n\n ${newState.responseData}"
       }
       Authorizing -> {} // Ignored for now.
       CreatingCustomerRequest -> {} // Ignored for now.

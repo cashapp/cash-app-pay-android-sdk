@@ -5,17 +5,13 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class CreateCustomerResponseData(
+data class CustomerResponseData(
   @Json(name = "actions")
   val actions: List<Action>,
   @Json(name = "auth_flow_triggers")
   val authFlowTriggers: AuthFlowTriggers?,
   @Json(name = "channel")
   val channel: String,
-  @Json(name = "created_at")
-  val createdAt: String,
-  @Json(name = "expires_at")
-  val expiresAt: String,
   @Json(name = "id")
   val id: String,
   @Json(name = "origin")
@@ -25,5 +21,13 @@ data class CreateCustomerResponseData(
   @Json(name = "status")
   val status: String,
   @Json(name = "updated_at")
-  val updatedAt: String
+  val updatedAt: String,
+  @Json(name = "created_at")
+  val createdAt: String,
+  @Json(name = "expires_at")
+  val expiresAt: String,
+  @Json(name = "customer_profile")
+  val customerProfile: CustomerProfile?,
+  @Json(name = "grants")
+  val grants: List<Grant>?
 )

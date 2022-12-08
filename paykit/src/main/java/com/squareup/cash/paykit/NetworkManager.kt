@@ -5,7 +5,7 @@ import com.squareup.cash.paykit.RequestType.POST
 import com.squareup.cash.paykit.models.common.Action
 import com.squareup.cash.paykit.models.request.CreateCustomerRequest
 import com.squareup.cash.paykit.models.request.CustomerRequestData
-import com.squareup.cash.paykit.models.response.CreateCustomerResponse
+import com.squareup.cash.paykit.models.response.CustomerTopLevelResponse
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFile
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTime
@@ -44,14 +44,14 @@ object NetworkManager {
   fun createCustomerRequest(
     clientId: String,
     paymentAction: PayKitPaymentAction
-  ): CreateCustomerResponse {
+  ): CustomerTopLevelResponse {
     return when (paymentAction) {
       is OnFile -> TODO()
       is OneTime -> oneTimePaymentCustomerRequest(clientId, paymentAction)
     }
   }
 
-  fun retrieveUpdatedRequestData(clientId: String, requestId: String): CreateCustomerResponse {
+  fun retrieveUpdatedRequestData(clientId: String, requestId: String): CustomerTopLevelResponse {
     return executeNetworkRequest(
       GET,
       RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
@@ -63,7 +63,7 @@ object NetworkManager {
   private fun oneTimePaymentCustomerRequest(
     clientId: String,
     paymentAction: OneTime
-  ): CreateCustomerResponse {
+  ): CustomerTopLevelResponse {
     // Create request data.
     val scopeIdOrClientId = paymentAction.scopeId ?: clientId
     val requestAction =
