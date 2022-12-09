@@ -56,7 +56,6 @@ class CashAppPayKit(
    */
   fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
-
     Thread {
       val customerData = NetworkManager.createCustomerRequest(clientId, paymentAction)
 
