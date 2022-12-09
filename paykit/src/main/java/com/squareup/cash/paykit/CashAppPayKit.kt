@@ -56,7 +56,6 @@ class CashAppPayKit(
    */
   fun createCustomerRequest(brandId: String, redirectUri: String) {
     enforceRegisteredStateUpdatesListener()
-
     Thread {
       val customerData = NetworkManager.createCustomerRequest(clientId, brandId, redirectUri)
 
