@@ -6,32 +6,47 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import com.squareup.cash.paykit.PayKitState.StateCustomerCreated
-import com.squareup.cash.paykit.PayKitState.StateFinished
-import com.squareup.cash.paykit.PayKitState.StatePendingDeliveryTransactionStatus
-import com.squareup.cash.paykit.PayKitState.StatePollingTransactionStatus
-import com.squareup.cash.paykit.PayKitState.StateRequestAuthorization
-import com.squareup.cash.paykit.PayKitState.StateStarted
+import com.squareup.cash.paykit.PayKitState.Approved
+import com.squareup.cash.paykit.PayKitState.Authorizing
+import com.squareup.cash.paykit.PayKitState.Declined
+import com.squareup.cash.paykit.PayKitState.NotStarted
+import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
+import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.models.response.CreateCustomerResponseData
 import com.squareup.cash.paykit.utils.orElse
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
+ * @param useSandboxEnvironment Specify what development environment should be used.
  */
-class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
+class CashAppPayKit(
+  private val clientId: String,
+  private val useSandboxEnvironment: Boolean = false
+) : PayKitLifecycleListener {
 
   // TODO: Consider network errors.
   // TODO: Consider no internet available.
 
-  private var callbackListener: CashPayKitListener? = null
+  private var callbackListener: CashAppPayKitListener? = null
 
   var customerResponseData: CreateCustomerResponseData? = null
     private set
 
   private var mainHandler: Handler = Handler(Looper.getMainLooper())
 
-  private var currentState: PayKitState = StateStarted
+  private var currentState: PayKitState = NotStarted
+    set(value) {
+      field = value
+      callbackListener?.payKitStateDidChange(value)
+        .orElse {
+          logError(
+            "State changed to ${value.javaClass.simpleName}, but no listeners were notified." +
+              "Make sure that you've used `registerForStateUpdates` to receive PayKit state updates."
+          )
+        }
+    }
+
   private var isPaused = AtomicBoolean(false)
 
   /**
@@ -45,43 +60,39 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
 
       // TODO For now resorting to simple callbacks and thread switching. Need to investigate pros/cons of using coroutines internally as the default.
       runOnUiThread(mainHandler) {
-        currentState = StateCustomerCreated
         customerResponseData = customerData.customerResponseData
-        callbackListener?.customerCreated(customerData.customerResponseData)
-          .orElse {
-            logError(
-              "Created User with success, but callback wasn't registered. " +
-                "Double check that you've used `registerListener`."
-            )
-          }
+        currentState = ReadyToAuthorize(customerData.customerResponseData)
       }
     }.start()
   }
 
-  fun authorizeCustomer(context: Context) {
+  fun authorizeCustomerRequest(context: Context) {
+    // TODO: DO NOT THROW IN PROD.
     val customerData = customerResponseData
       ?: throw NullPointerException("Can't call authorize user before calling `createCustomerRequest`. Alternatively provide your own customerData")
 
-    authorizeCustomer(context, customerData)
+    authorizeCustomerRequest(context, customerData)
   }
 
-  fun authorizeCustomer(context: Context, customerData: CreateCustomerResponseData) {
-    // TODO: Check if Cash App is installed, otherwise send to Play Store. Handle deferred deep linking?
+  fun authorizeCustomerRequest(context: Context, customerData: CreateCustomerResponseData) {
     PayKitLifecycleObserver.register(this)
     val intent = Intent(Intent.ACTION_VIEW)
     intent.data = Uri.parse(customerData.authFlowTriggers?.mobileUrl)
     context.startActivity(intent)
-    currentState = StateRequestAuthorization
+    currentState = Authorizing
   }
 
   /**
-   *  Register listener to receive PayKit callbacks.
+   *  Register a [CashAppPayKitListener] to receive PayKit callbacks.
    */
-  fun registerListener(listener: CashPayKitListener) {
+  fun registerForStateUpdates(listener: CashAppPayKitListener) {
     callbackListener = listener
   }
 
-  fun unregisterListener() {
+  /**
+   *  Unregister any previously registered [CashAppPayKitListener] from PayKit updates.
+   */
+  fun unregisterFromStateUpdates() {
     callbackListener = null
     PayKitLifecycleObserver.unregister(this)
   }
@@ -95,11 +106,7 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
         if (customerResponseData?.status == "APPROVED") {
           logError("Transaction Approved!")
           // Successful transaction.
-          if (isPaused.get()) {
-            currentState = StatePendingDeliveryTransactionStatus(true)
-          } else {
-            setStateFinished(true)
-          }
+          setStateFinished(true)
         } else {
           // If status is pending, schedule to check again.
           if (customerResponseData?.status == "PENDING") {
@@ -111,11 +118,7 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
 
           // Unsuccessful transaction.
           logError("Transaction unsuccessful!")
-          if (isPaused.get()) {
-            currentState = StatePendingDeliveryTransactionStatus(false)
-          } else {
-            setStateFinished(false)
-          }
+          setStateFinished(false)
         }
 
       }
@@ -130,13 +133,16 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
 
   private fun setStateFinished(wasSuccessful: Boolean) {
     PayKitLifecycleObserver.unregister(this)
-    currentState = StateFinished(wasSuccessful)
-    callbackListener?.authorizationResult(wasSuccessful).orElse {
-      logError(
-        "Created User with success, but callback wasn't registered. " +
-          "Double check that you've used `registerListener`."
-      )
+    currentState = if (wasSuccessful) {
+      // TODO: Expose Grants for successful state.
+      Approved(null)
+    } else {
+      Declined
     }
+  }
+
+  private fun runOnUiThread(mainHandler: Handler, action: Runnable) {
+    mainHandler.post(action)
   }
 
   /**
@@ -146,22 +152,9 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
   override fun onApplicationForegrounded() {
     logError("onApplicationForegrounded")
     isPaused.set(false)
-    when (currentState) {
-      StateCustomerCreated -> {} // Ignored.
-      is StateFinished -> {} // Ignored.
-      StatePollingTransactionStatus -> {
-        checkTransactionStatus()
-      }
-      StateRequestAuthorization -> {
-        currentState = StatePollingTransactionStatus
-        checkTransactionStatus()
-      }
-      StateStarted -> {}// Ignored.
-      is StatePendingDeliveryTransactionStatus -> {
-        // Was awaiting to deliver transaction status result, deliver now.
-        val success = (currentState as StatePendingDeliveryTransactionStatus).isSuccessful
-        setStateFinished(success)
-      }
+    if (currentState is Authorizing) {
+      currentState = PollingTransactionStatus
+      checkTransactionStatus()
     }
   }
 
@@ -171,12 +164,6 @@ class CashPayKit(private val clientId: String) : PayKitLifecycleListener {
   }
 }
 
-interface CashPayKitListener {
-  fun customerCreated(customerData: CreateCustomerResponseData)
-
-  fun authorizationResult(wasSuccessful: Boolean)
-}
-
-fun runOnUiThread(mainHandler: Handler, action: Runnable) {
-  mainHandler.post(action)
+interface CashAppPayKitListener {
+  fun payKitStateDidChange(newState: PayKitState)
 }
