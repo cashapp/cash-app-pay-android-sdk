@@ -16,6 +16,8 @@ import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
 import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.PayKitState.UpdatingCustomerRequest
+import com.squareup.cash.paykit.models.sdk.PayKitCurrency.USD
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
 import com.squareup.cash.paykit.sampleapp.databinding.ActivityMainBinding
 
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
@@ -46,7 +48,14 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
   private fun registerButtons() {
     binding.createCustomerBtn.setOnClickListener {
       payKitSdk.registerForStateUpdates(this)
-      payKitSdk.createCustomerRequest(sandboxBrandID, redirectURI)
+      val paymentAction =
+        OneTimeAction(
+          redirectUri = redirectURI,
+          currency = USD,
+          amount = 500,
+          scopeId = sandboxBrandID
+        )
+      payKitSdk.createCustomerRequest(paymentAction)
     }
 
     binding.authorizeCustomerBtn.setOnClickListener {
@@ -62,7 +71,7 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
   override fun payKitStateDidChange(newState: PayKitState) {
     when (newState) {
       is Approved -> {
-        binding.statusText.text = "APPROVED!\n\n ${payKitSdk.customerResponseData?.toString()}"
+        binding.statusText.text = "APPROVED!\n\n ${newState.responseData}"
       }
       Authorizing -> {} // Ignored for now.
       CreatingCustomerRequest -> {} // Ignored for now.

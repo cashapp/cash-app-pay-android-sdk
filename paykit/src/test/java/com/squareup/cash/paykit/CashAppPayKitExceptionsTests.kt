@@ -1,7 +1,7 @@
 package com.squareup.cash.paykit
 
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
-import com.squareup.cash.paykit.models.response.CreateCustomerResponseData
+import com.squareup.cash.paykit.models.response.CustomerResponseData
 import io.mockk.mockk
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -23,14 +23,14 @@ class CashAppPayKitExceptionsTests {
   @Test(expected = PayKitIntegrationException::class)
   fun `should throw on authorizeCustomerRequest if has NOT registered for state updates`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    val createCustomerResponseData = mockk<CreateCustomerResponseData>(relaxed = true)
+    val customerResponseData = mockk<CustomerResponseData>(relaxed = true)
     val appContext = RuntimeEnvironment.getApplication()
-    payKit.authorizeCustomerRequest(appContext, createCustomerResponseData)
+    payKit.authorizeCustomerRequest(appContext, customerResponseData)
   }
 
   @Test(expected = PayKitIntegrationException::class)
   fun `should throw on createCustomerRequest if has NOT registered for state updates`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    payKit.createCustomerRequest(FakeData.BRAND_ID, FakeData.REDIRECT_URI)
+    payKit.createCustomerRequest(FakeData.oneTimePayment)
   }
 }

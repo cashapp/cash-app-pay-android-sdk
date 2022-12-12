@@ -4,7 +4,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class CreateCustomerResponse(
+data class CustomerTopLevelResponse(
   @Json(name = "request")
-  val customerResponseData: CreateCustomerResponseData
+  val customerResponseData: CustomerResponseData
 )
