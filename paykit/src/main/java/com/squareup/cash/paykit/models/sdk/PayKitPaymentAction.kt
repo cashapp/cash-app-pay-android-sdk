@@ -21,7 +21,7 @@ sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
    * @param amount Amount for this payment (typically in cents or equivalent monetary unit).
    * @param scopeId This is analogous with the reference ID, an optional field required for brands and merchants support. If null, client ID will be used instead.
    */
-  data class OneTime(
+  data class OneTimeAction(
     val redirectUri: String,
     val currency: PayKitCurrency,
     val amount: Int?,
@@ -36,7 +36,7 @@ sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
    * @param scopeId This is analogous with the reference ID, an optional field required for brands and merchants support. If null, client ID will be used instead.
    * @param accountReferenceId Identifier of the account or customer associated to the on file action.
    */
-  data class OnFile(
+  data class OnFileAction(
     val redirectUri: String,
     val scopeId: String? = null,
     val accountReferenceId: String? = null
