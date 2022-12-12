@@ -33,7 +33,7 @@ enum class RequestType {
   PATCH
 }
 
-// TODO: Define more sensible network timeouts.
+// TODO: Define more sensible network timeouts. ( https://www.notion.so/cashappcash/Define-network-timeouts-19ca85a1f3d7496bad8174be612304e9 )
 
 object NetworkManager {
 
@@ -46,7 +46,7 @@ object NetworkManager {
     paymentAction: PayKitPaymentAction
   ): CustomerTopLevelResponse {
     return when (paymentAction) {
-      is OnFileAction -> TODO()
+      is OnFileAction -> TODO() // https://www.notion.so/cashappcash/Add-On-File-Payments-support-cad473298adc43e6b77838925f71156f
       is OneTimeAction -> oneTimePaymentCustomerRequest(clientId, paymentAction)
     }
   }
@@ -139,7 +139,7 @@ object NetworkManager {
         throw IOException("Invalid response code from server: $code")
       }
 
-      // TODO: Could probably leverage OKIO to improve this code.
+      // TODO: Could probably leverage OKIO to improve this code. ( https://www.notion.so/cashappcash/Would-okio-benefit-the-low-level-network-handling-b8f55044c1e249a995f544f1f9de3c4a )
       urlConnection.inputStream.use { inputStream ->
         inputStream.bufferedReader().use { buffered ->
           val responseLines = buffered.readLines()

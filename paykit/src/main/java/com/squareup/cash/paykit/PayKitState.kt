@@ -5,7 +5,7 @@ import com.squareup.cash.paykit.models.response.CustomerResponseData
 /**
  * Various states Cash App PayKit SDK might be in depending the stage of the transaction process.
  *
- * TODO: Add documentation to each state.
+ * TODO: Add documentation to each state. ( https://www.notion.so/cashappcash/Add-documentation-for-each-PayKitState-13e1c3661e3e4e06a8a62c84dbe4c3db )
  */
 sealed class PayKitState {
   object NotStarted : PayKitState()

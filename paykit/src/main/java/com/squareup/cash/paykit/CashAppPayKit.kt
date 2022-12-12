@@ -27,8 +27,7 @@ class CashAppPayKit(
   private val useSandboxEnvironment: Boolean = false
 ) : PayKitLifecycleListener {
 
-  // TODO: Consider network errors.
-  // TODO: Consider no internet available.
+  // TODO: Consider network errors. (https://www.notion.so/cashappcash/Propagate-No-Network-expection-dcc26ef92e2f423f9fc73069275d2fe8)
 
   private var callbackListener: CashAppPayKitListener? = null
 
@@ -59,7 +58,7 @@ class CashAppPayKit(
     Thread {
       val customerData = NetworkManager.createCustomerRequest(clientId, paymentAction)
 
-      // TODO For now resorting to simple callbacks and thread switching. Need to investigate pros/cons of using coroutines internally as the default.
+      // TODO For now resorting to simple callbacks and thread switching. Need to investigate pros/cons of using coroutines internally as the default. (https://www.notion.so/cashappcash/Investigate-impact-of-Thread-switching-for-informing-callback-listeners-e69b2b675dfc4248966e107a8a91d37c)
       runOnUiThread(mainHandler) {
         customerResponseData = customerData.customerResponseData
         currentState = ReadyToAuthorize(customerData.customerResponseData)
@@ -74,7 +73,7 @@ class CashAppPayKit(
    */
   fun updateCustomerRequest(requestId: String, paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
-    TODO("Implement updateCustomerRequest")
+    TODO("Implement updateCustomerRequest") // https://www.notion.so/cashappcash/Implement-updateCustomerRequest-c32a61dcdb3e49a8abd18119384492f0
   }
 
   /**
@@ -152,7 +151,7 @@ class CashAppPayKit(
         } else {
           // If status is pending, schedule to check again.
           if (customerResponseData?.status == "PENDING") {
-            // TODO: Add exponential backoff strategy for long polling.
+            // TODO: Add backoff strategy for long polling. ( https://www.notion.so/cashappcash/Implement-Long-pooling-retry-logic-a9af47e2db9242faa5d64df2596fd78e )
             Thread.sleep(500)
             checkTransactionStatus()
             return@runOnUiThread
