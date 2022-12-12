@@ -32,7 +32,7 @@
 
         <!-- Register the Cash PayKit redirect URI or URL. Change this accordingly in your app. -->
         <data
-            android:scheme="cashpaykit"
+            android:scheme="cashapppaykit"
             android:host="checkout" />
       </intent-filter>
 

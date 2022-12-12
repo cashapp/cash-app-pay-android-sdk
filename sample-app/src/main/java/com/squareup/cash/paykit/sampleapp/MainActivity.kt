@@ -2,6 +2,7 @@ package com.squareup.cash.paykit.sampleapp
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitListener
@@ -20,7 +21,7 @@ import com.squareup.cash.paykit.sampleapp.databinding.ActivityMainBinding
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
 const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
 
-const val redirectURI = "cashpaykit://checkout"
+const val redirectURI = "cashapppaykit://checkout"
 
 class MainActivity : AppCompatActivity(), CashAppPayKitListener {
 
@@ -67,7 +68,9 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
       CreatingCustomerRequest -> {} // Ignored for now.
       Declined -> {} // Ignored for now.
       NotStarted -> {} // Ignored for now.
-      is PayKitException -> {} // Ignored for now.
+      is PayKitException -> {
+        Log.e("DevApp", "Got an exception from the SDK. E.: ${newState.javaClass}")
+      } // Ignored for now.
       PollingTransactionStatus -> {} // Ignored for now.
       is ReadyToAuthorize -> {
         binding.statusText.text = newState.responseData.toString()

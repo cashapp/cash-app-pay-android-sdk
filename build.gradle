@@ -7,6 +7,7 @@ buildscript {
     lifecycle_version = '2.5.1'
     mockk_version = '1.13.3'
     coroutines_test_version = '1.6.4'
+    robolectric_version = '4.9'
   }
 }
 
