@@ -15,4 +15,24 @@ plugins {
   id 'com.android.application' version '7.3.1' apply false
   id 'com.android.library' version '7.3.1' apply false
   id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
+  id "com.diffplug.spotless" version "6.12.0"
+}
+
+subprojects { subproject ->
+  apply plugin: "com.diffplug.spotless"
+  spotless {
+    kotlin {
+      target("src/**/*.kt")
+      // ktlint doesn't honour .editorconfig yet: https://github.com/diffplug/spotless/issues/142
+      ktlint('0.45.2').editorConfigOverride([
+          'insert_final_newline': 'true',
+          'end_of_line': 'lf',
+          'charset': 'utf-8',
+          'indent_size': '2',
+      ])
+    }
+    java {
+      target("src/**/*.java")
+    }
+  }
 }
