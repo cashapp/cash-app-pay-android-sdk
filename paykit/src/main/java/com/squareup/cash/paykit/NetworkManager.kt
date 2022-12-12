@@ -7,8 +7,8 @@ import com.squareup.cash.paykit.models.request.CreateCustomerRequest
 import com.squareup.cash.paykit.models.request.CustomerRequestData
 import com.squareup.cash.paykit.models.response.CustomerTopLevelResponse
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
-import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFile
-import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTime
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
@@ -46,8 +46,8 @@ object NetworkManager {
     paymentAction: PayKitPaymentAction
   ): CustomerTopLevelResponse {
     return when (paymentAction) {
-      is OnFile -> TODO()
-      is OneTime -> oneTimePaymentCustomerRequest(clientId, paymentAction)
+      is OnFileAction -> TODO()
+      is OneTimeAction -> oneTimePaymentCustomerRequest(clientId, paymentAction)
     }
   }
 
@@ -62,7 +62,7 @@ object NetworkManager {
 
   private fun oneTimePaymentCustomerRequest(
     clientId: String,
-    paymentAction: OneTime
+    paymentAction: OneTimeAction
   ): CustomerTopLevelResponse {
     // Create request data.
     val scopeIdOrClientId = paymentAction.scopeId ?: clientId
