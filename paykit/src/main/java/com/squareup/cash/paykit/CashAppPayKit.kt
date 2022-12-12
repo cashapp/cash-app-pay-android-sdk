@@ -161,7 +161,6 @@ class CashAppPayKit(
           logError("Transaction unsuccessful!")
           setStateFinished(false)
         }
-
       }
     }.start()
   }

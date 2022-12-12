@@ -47,6 +47,10 @@ buildDebug() {
   JAVA_OPTS="-Xmx2048M" ./gradlew sample-app:assembleDebug --no-daemon
 }
 
+spotlessCheck() {
+  JAVA_OPTS="-Xmx2048M" ./gradlew spotlessCheck --no-daemon
+}
+
 publishDebug() {
   echo "publishing"
   pwd
@@ -93,6 +97,9 @@ buildDebug)
   ;;
 publishDebug)
   publishDebug
+  ;;
+spotlessCheck)
+  spotlessCheck
   ;;
 *)
   echo "Unknown TEST_RUNNER value: ${TEST_RUNNER}"
