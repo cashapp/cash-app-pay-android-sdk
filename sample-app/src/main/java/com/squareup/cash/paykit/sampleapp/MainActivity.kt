@@ -66,18 +66,21 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
   override fun payKitStateDidChange(newState: PayKitState) {
     when (newState) {
       is Approved -> {
-        binding.statusText.text = "APPROVED!\n\n ${newState.responseData}"
+        binding.statusText.text = "APPROVED!\n\n ${prettyPrintDataClass(newState.responseData)}"
       }
       Authorizing -> {} // Ignored for now.
       CreatingCustomerRequest -> {} // Ignored for now.
       Declined -> {} // Ignored for now.
       NotStarted -> {} // Ignored for now.
       is PayKitException -> {
-        Log.e("DevApp", "Got an exception from the SDK. E.: ${newState.javaClass}")
+        Log.e(
+          "DevApp",
+          "Got an exception from the SDK. E.: ${prettyPrintDataClass(newState.javaClass)}"
+        )
       } // Ignored for now.
       PollingTransactionStatus -> {} // Ignored for now.
       is ReadyToAuthorize -> {
-        binding.statusText.text = newState.responseData.toString()
+        binding.statusText.text = prettyPrintDataClass(newState.responseData)
       }
       UpdatingCustomerRequest -> {} // Ignored for now.
     }
