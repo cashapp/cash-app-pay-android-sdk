@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-  namespace 'com.squareup.cash.paykit.sampleapp'
+  namespace 'com.squareup.cash.paykit.devapp'
   compileSdk 33
 
   defaultConfig {
-    applicationId "com.squareup.cash.paykit.sampleapp"
+    applicationId "com.squareup.cash.paykit.devapp"
     minSdk 21
     targetSdk 33
     versionCode 1

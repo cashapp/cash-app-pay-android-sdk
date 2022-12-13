@@ -1,4 +1,4 @@
-package com.squareup.cash.paykit.sampleapp
+package com.squareup.cash.paykit.devapp
 
 import android.text.Spanned
 import androidx.core.text.HtmlCompat

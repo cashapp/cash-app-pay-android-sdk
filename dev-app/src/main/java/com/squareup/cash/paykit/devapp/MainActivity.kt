@@ -1,4 +1,4 @@
-package com.squareup.cash.paykit.sampleapp
+package com.squareup.cash.paykit.devapp
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -16,9 +16,9 @@ import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
 import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.PayKitState.UpdatingCustomerRequest
+import com.squareup.cash.paykit.devapp.databinding.ActivityMainBinding
 import com.squareup.cash.paykit.models.sdk.PayKitCurrency.USD
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
-import com.squareup.cash.paykit.sampleapp.databinding.ActivityMainBinding
 
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
 const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
