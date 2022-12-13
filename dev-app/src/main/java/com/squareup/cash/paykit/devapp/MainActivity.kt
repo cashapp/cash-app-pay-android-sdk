@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitListener
 import com.squareup.cash.paykit.PayKitState
@@ -46,20 +47,32 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
   }
 
   private fun registerButtons() {
-    binding.createCustomerBtn.setOnClickListener {
-      payKitSdk.registerForStateUpdates(this)
-      val paymentAction =
-        OneTimeAction(
-          redirectUri = redirectURI,
-          currency = USD,
-          amount = 500,
-          scopeId = sandboxBrandID
-        )
-      payKitSdk.createCustomerRequest(paymentAction)
-    }
+    binding.apply {
+      createCustomerBtn.setOnClickListener {
+        payKitSdk.registerForStateUpdates(this@MainActivity)
+        val paymentAction =
+          OneTimeAction(
+            redirectUri = redirectURI,
+            currency = USD,
+            amount = 500,
+            scopeId = sandboxBrandID
+          )
+        payKitSdk.createCustomerRequest(paymentAction)
+      }
 
-    binding.authorizeCustomerBtn.setOnClickListener {
-      payKitSdk.authorizeCustomerRequest(this)
+      authorizeCustomerBtn.setOnClickListener {
+        payKitSdk.authorizeCustomerRequest(this@MainActivity)
+      }
+
+      // Toggle Buttons.
+      oneTimeButton.setOnClickListener {
+        amountContainer.isVisible = true
+        referenceContainer.isVisible = false
+      }
+      onFileButton.setOnClickListener {
+        amountContainer.isVisible = false
+        referenceContainer.isVisible = true
+      }
     }
   }
 
