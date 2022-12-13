@@ -15,7 +15,7 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:text="@string/payment_type_title"
-      style="@style/SampleAppTextTitle"
+      style="@style/DevAppTextTitle"
       />
 
   <com.google.android.material.button.MaterialButtonToggleGroup
@@ -103,7 +103,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/operations_title"
-          style="@style/SampleAppTextTitle"
+          style="@style/DevAppTextTitle"
           />
 
       <Button
@@ -111,7 +111,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/create_customer_btn"
-          style="@style/SampleAppButton"
+          style="@style/DevAppButton"
           />
 
       <Button
@@ -119,7 +119,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/authorize_customer_btn"
-          style="@style/SampleAppButton"
+          style="@style/DevAppButton"
           />
 
       <Button
@@ -127,7 +127,7 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:text="@string/update_customer_btn"
-          style="@style/SampleAppButton"
+          style="@style/DevAppButton"
           />
 
     </LinearLayout>

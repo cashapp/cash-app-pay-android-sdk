@@ -10,14 +10,14 @@ targets:
   - type: spotlessCheck
   - type: buildDebug
     write_to_cache:
-      - sample-app/build/outputs/apk/debug/*.apk
+      - dev-app/build/outputs/apk/debug/*.apk
 
   - type: publishDebug
     requires:
       - buildDebug
     read_from_cache:
-      - sample-app/build/outputs/apk/debug/*.apk
+      - dev-app/build/outputs/apk/debug/*.apk
 
   - type: paykit:lint
 
-  - type: sample-app:lint
+  - type: dev-app:lint

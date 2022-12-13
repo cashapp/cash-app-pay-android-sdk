@@ -44,7 +44,7 @@ echo "systemProp.https.nonProxyHosts=*.square|*.squareup.com|*.sqcorp.co" >>grad
 echo "systemProp.http.nonProxyHosts=*.square|*.squareup.com|*.sqcorp.co" >>gradle.properties
 
 buildDebug() {
-  JAVA_OPTS="-Xmx2048M" ./gradlew sample-app:assembleDebug --no-daemon
+  JAVA_OPTS="-Xmx2048M" ./gradlew dev-app:assembleDebug --no-daemon
 }
 
 spotlessCheck() {
@@ -59,7 +59,7 @@ publishDebug() {
 
   # For signing with release cert
   # sign_apk "android/app/build/outputs/apk/release/app-release.apk" "android/app/build/outputs/apk/release/app-release-signed.apk"
-  upload_artifact "sample-app/build/outputs/apk/debug/sample-app-debug.apk" "debug" "apk"
+  upload_artifact "dev-app/build/outputs/apk/debug/dev-app-debug.apk" "debug" "apk"
 
   # we are publishing when uploading. no need to set visibility
   # publish_artifact "release" "$GIT_COMMIT"
@@ -69,7 +69,7 @@ lint() {
   echo "Android linting"
   pwd
 
-  JAVA_OPTS="-Xmx2048M" ./gradlew paykit:lint sample-app:lint --no-daemon
+  JAVA_OPTS="-Xmx2048M" ./gradlew paykit:lint dev-app:lint --no-daemon
 }
 
 unitTests() {
@@ -86,7 +86,7 @@ case "${TEST_RUNNER}" in
 paykit:lint)
   lint
   ;;
-sample-app:lint)
+dev-app:lint)
   lint
   ;;
 test)
