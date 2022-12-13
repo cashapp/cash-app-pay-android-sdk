@@ -19,6 +19,7 @@ import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.PayKitState.UpdatingCustomerRequest
 import com.squareup.cash.paykit.devapp.databinding.ActivityMainBinding
 import com.squareup.cash.paykit.models.sdk.PayKitCurrency.USD
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
 
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
@@ -50,13 +51,22 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
     binding.apply {
       createCustomerBtn.setOnClickListener {
         payKitSdk.registerForStateUpdates(this@MainActivity)
-        val paymentAction =
+
+        val paymentAction = if (toggleButton.checkedButtonId == R.id.oneTimeButton) {
           OneTimeAction(
             redirectUri = redirectURI,
             currency = USD,
-            amount = 500,
+            amount = amountField.text.toString().toIntOrNull(),
             scopeId = sandboxBrandID
           )
+        } else {
+          OnFileAction(
+            redirectUri = redirectURI,
+            scopeId = sandboxBrandID,
+            accountReferenceId = referenceField.text.toString()
+          )
+        }
+
         payKitSdk.createCustomerRequest(paymentAction)
       }
 

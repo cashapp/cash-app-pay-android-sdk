@@ -6,9 +6,9 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class Action(
   @Json(name = "amount")
-  val amount_cents: Int?,
+  val amount_cents: Int? = null,
   @Json(name = "currency")
-  val currency: String?,
+  val currency: String? = null,
   @Json(name = "scope_id")
   val scopeId: String,
   @Json(name = "type")
