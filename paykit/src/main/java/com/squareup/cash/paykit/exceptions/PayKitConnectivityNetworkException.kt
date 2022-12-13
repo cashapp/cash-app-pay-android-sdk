@@ -3,7 +3,7 @@ package com.squareup.cash.paykit.exceptions
 import com.squareup.cash.paykit.exceptions.PayKitNetworkErrorType.CONNECTIVITY
 
 /**
- * This exception represents Network Not Available.
+ * This exception represents Network connectivity issues, such as network timeout errors.
  */
-class PayKitConnectivityNetworkException :
+data class PayKitConnectivityNetworkException(val e: Exception) :
   PayKitNetworkException(CONNECTIVITY)

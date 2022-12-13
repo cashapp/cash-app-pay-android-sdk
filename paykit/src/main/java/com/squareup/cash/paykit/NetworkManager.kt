@@ -2,7 +2,9 @@ package com.squareup.cash.paykit
 
 import com.squareup.cash.paykit.RequestType.GET
 import com.squareup.cash.paykit.RequestType.POST
+import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
 import com.squareup.cash.paykit.models.common.Action
+import com.squareup.cash.paykit.models.common.NetworkResult
 import com.squareup.cash.paykit.models.request.CreateCustomerRequest
 import com.squareup.cash.paykit.models.request.CustomerRequestData
 import com.squareup.cash.paykit.models.response.CustomerTopLevelResponse
@@ -18,6 +20,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
 import java.util.UUID
 
@@ -33,26 +36,29 @@ enum class RequestType {
   PATCH
 }
 
-// TODO: Define more sensible network timeouts. ( https://www.notion.so/cashappcash/Define-network-timeouts-19ca85a1f3d7496bad8174be612304e9 )
-
-object NetworkManager {
+internal object NetworkManager {
 
   private const val CHANNEL_IN_APP = "IN_APP"
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
   private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
 
+  private const val DEFAULT_NETWORK_TIMEOUT_SECONDS = 60
+
   @Throws(IOException::class)
   fun createCustomerRequest(
     clientId: String,
     paymentAction: PayKitPaymentAction
-  ): CustomerTopLevelResponse {
+  ): NetworkResult<CustomerTopLevelResponse> {
     return when (paymentAction) {
       is OnFileAction -> onFilePaymentCustomerRequest(clientId, paymentAction)
       is OneTimeAction -> oneTimePaymentCustomerRequest(clientId, paymentAction)
     }
   }
 
-  fun retrieveUpdatedRequestData(clientId: String, requestId: String): CustomerTopLevelResponse {
+  fun retrieveUpdatedRequestData(
+    clientId: String,
+    requestId: String
+  ): NetworkResult<CustomerTopLevelResponse> {
     return executeNetworkRequest(
       GET,
       RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
@@ -64,7 +70,7 @@ object NetworkManager {
   private fun onFilePaymentCustomerRequest(
     clientId: String,
     paymentAction: OnFileAction
-  ): CustomerTopLevelResponse {
+  ): NetworkResult<CustomerTopLevelResponse> {
     // Create request data.
     val scopeIdOrClientId = paymentAction.scopeId ?: clientId
     val requestAction =
@@ -93,7 +99,7 @@ object NetworkManager {
   private fun oneTimePaymentCustomerRequest(
     clientId: String,
     paymentAction: OneTimeAction
-  ): CustomerTopLevelResponse {
+  ): NetworkResult<CustomerTopLevelResponse> {
     // Create request data.
     val scopeIdOrClientId = paymentAction.scopeId ?: clientId
     val requestAction =
@@ -135,10 +141,12 @@ object NetworkManager {
     endpointUrl: String,
     clientId: String,
     requestPayload: In?
-  ): Out {
+  ): NetworkResult<Out> {
     val url = URL(endpointUrl)
     val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
     urlConnection.requestMethod = requestType.name
+    urlConnection.connectTimeout = DEFAULT_NETWORK_TIMEOUT_SECONDS * 1000
+    urlConnection.readTimeout = DEFAULT_NETWORK_TIMEOUT_SECONDS * 1000
     urlConnection.setRequestProperty("Content-Type", "application/json")
     urlConnection.setRequestProperty("Authorization", "Client $clientId")
 
@@ -180,9 +188,14 @@ object NetworkManager {
           val jsonAdapterResponse: JsonAdapter<Out> = moshi.adapter()
 
           val responseModel = jsonAdapterResponse.fromJson(responseJson)
-          return responseModel ?: throw IOException("Failed to deserialize response data")
+          if (responseModel != null) {
+            return NetworkResult.success(responseModel)
+          }
+          return NetworkResult.failure(IOException("Failed to deserialize response data"))
         }
       }
+    } catch (e: SocketTimeoutException) {
+      return NetworkResult.failure(PayKitConnectivityNetworkException(e))
     } finally {
       urlConnection.disconnect()
     }

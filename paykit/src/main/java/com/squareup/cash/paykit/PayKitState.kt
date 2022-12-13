@@ -17,5 +17,5 @@ sealed class PayKitState {
   class Approved(val responseData: CustomerResponseData) : PayKitState()
   object Declined : PayKitState()
 
-  class PayKitException(exception: Exception) : PayKitState()
+  class PayKitException(val exception: Exception) : PayKitState()
 }

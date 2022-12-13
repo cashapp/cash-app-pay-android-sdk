@@ -101,9 +101,10 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
       Declined -> {} // Ignored for now.
       NotStarted -> {} // Ignored for now.
       is PayKitException -> {
+        binding.statusText.text = prettyPrintDataClass(newState.exception)
         Log.e(
           "DevApp",
-          "Got an exception from the SDK. E.: ${prettyPrintDataClass(newState.javaClass)}"
+          "Got an exception from the SDK. E.: ${newState.exception}"
         )
       } // Ignored for now.
       PollingTransactionStatus -> {} // Ignored for now.

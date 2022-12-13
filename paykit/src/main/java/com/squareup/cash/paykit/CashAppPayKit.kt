@@ -10,9 +10,12 @@ import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.Declined
 import com.squareup.cash.paykit.PayKitState.NotStarted
+import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
 import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
+import com.squareup.cash.paykit.models.common.NetworkResult.Failure
+import com.squareup.cash.paykit.models.common.NetworkResult.Success
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.utils.orElse
@@ -56,13 +59,22 @@ class CashAppPayKit(
   fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
     Thread {
-      val customerData = NetworkManager.createCustomerRequest(clientId, paymentAction)
-
-      // TODO For now resorting to simple callbacks and thread switching. Need to investigate pros/cons of using coroutines internally as the default. (https://www.notion.so/cashappcash/Investigate-impact-of-Thread-switching-for-informing-callback-listeners-e69b2b675dfc4248966e107a8a91d37c)
-      runOnUiThread(mainHandler) {
-        customerResponseData = customerData.customerResponseData
-        currentState = ReadyToAuthorize(customerData.customerResponseData)
+      val networkResult = NetworkManager.createCustomerRequest(clientId, paymentAction)
+      when (networkResult) {
+        is Failure -> {
+          runOnUiThread(mainHandler) {
+            currentState = PayKitException(networkResult.exception)
+          }
+        }
+        is Success -> {
+          // TODO For now resorting to simple callbacks and thread switching. Need to investigate pros/cons of using coroutines internally as the default. (https://www.notion.so/cashappcash/Investigate-impact-of-Thread-switching-for-informing-callback-listeners-e69b2b675dfc4248966e107a8a91d37c)
+          runOnUiThread(mainHandler) {
+            customerResponseData = networkResult.data.customerResponseData
+            currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
+          }
+        }
       }
+
     }.start()
   }
 
@@ -138,11 +150,19 @@ class CashAppPayKit(
   private fun checkTransactionStatus() {
     logError("Executing checkTransactionStatus")
     Thread {
-      customerResponseData =
-        NetworkManager.retrieveUpdatedRequestData(
-          clientId,
-          customerResponseData!!.id
-        ).customerResponseData
+      val networkResult = NetworkManager.retrieveUpdatedRequestData(
+        clientId,
+        customerResponseData!!.id
+      )
+      if (networkResult is Failure) {
+        runOnUiThread(mainHandler) {
+          currentState = PayKitException(networkResult.exception)
+        }
+        return@Thread
+      }
+      customerResponseData = (networkResult as Success).data.customerResponseData
+
+
       runOnUiThread(mainHandler) {
         if (customerResponseData?.status == "APPROVED") {
           logError("Transaction Approved!")
