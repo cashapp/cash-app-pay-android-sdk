@@ -107,7 +107,7 @@ function upload_artifact() {
     --key "$SECRETS_DIR/kochiku-worker-s2s.key" \
     -X 'POST' \
     -H "X-Speleo-Trace-Id: $(uuidgen | sed 's/\-//g')" \
-    -F 'application=cash-app-pay-sdk-sample' \
+    -F 'application=cash-app-pay-sdk-dev-app' \
     -F 'platform=android' \
     -F "version=$VERSION" \
     -F "sha=$GIT_COMMIT" \
