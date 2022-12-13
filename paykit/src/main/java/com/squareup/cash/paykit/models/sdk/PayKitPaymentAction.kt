@@ -23,7 +23,7 @@ sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
    */
   data class OneTimeAction(
     val redirectUri: String,
-    val currency: PayKitCurrency,
+    val currency: PayKitCurrency?,
     val amount: Int?,
     val scopeId: String? = null
   ) : PayKitPaymentAction(redirectUri, scopeId)

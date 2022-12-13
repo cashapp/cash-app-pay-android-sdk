@@ -3,8 +3,8 @@
   <string name="payment_type_title">Payment Type</string>
   <string name="payment_type_one_time">One-Time</string>
   <string name="payment_type_on_fine">On File</string>
-  <string name="amount_title">Amount (in cents)</string>
-  <string name="account_ref_title">Account Reference ID</string>
+  <string name="amount_title">Amount in cents - Optional</string>
+  <string name="account_ref_title">Account Reference ID - Optional</string>
   <string name="operations_title">Operations</string>
   <string name="create_customer_btn">Create Customer</string>
   <string name="update_customer_btn">Update Customer (optional)</string>

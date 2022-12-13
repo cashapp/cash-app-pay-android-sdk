@@ -39,6 +39,7 @@ object NetworkManager {
 
   private const val CHANNEL_IN_APP = "IN_APP"
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
+  private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
 
   @Throws(IOException::class)
   fun createCustomerRequest(
@@ -46,7 +47,7 @@ object NetworkManager {
     paymentAction: PayKitPaymentAction
   ): CustomerTopLevelResponse {
     return when (paymentAction) {
-      is OnFileAction -> TODO() // https://www.notion.so/cashappcash/Add-On-File-Payments-support-cad473298adc43e6b77838925f71156f
+      is OnFileAction -> onFilePaymentCustomerRequest(clientId, paymentAction)
       is OneTimeAction -> oneTimePaymentCustomerRequest(clientId, paymentAction)
     }
   }
@@ -60,6 +61,35 @@ object NetworkManager {
     )
   }
 
+  private fun onFilePaymentCustomerRequest(
+    clientId: String,
+    paymentAction: OnFileAction
+  ): CustomerTopLevelResponse {
+    // Create request data.
+    val scopeIdOrClientId = paymentAction.scopeId ?: clientId
+    val requestAction =
+      Action(
+        scopeId = scopeIdOrClientId,
+        type = PAYMENT_TYPE_ON_FILE
+      )
+    val requestData = CustomerRequestData(
+      actions = listOf(requestAction),
+      channel = CHANNEL_IN_APP,
+      redirectUri = paymentAction.redirectUri
+    )
+    val createCustomerRequest = CreateCustomerRequest(
+      idempotencyKey = UUID.randomUUID().toString(),
+      customerRequestData = requestData
+    )
+
+    return executeNetworkRequest(
+      POST,
+      CREATE_CUSTOMER_REQUEST_ENDPOINT,
+      clientId,
+      createCustomerRequest
+    )
+  }
+
   private fun oneTimePaymentCustomerRequest(
     clientId: String,
     paymentAction: OneTimeAction
@@ -69,7 +99,7 @@ object NetworkManager {
     val requestAction =
       Action(
         amount_cents = paymentAction.amount,
-        currency = paymentAction.currency.backendValue,
+        currency = paymentAction.currency?.backendValue,
         scopeId = scopeIdOrClientId,
         type = PAYMENT_TYPE_ONE_TIME
       )

@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitListener
 import com.squareup.cash.paykit.PayKitState
@@ -18,6 +19,7 @@ import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.PayKitState.UpdatingCustomerRequest
 import com.squareup.cash.paykit.devapp.databinding.ActivityMainBinding
 import com.squareup.cash.paykit.models.sdk.PayKitCurrency.USD
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
 
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
@@ -46,20 +48,41 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
   }
 
   private fun registerButtons() {
-    binding.createCustomerBtn.setOnClickListener {
-      payKitSdk.registerForStateUpdates(this)
-      val paymentAction =
-        OneTimeAction(
-          redirectUri = redirectURI,
-          currency = USD,
-          amount = 500,
-          scopeId = sandboxBrandID
-        )
-      payKitSdk.createCustomerRequest(paymentAction)
-    }
+    binding.apply {
+      createCustomerBtn.setOnClickListener {
+        payKitSdk.registerForStateUpdates(this@MainActivity)
 
-    binding.authorizeCustomerBtn.setOnClickListener {
-      payKitSdk.authorizeCustomerRequest(this)
+        val paymentAction = if (toggleButton.checkedButtonId == R.id.oneTimeButton) {
+          OneTimeAction(
+            redirectUri = redirectURI,
+            currency = USD,
+            amount = amountField.text.toString().toIntOrNull(),
+            scopeId = sandboxBrandID
+          )
+        } else {
+          OnFileAction(
+            redirectUri = redirectURI,
+            scopeId = sandboxBrandID,
+            accountReferenceId = referenceField.text.toString()
+          )
+        }
+
+        payKitSdk.createCustomerRequest(paymentAction)
+      }
+
+      authorizeCustomerBtn.setOnClickListener {
+        payKitSdk.authorizeCustomerRequest(this@MainActivity)
+      }
+
+      // Toggle Buttons.
+      oneTimeButton.setOnClickListener {
+        amountContainer.isVisible = true
+        referenceContainer.isVisible = false
+      }
+      onFileButton.setOnClickListener {
+        amountContainer.isVisible = false
+        referenceContainer.isVisible = true
+      }
     }
   }
 
