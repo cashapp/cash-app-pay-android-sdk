@@ -74,7 +74,6 @@ class CashAppPayKit(
           }
         }
       }
-
     }.start()
   }
 
@@ -161,7 +160,6 @@ class CashAppPayKit(
         return@Thread
       }
       customerResponseData = (networkResult as Success).data.customerResponseData
-
 
       runOnUiThread(mainHandler) {
         if (customerResponseData?.status == "APPROVED") {
