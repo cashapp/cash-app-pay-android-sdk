@@ -57,9 +57,6 @@ class CashAppPayKit(
 
   init {
     if (useSandboxEnvironment) {
-      if (BuildConfig.DEBUG) {
-        logError("It looks like you're running a release version of your app, but using the sandbox environment for CashApp PayKit. If this is intentional you may disregard this message.")
-      }
       NetworkManager.baseUrl = BASE_URL_SANDBOX
     } else {
       NetworkManager.baseUrl = BASE_URL_PRODUCTION
