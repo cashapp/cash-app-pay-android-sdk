@@ -7,15 +7,15 @@ import com.squareup.cash.paykit.models.response.CustomerResponseData
  *
  * TODO: Add documentation to each state. ( https://www.notion.so/cashappcash/Add-documentation-for-each-PayKitState-13e1c3661e3e4e06a8a62c84dbe4c3db )
  */
-sealed class PayKitState {
-  object NotStarted : PayKitState()
-  object CreatingCustomerRequest : PayKitState()
-  object UpdatingCustomerRequest : PayKitState()
-  class ReadyToAuthorize(val responseData: CustomerResponseData) : PayKitState()
-  object Authorizing : PayKitState()
-  object PollingTransactionStatus : PayKitState()
-  class Approved(val responseData: CustomerResponseData) : PayKitState()
-  object Declined : PayKitState()
+sealed interface PayKitState {
+  object NotStarted : PayKitState
+  object CreatingCustomerRequest : PayKitState
+  object UpdatingCustomerRequest : PayKitState
+  class ReadyToAuthorize(val responseData: CustomerResponseData) : PayKitState
+  object Authorizing : PayKitState
+  object PollingTransactionStatus : PayKitState
+  class Approved(val responseData: CustomerResponseData) : PayKitState
+  object Declined : PayKitState
 
-  class PayKitException(val exception: Exception) : PayKitState()
+  class PayKitException(val exception: Exception) : PayKitState
 }

@@ -3,11 +3,11 @@ package com.squareup.cash.paykit.models.common
 /**
  * This class wraps all I/O-related requests in one of 2 states: [Success] or [Failure].
  */
-internal sealed class NetworkResult<in T> {
+internal sealed interface NetworkResult<in T> {
 
-  class Failure<T>(val exception: Exception) : NetworkResult<T>()
+  class Failure<T>(val exception: Exception) : NetworkResult<T>
 
-  class Success<T>(val data: T) : NetworkResult<T>()
+  class Success<T>(val data: T) : NetworkResult<T>
 
   companion object {
     fun <T> success(data: T): NetworkResult<T> = Success(data)
