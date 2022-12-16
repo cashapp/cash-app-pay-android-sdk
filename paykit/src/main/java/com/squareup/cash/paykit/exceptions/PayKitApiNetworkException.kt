@@ -9,6 +9,6 @@ data class PayKitApiNetworkException(
   val category: String,
   val code: String,
   val detail: String?,
-  val field: String?
+  val field_value: String?
 ) :
   PayKitNetworkException(API)
