@@ -1,5 +1,6 @@
 package com.squareup.cash.paykit
 
+import androidx.annotation.VisibleForTesting
 import com.squareup.cash.paykit.RequestType.GET
 import com.squareup.cash.paykit.RequestType.POST
 import com.squareup.cash.paykit.exceptions.PayKitApiNetworkException
@@ -20,7 +21,6 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import java.io.BufferedOutputStream
 import java.io.BufferedWriter
-import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.OutputStream
 import java.io.OutputStreamWriter
@@ -47,7 +47,8 @@ internal object NetworkManager {
   val RETRIEVE_EXISTING_REQUEST_ENDPOINT: String
     get() = "${baseUrl}requests/"
 
-  private const val DEFAULT_NETWORK_TIMEOUT_SECONDS = 60
+  @VisibleForTesting
+  var DEFAULT_NETWORK_TIMEOUT_MILLISECONDS = 60_000
 
   var baseUrl: String = ""
 
@@ -151,8 +152,8 @@ internal object NetworkManager {
     val url = URL(endpointUrl)
     val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
     urlConnection.requestMethod = requestType.name
-    urlConnection.connectTimeout = DEFAULT_NETWORK_TIMEOUT_SECONDS * 1000
-    urlConnection.readTimeout = DEFAULT_NETWORK_TIMEOUT_SECONDS * 1000
+    urlConnection.connectTimeout = DEFAULT_NETWORK_TIMEOUT_MILLISECONDS
+    urlConnection.readTimeout = DEFAULT_NETWORK_TIMEOUT_MILLISECONDS
     urlConnection.setRequestProperty("Content-Type", "application/json")
     urlConnection.setRequestProperty("Accept", "application/json")
     urlConnection.setRequestProperty("Authorization", "Client $clientId")
@@ -222,7 +223,7 @@ internal object NetworkManager {
       // In the case HTTP status is an error, the output will belong to `errorStream`.
       val streamToUse = try {
         urlConnection.inputStream
-      } catch (e: FileNotFoundException) {
+      } catch (e: Exception) {
         urlConnection.errorStream
       }
 

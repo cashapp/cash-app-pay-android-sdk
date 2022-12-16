@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.Declined
@@ -19,7 +20,6 @@ import com.squareup.cash.paykit.models.common.NetworkResult.Success
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.utils.orElse
-import java.util.concurrent.atomic.AtomicBoolean
 
 private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
 private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
@@ -39,7 +39,8 @@ class CashAppPayKit(
 
   private var customerResponseData: CustomerResponseData? = null
 
-  private var mainHandler: Handler = Handler(Looper.getMainLooper())
+  @VisibleForTesting
+  var mainHandler: Handler = Handler(Looper.getMainLooper())
 
   private var currentState: PayKitState = NotStarted
     set(value) {
@@ -53,7 +54,12 @@ class CashAppPayKit(
         }
     }
 
-  private var isPaused = AtomicBoolean(false)
+  /*
+  * This property is made available for the MainLooper to execute immediately when running tests.
+  * TODO: temporary solution, that will likely get replace after this task: https://www.notion.so/cashappcash/Thread-Switching-VS-No-Thread-switching-e69b2b675dfc4248966e107a8a91d37c
+   */
+  @VisibleForTesting
+  var skipLooperForTesting = false
 
   init {
     if (useSandboxEnvironment) {
@@ -219,7 +225,11 @@ class CashAppPayKit(
   }
 
   private fun runOnUiThread(mainHandler: Handler, action: Runnable) {
-    mainHandler.post(action)
+    if (skipLooperForTesting) {
+      action.run()
+    } else {
+      mainHandler.post(action)
+    }
   }
 
   /**
@@ -228,7 +238,6 @@ class CashAppPayKit(
 
   override fun onApplicationForegrounded() {
     logError("onApplicationForegrounded")
-    isPaused.set(false)
     if (currentState is Authorizing) {
       currentState = PollingTransactionStatus
       checkTransactionStatus()
@@ -236,7 +245,6 @@ class CashAppPayKit(
   }
 
   override fun onApplicationBackgrounded() {
-    isPaused.set(true)
     logError("onApplicationBackgrounded")
   }
 }
