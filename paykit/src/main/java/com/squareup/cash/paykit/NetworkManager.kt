@@ -180,14 +180,14 @@ internal object NetworkManager {
         writer.flush()
       }
 
-      val code = urlConnection.responseCode
-      if (code != HttpURLConnection.HTTP_CREATED && code != HttpURLConnection.HTTP_OK) {
-        // Handle 5XX errors.
-        if (code >= 500) {
-          return NetworkResult.failure(PayKitConnectivityNetworkException(IOException("Got server code $code")))
-        }
-
-        // Handle 3XX & 4XX errors.
+      val responseCode = urlConnection.responseCode
+      if (responseCode != HttpURLConnection.HTTP_CREATED && responseCode != HttpURLConnection.HTTP_OK) {
+        // Under normal circumstances:
+        //  - 3xx errors won’t have a payload.
+        //  - 4xx are guaranteed to have a payload.
+        //  - 5xx should have a payload, but there might be situations where they do not.
+        //
+        // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
         val apiErrorResponse: NetworkResult<ApiErrorResponse> =
           deserializeResponse(urlConnection, moshi)
         return when (apiErrorResponse) {
@@ -220,10 +220,14 @@ internal object NetworkManager {
   ): NetworkResult<Out> {
     // TODO: Could probably leverage OKIO to improve this code. ( https://www.notion.so/cashappcash/Would-okio-benefit-the-low-level-network-handling-b8f55044c1e249a995f544f1f9de3c4a )
     try {
-      // In the case HTTP status is an error, the output will belong to `errorStream`.
       val streamToUse = try {
         urlConnection.inputStream
       } catch (e: Exception) {
+        // In the case HTTP status is an error, the output will belong to `errorStream`.
+        if (urlConnection.errorStream == null) {
+          // If both inputStream and errorStream are missing, there is no response payload. Therefore return an exception with the appropriate HTTP code.
+          return NetworkResult.failure(IOException("Got server code ${urlConnection.responseCode}"))
+        }
         urlConnection.errorStream
       }
 
