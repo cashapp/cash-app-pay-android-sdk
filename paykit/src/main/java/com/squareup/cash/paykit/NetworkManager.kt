@@ -29,12 +29,6 @@ import java.net.SocketTimeoutException
 import java.net.URL
 import java.util.UUID
 
-private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
-private const val BASE_URL_RELEASE = "https://api.cash.app/customer-request/v1/"
-private const val BASE_URL = BASE_URL_SANDBOX
-private const val CREATE_CUSTOMER_REQUEST_ENDPOINT = "${BASE_URL}requests"
-private const val RETRIEVE_EXISTING_REQUEST_ENDPOINT = "${BASE_URL}requests/"
-
 enum class RequestType {
   GET,
   POST,
@@ -47,7 +41,15 @@ internal object NetworkManager {
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
   private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
 
+  val CREATE_CUSTOMER_REQUEST_ENDPOINT: String
+    get() = "${baseUrl}requests"
+
+  val RETRIEVE_EXISTING_REQUEST_ENDPOINT: String
+    get() = "${baseUrl}requests/"
+
   private const val DEFAULT_NETWORK_TIMEOUT_SECONDS = 60
+
+  var baseUrl: String = ""
 
   @Throws(IOException::class)
   fun createCustomerRequest(

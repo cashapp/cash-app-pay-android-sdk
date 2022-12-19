@@ -21,6 +21,9 @@ import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.utils.orElse
 import java.util.concurrent.atomic.AtomicBoolean
 
+private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
+private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
+
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
  * @param useSandboxEnvironment Specify what development environment should be used.
@@ -51,6 +54,14 @@ class CashAppPayKit(
     }
 
   private var isPaused = AtomicBoolean(false)
+
+  init {
+    if (useSandboxEnvironment) {
+      NetworkManager.baseUrl = BASE_URL_SANDBOX
+    } else {
+      NetworkManager.baseUrl = BASE_URL_PRODUCTION
+    }
+  }
 
   /**
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
