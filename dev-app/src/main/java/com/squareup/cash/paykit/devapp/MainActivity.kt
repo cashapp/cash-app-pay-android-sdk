@@ -52,11 +52,13 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
       createCustomerBtn.setOnClickListener {
         payKitSdk.registerForStateUpdates(this@MainActivity)
 
+        val amount = amountField.text.toString().toIntOrNull()
+        val currency = if (amount == null) null else USD
         val paymentAction = if (toggleButton.checkedButtonId == R.id.oneTimeButton) {
           OneTimeAction(
             redirectUri = redirectURI,
-            currency = USD,
-            amount = amountField.text.toString().toIntOrNull(),
+            currency = currency,
+            amount = amount,
             scopeId = sandboxBrandID
           )
         } else {
