@@ -59,13 +59,13 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
             redirectUri = redirectURI,
             currency = currency,
             amount = amount,
-            scopeId = sandboxBrandID
+            scopeId = sandboxBrandID,
           )
         } else {
           OnFileAction(
             redirectUri = redirectURI,
             scopeId = sandboxBrandID,
-            accountReferenceId = referenceField.text.toString()
+            accountReferenceId = referenceField.text.toString(),
           )
         }
 
@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
         binding.statusText.text = prettyPrintDataClass(newState.exception)
         Log.e(
           "DevApp",
-          "Got an exception from the SDK. E.: ${newState.exception}"
+          "Got an exception from the SDK. E.: ${newState.exception}",
         )
       } // Ignored for now.
       PollingTransactionStatus -> {} // Ignored for now.
