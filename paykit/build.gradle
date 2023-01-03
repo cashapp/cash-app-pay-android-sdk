@@ -67,6 +67,7 @@ dependencies {
   testImplementation "junit:junit:$junit_version"
   testImplementation "io.mockk:mockk:$mockk_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"
+  testImplementation "com.squareup.okhttp3:mockwebserver:$mockwebserver_version"
   // Robolectric environment.
   testImplementation "org.robolectric:robolectric:$robolectric_version"
   // Coroutines test support.
