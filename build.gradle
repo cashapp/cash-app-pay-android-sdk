@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
   ext {
-    junit_androidx_version = '1.1.4'
+    junit_androidx_version = '1.1.5'
     junit_version = '4.13.2'
     moshi_version = '1.13.0'
     lifecycle_version = '2.5.1'
