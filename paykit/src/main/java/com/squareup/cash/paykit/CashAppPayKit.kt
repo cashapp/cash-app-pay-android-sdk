@@ -24,9 +24,6 @@ import com.squareup.cash.paykit.utils.orElse
 private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
 private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
 
-private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
-private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
-
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
  * @param useSandboxEnvironment Specify what development environment should be used.
