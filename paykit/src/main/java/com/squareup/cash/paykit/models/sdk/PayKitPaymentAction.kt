@@ -25,7 +25,7 @@ sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
     val redirectUri: String,
     val currency: PayKitCurrency?,
     val amount: Int?,
-    val scopeId: String? = null
+    val scopeId: String? = null,
   ) : PayKitPaymentAction(redirectUri, scopeId)
 
   /**
@@ -39,7 +39,7 @@ sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
   data class OnFileAction(
     val redirectUri: String,
     val scopeId: String? = null,
-    val accountReferenceId: String? = null
+    val accountReferenceId: String? = null,
   ) :
     PayKitPaymentAction(redirectUri, scopeId)
 }

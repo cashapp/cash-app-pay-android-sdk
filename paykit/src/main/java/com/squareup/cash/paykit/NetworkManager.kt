@@ -32,7 +32,7 @@ import java.util.UUID
 enum class RequestType {
   GET,
   POST,
-  PATCH
+  PATCH,
 }
 
 internal object NetworkManager {
@@ -55,7 +55,7 @@ internal object NetworkManager {
   @Throws(IOException::class)
   fun createCustomerRequest(
     clientId: String,
-    paymentAction: PayKitPaymentAction
+    paymentAction: PayKitPaymentAction,
   ): NetworkResult<CustomerTopLevelResponse> {
     return when (paymentAction) {
       is OnFileAction -> onFilePaymentCustomerRequest(clientId, paymentAction)
@@ -65,48 +65,48 @@ internal object NetworkManager {
 
   fun retrieveUpdatedRequestData(
     clientId: String,
-    requestId: String
+    requestId: String,
   ): NetworkResult<CustomerTopLevelResponse> {
     return executeNetworkRequest(
       GET,
       RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
       clientId,
-      null
+      null,
     )
   }
 
   private fun onFilePaymentCustomerRequest(
     clientId: String,
-    paymentAction: OnFileAction
+    paymentAction: OnFileAction,
   ): NetworkResult<CustomerTopLevelResponse> {
     // Create request data.
     val scopeIdOrClientId = paymentAction.scopeId ?: clientId
     val requestAction =
       Action(
         scopeId = scopeIdOrClientId,
-        type = PAYMENT_TYPE_ON_FILE
+        type = PAYMENT_TYPE_ON_FILE,
       )
     val requestData = CustomerRequestData(
       actions = listOf(requestAction),
       channel = CHANNEL_IN_APP,
-      redirectUri = paymentAction.redirectUri
+      redirectUri = paymentAction.redirectUri,
     )
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
-      customerRequestData = requestData
+      customerRequestData = requestData,
     )
 
     return executeNetworkRequest(
       POST,
       CREATE_CUSTOMER_REQUEST_ENDPOINT,
       clientId,
-      createCustomerRequest
+      createCustomerRequest,
     )
   }
 
   private fun oneTimePaymentCustomerRequest(
     clientId: String,
-    paymentAction: OneTimeAction
+    paymentAction: OneTimeAction,
   ): NetworkResult<CustomerTopLevelResponse> {
     // Create request data.
     val scopeIdOrClientId = paymentAction.scopeId ?: clientId
@@ -115,23 +115,23 @@ internal object NetworkManager {
         amount_cents = paymentAction.amount,
         currency = paymentAction.currency?.backendValue,
         scopeId = scopeIdOrClientId,
-        type = PAYMENT_TYPE_ONE_TIME
+        type = PAYMENT_TYPE_ONE_TIME,
       )
     val requestData = CustomerRequestData(
       actions = listOf(requestAction),
       channel = CHANNEL_IN_APP,
-      redirectUri = paymentAction.redirectUri
+      redirectUri = paymentAction.redirectUri,
     )
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
-      customerRequestData = requestData
+      customerRequestData = requestData,
     )
 
     return executeNetworkRequest(
       POST,
       CREATE_CUSTOMER_REQUEST_ENDPOINT,
       clientId,
-      createCustomerRequest
+      createCustomerRequest,
     )
   }
 
@@ -147,7 +147,7 @@ internal object NetworkManager {
     requestType: RequestType,
     endpointUrl: String,
     clientId: String,
-    requestPayload: In?
+    requestPayload: In?,
   ): NetworkResult<Out> {
     val url = URL(endpointUrl)
     val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
@@ -170,8 +170,9 @@ internal object NetworkManager {
         val outStream: OutputStream = BufferedOutputStream(urlConnection.outputStream)
         val writer = BufferedWriter(
           OutputStreamWriter(
-            outStream, "UTF-8"
-          )
+            outStream,
+            "UTF-8",
+          ),
         )
 
         val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
@@ -198,7 +199,7 @@ internal object NetworkManager {
               apiError.category,
               apiError.code,
               apiError.detail,
-              apiError.field_value
+              apiError.field_value,
             )
             NetworkResult.failure(apiException)
           }
@@ -216,7 +217,7 @@ internal object NetworkManager {
   @OptIn(ExperimentalStdlibApi::class)
   private inline fun <reified Out : Any> deserializeResponse(
     urlConnection: HttpURLConnection,
-    moshi: Moshi
+    moshi: Moshi,
   ): NetworkResult<Out> {
     // TODO: Could probably leverage OKIO to improve this code. ( https://www.notion.so/cashappcash/Would-okio-benefit-the-low-level-network-handling-b8f55044c1e249a995f544f1f9de3c4a )
     try {

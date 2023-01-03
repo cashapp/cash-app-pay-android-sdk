@@ -12,5 +12,5 @@ data class AuthFlowTriggers(
   @Json(name = "qr_code_svg_url")
   val qrCodeSvgUrl: String,
   @Json(name = "refreshes_at")
-  val refreshesAt: String
+  val refreshesAt: String,
 )

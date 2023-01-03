@@ -41,11 +41,11 @@ class NetworkErrorTests {
     assertTrue("Expected PayKitException end state", mockListener.state is PayKitException)
     assertTrue(
       "Expected exception abstraction to be PayKitConnectivityNetworkException",
-      (mockListener.state as PayKitException).exception is PayKitConnectivityNetworkException
+      (mockListener.state as PayKitException).exception is PayKitConnectivityNetworkException,
     )
     assertTrue(
       "Expected internal exception error state to be IOException",
-      ((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e is IOException
+      ((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e is IOException,
     )
   }
 
@@ -69,8 +69,8 @@ class NetworkErrorTests {
       "field": "request.action.amount"
     }
   ]
-}"""
-      )
+}""",
+      ),
     )
 
     // Start the server.
@@ -87,7 +87,7 @@ class NetworkErrorTests {
     assertTrue("Expected PayKitException end state", mockListener.state is PayKitException)
     assertTrue(
       "Expected exception abstraction to be PayKit",
-      (mockListener.state as PayKitException).exception is PayKitApiNetworkException
+      (mockListener.state as PayKitException).exception is PayKitApiNetworkException,
     )
 
     // Verify that all the API error details have been deserialized correctly.
@@ -106,7 +106,7 @@ class NetworkErrorTests {
     // Setup server & mock responses.
     val server = MockWebServer()
     server.enqueue(
-      MockResponse().setResponseCode(200).setBodyDelay(10, SECONDS).setHeadersDelay(10, SECONDS)
+      MockResponse().setResponseCode(200).setBodyDelay(10, SECONDS).setHeadersDelay(10, SECONDS),
     )
 
     // Start the server.
@@ -123,7 +123,7 @@ class NetworkErrorTests {
     // Verify that a timeout error was captured and relayed to the SDK listener.
     assertTrue(
       "Expected SocketTimeoutException",
-      ((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e is SocketTimeoutException
+      ((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e is SocketTimeoutException,
     )
   }
 

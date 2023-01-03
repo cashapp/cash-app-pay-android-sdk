@@ -8,5 +8,5 @@ data class RequesterProfile(
   @Json(name = "logo_url")
   val logoUrl: String,
   @Json(name = "name")
-  val name: String
+  val name: String,
 )
