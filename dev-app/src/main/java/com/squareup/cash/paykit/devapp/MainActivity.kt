@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
 
   private lateinit var binding: ActivityMainBinding
 
-  private val payKitSdk = CashAppPayKit(sandboxClientID)
+  private val payKitSdk = CashAppPayKit(sandboxClientID, useSandboxEnvironment = true)
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)

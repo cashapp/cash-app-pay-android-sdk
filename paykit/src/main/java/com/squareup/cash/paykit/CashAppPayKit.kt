@@ -171,8 +171,7 @@ class CashAppPayKit(
     }
   }
 
-  private fun checkTransactionStatus() {
-    logError("Executing checkTransactionStatus")
+  private fun poolTransactionStatus() {
     Thread {
       val networkResult = NetworkManager.retrieveUpdatedRequestData(
         clientId,
@@ -188,7 +187,6 @@ class CashAppPayKit(
 
       runOnUiThread(mainHandler) {
         if (customerResponseData?.status == "APPROVED") {
-          logError("Transaction Approved!")
           // Successful transaction.
           setStateFinished(true)
         } else {
@@ -196,12 +194,11 @@ class CashAppPayKit(
           if (customerResponseData?.status == "PENDING") {
             // TODO: Add backoff strategy for long polling. ( https://www.notion.so/cashappcash/Implement-Long-pooling-retry-logic-a9af47e2db9242faa5d64df2596fd78e )
             Thread.sleep(500)
-            checkTransactionStatus()
+            poolTransactionStatus()
             return@runOnUiThread
           }
 
           // Unsuccessful transaction.
-          logError("Transaction unsuccessful!")
           setStateFinished(false)
         }
       }
@@ -248,7 +245,7 @@ class CashAppPayKit(
     logError("onApplicationForegrounded")
     if (currentState is Authorizing) {
       currentState = PollingTransactionStatus
-      checkTransactionStatus()
+      poolTransactionStatus()
     }
   }
 
