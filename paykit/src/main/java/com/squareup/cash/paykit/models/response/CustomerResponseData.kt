@@ -29,5 +29,5 @@ data class CustomerResponseData(
   @Json(name = "customer_profile")
   val customerProfile: CustomerProfile?,
   @Json(name = "grants")
-  val grants: List<Grant>?
+  val grants: List<Grant>?,
 )

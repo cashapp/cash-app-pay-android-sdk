@@ -12,5 +12,5 @@ data class Action(
   @Json(name = "scope_id")
   val scopeId: String,
   @Json(name = "type")
-  val type: String
+  val type: String,
 )

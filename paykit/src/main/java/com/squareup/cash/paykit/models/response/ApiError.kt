@@ -12,5 +12,5 @@ data class ApiError(
   @Json(name = "detail")
   val detail: String?,
   @Json(name = "field")
-  val field_value: String?
+  val field_value: String?,
 )

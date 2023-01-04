@@ -23,5 +23,5 @@ data class Grant(
   @Json(name = "created_at")
   val createdAt: String,
   @Json(name = "expires_at")
-  val expiresAt: String
+  val expiresAt: String,
 )
