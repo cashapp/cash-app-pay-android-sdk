@@ -25,7 +25,7 @@ internal fun <T : Any> prettyPrintDataClass(data: T, indent: Int = 2): Spanned {
   }
   return HtmlCompat.fromHtml(
     htmlFormattedOutput,
-    HtmlCompat.FROM_HTML_MODE_COMPACT + HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH
+    HtmlCompat.FROM_HTML_MODE_COMPACT + HtmlCompat.FROM_HTML_SEPARATOR_LINE_BREAK_PARAGRAPH,
   )
 }
 

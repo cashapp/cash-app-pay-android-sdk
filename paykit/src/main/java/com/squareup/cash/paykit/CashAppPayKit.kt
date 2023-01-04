@@ -30,7 +30,7 @@ private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v
  */
 class CashAppPayKit(
   private val clientId: String,
-  private val useSandboxEnvironment: Boolean = false
+  private val useSandboxEnvironment: Boolean = false,
 ) : PayKitLifecycleListener {
 
   // TODO: Consider network errors. (https://www.notion.so/cashappcash/Propagate-No-Network-expection-dcc26ef92e2f423f9fc73069275d2fe8)
@@ -49,7 +49,7 @@ class CashAppPayKit(
         .orElse {
           logError(
             "State changed to ${value.javaClass.simpleName}, but no listeners were notified." +
-              "Make sure that you've used `registerForStateUpdates` to receive PayKit state updates."
+              "Make sure that you've used `registerForStateUpdates` to receive PayKit state updates.",
           )
         }
     }
@@ -175,7 +175,7 @@ class CashAppPayKit(
     Thread {
       val networkResult = NetworkManager.retrieveUpdatedRequestData(
         clientId,
-        customerResponseData!!.id
+        customerResponseData!!.id,
       )
       if (networkResult is Failure) {
         runOnUiThread(mainHandler) {

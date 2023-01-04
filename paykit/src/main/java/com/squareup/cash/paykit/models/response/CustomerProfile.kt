@@ -8,5 +8,5 @@ data class CustomerProfile(
   @Json(name = "id")
   val id: String,
   @Json(name = "cashtag")
-  val cashTag: String
+  val cashTag: String,
 )

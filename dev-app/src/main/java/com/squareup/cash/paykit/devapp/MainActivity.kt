@@ -52,18 +52,20 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
       createCustomerBtn.setOnClickListener {
         payKitSdk.registerForStateUpdates(this@MainActivity)
 
+        val amount = amountField.text.toString().toIntOrNull()
+        val currency = if (amount == null) null else USD
         val paymentAction = if (toggleButton.checkedButtonId == R.id.oneTimeButton) {
           OneTimeAction(
             redirectUri = redirectURI,
-            currency = USD,
-            amount = amountField.text.toString().toIntOrNull(),
-            scopeId = sandboxBrandID
+            currency = currency,
+            amount = amount,
+            scopeId = sandboxBrandID,
           )
         } else {
           OnFileAction(
             redirectUri = redirectURI,
             scopeId = sandboxBrandID,
-            accountReferenceId = referenceField.text.toString()
+            accountReferenceId = referenceField.text.toString(),
           )
         }
 
@@ -104,7 +106,7 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
         binding.statusText.text = prettyPrintDataClass(newState.exception)
         Log.e(
           "DevApp",
-          "Got an exception from the SDK. E.: ${newState.exception}"
+          "Got an exception from the SDK. E.: ${newState.exception}",
         )
       } // Ignored for now.
       PollingTransactionStatus -> {} // Ignored for now.

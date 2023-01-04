@@ -8,5 +8,5 @@ data class CreateCustomerRequest(
   @Json(name = "idempotency_key")
   val idempotencyKey: String,
   @Json(name = "request")
-  val customerRequestData: CustomerRequestData
+  val customerRequestData: CustomerRequestData,
 )

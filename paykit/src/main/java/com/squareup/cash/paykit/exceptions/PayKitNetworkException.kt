@@ -8,5 +8,5 @@ open class PayKitNetworkException(val errorType: PayKitNetworkErrorType) : Excep
 
 enum class PayKitNetworkErrorType {
   API,
-  CONNECTIVITY
+  CONNECTIVITY,
 }
