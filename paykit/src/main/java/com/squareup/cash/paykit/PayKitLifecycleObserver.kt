@@ -12,7 +12,7 @@ object PayKitLifecycleObserver : DefaultLifecycleObserver {
 
   private val payKitInstances = arrayListOf<WeakReference<PayKitLifecycleListener>>()
 
-  var mainHandler: Handler = Handler(Looper.getMainLooper())
+  private var mainHandler: Handler = Handler(Looper.getMainLooper())
 
   @VisibleForTesting
   var processLifecycleOwner: LifecycleOwner = ProcessLifecycleOwner.get()
@@ -49,7 +49,12 @@ object PayKitLifecycleObserver : DefaultLifecycleObserver {
   }
 
   private fun runOnUiThread(action: Runnable) {
-    mainHandler.post(action)
+    val isOnMainThread = Looper.getMainLooper().thread == Thread.currentThread()
+    if (isOnMainThread) {
+      action.run()
+    } else {
+      mainHandler.post(action)
+    }
   }
 
   /*

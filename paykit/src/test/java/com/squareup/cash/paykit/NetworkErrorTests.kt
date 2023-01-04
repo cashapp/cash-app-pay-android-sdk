@@ -19,7 +19,6 @@ class NetworkErrorTests {
   @Test
   fun `HTTP code without payload should be wrapped with correct SDK defined exception`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    payKit.skipLooperForTesting = true
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
@@ -52,7 +51,6 @@ class NetworkErrorTests {
   @Test
   fun `HTTP error code with payload should be wrapped with correct SDK defined exception and contains API deserialized data`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    payKit.skipLooperForTesting = true
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
@@ -100,7 +98,6 @@ class NetworkErrorTests {
   @Test
   fun `network request timeout should be wrapped with correct SDK defined exception`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    payKit.skipLooperForTesting = true
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
     // Setup server & mock responses.

@@ -17,6 +17,7 @@ import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import java.io.BufferedOutputStream
@@ -245,11 +246,13 @@ internal object NetworkManager {
           if (responseModel != null) {
             return NetworkResult.success(responseModel)
           }
-          return NetworkResult.failure(IOException("Failed to deserialize response data"))
+          return NetworkResult.failure(IOException("Failed to deserialize response data."))
         }
       }
     } catch (e: SocketTimeoutException) {
       return NetworkResult.failure(PayKitConnectivityNetworkException(e))
+    } catch (e: JsonEncodingException) {
+      return NetworkResult.failure(e)
     }
   }
 }
