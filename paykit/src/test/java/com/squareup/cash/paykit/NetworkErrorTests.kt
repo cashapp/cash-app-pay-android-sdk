@@ -3,8 +3,6 @@ package com.squareup.cash.paykit
 import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.exceptions.PayKitApiNetworkException
 import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
-import okhttp3.internal.notifyAll
-import okhttp3.internal.wait
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Assert.assertEquals
@@ -19,7 +17,6 @@ class NetworkErrorTests {
   @Test
   fun `HTTP code without payload should be wrapped with correct SDK defined exception`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    payKit.skipLooperForTesting = true
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
@@ -33,9 +30,6 @@ class NetworkErrorTests {
     val baseUrl = server.url("")
     NetworkManager.baseUrl = baseUrl.toString()
     payKit.createCustomerRequest(FakeData.oneTimePayment)
-    synchronized(mockListener) {
-      mockListener.wait()
-    }
 
     // Verify that all the appropriate exception wrapping has occurred for a 503 error.
     assertTrue("Expected PayKitException end state", mockListener.state is PayKitException)
@@ -52,7 +46,6 @@ class NetworkErrorTests {
   @Test
   fun `HTTP error code with payload should be wrapped with correct SDK defined exception and contains API deserialized data`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    payKit.skipLooperForTesting = true
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
@@ -79,9 +72,6 @@ class NetworkErrorTests {
     val baseUrl = server.url("")
     NetworkManager.baseUrl = baseUrl.toString()
     payKit.createCustomerRequest(FakeData.oneTimePayment)
-    synchronized(mockListener) {
-      mockListener.wait()
-    }
 
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
     assertTrue("Expected PayKitException end state", mockListener.state is PayKitException)
@@ -100,7 +90,6 @@ class NetworkErrorTests {
   @Test
   fun `network request timeout should be wrapped with correct SDK defined exception`() {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
-    payKit.skipLooperForTesting = true
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
     // Setup server & mock responses.
@@ -116,9 +105,6 @@ class NetworkErrorTests {
     NetworkManager.DEFAULT_NETWORK_TIMEOUT_MILLISECONDS = 1
 
     payKit.createCustomerRequest(FakeData.oneTimePayment)
-    synchronized(mockListener) {
-      mockListener.wait()
-    }
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
     assertTrue(
@@ -135,7 +121,6 @@ class NetworkErrorTests {
 
     override fun payKitStateDidChange(newState: PayKitState) {
       state = newState
-      synchronized(this) { notifyAll() }
     }
   }
 }

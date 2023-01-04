@@ -49,6 +49,7 @@ dependencies {
   implementation 'androidx.appcompat:appcompat:1.5.1'
   implementation 'com.google.android.material:material:1.7.0'
   implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.22"
+  implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
   implementation project(':paykit')
 
