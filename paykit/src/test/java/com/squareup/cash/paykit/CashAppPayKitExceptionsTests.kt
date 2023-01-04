@@ -33,4 +33,9 @@ class CashAppPayKitExceptionsTests {
     val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
     payKit.createCustomerRequest(FakeData.oneTimePayment)
   }
+
+  fun `logAndSoftCrash should NOT crash in prod`() {
+    val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = false)
+    payKit.createCustomerRequest(FakeData.oneTimePayment)
+  }
 }
