@@ -73,18 +73,16 @@ class CashAppPayKit(
   @WorkerThread
   fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
-    Thread {
-      val networkResult = NetworkManager.createCustomerRequest(clientId, paymentAction)
-      when (networkResult) {
-        is Failure -> {
-          currentState = PayKitException(networkResult.exception)
-        }
-        is Success -> {
-          customerResponseData = networkResult.data.customerResponseData
-          currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
-        }
+    val networkResult = NetworkManager.createCustomerRequest(clientId, paymentAction)
+    when (networkResult) {
+      is Failure -> {
+        currentState = PayKitException(networkResult.exception)
       }
-    }.start()
+      is Success -> {
+        customerResponseData = networkResult.data.customerResponseData
+        currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
+      }
+    }
   }
 
   /**

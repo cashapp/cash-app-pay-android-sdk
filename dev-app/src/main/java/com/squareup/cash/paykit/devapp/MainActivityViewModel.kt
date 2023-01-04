@@ -7,6 +7,7 @@ import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitListener
 import com.squareup.cash.paykit.PayKitState
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,7 +39,7 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
   }
 
   fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
-    viewModelScope.launch {
+    viewModelScope.launch(Dispatchers.IO) {
       payKitSdk.createCustomerRequest(paymentAction)
     }
   }
