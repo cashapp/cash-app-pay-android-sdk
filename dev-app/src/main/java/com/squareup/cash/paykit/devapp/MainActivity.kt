@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -63,7 +64,11 @@ class MainActivity : AppCompatActivity() {
       }
 
       authorizeCustomerBtn.setOnClickListener {
-        viewModel.authorizeCustomerRequest(this@MainActivity)
+        try {
+          viewModel.authorizeCustomerRequest(this@MainActivity)
+        } catch (error: IllegalArgumentException) {
+          Toast.makeText(this@MainActivity, error.message, Toast.LENGTH_LONG).show()
+        }
       }
 
       // Toggle Buttons.
