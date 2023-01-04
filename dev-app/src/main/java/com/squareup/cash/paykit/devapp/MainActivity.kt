@@ -109,7 +109,6 @@ class MainActivity : AppCompatActivity() {
             }
             UpdatingCustomerRequest -> {} // Ignored for now.
           }
-
         }
       }
     }
