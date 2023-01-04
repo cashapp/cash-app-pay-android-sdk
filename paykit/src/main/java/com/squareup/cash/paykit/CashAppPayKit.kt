@@ -109,7 +109,7 @@ class CashAppPayKit(
     val customerData = customerResponseData
 
     if (customerData == null) {
-      logOrThrow(PayKitIntegrationException("Can't call authorizeCustomerRequest user before calling `createCustomerRequest`. Alternatively provide your own customerData"))
+      logAndSoftCrash(PayKitIntegrationException("Can't call authorizeCustomerRequest user before calling `createCustomerRequest`. Alternatively provide your own customerData"))
       return
     }
 
@@ -154,7 +154,7 @@ class CashAppPayKit(
 
   private fun enforceRegisteredStateUpdatesListener() {
     if (callbackListener == null) {
-      logOrThrow(PayKitIntegrationException("Shouldn't call this function before registering for state updates via `registerForStateUpdates`."))
+      logAndSoftCrash(PayKitIntegrationException("Shouldn't call this function before registering for state updates via `registerForStateUpdates`."))
     }
   }
 
@@ -196,7 +196,7 @@ class CashAppPayKit(
    * This function will log in production, additionally it will throw an exception in sandbox or debug mode.
    */
   @Throws
-  private fun logOrThrow(exception: Exception) {
+  private fun logAndSoftCrash(exception: Exception) {
     logError("Error occurred. E.: $exception")
     if (useSandboxEnvironment || BuildConfig.DEBUG) {
       throw exception
