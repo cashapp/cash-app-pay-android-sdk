@@ -1,5 +1,7 @@
 package com.squareup.cash.paykit
 
+import android.os.Handler
+import android.os.Looper
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -9,6 +11,8 @@ import java.lang.ref.WeakReference
 object PayKitLifecycleObserver : DefaultLifecycleObserver {
 
   private val payKitInstances = arrayListOf<WeakReference<PayKitLifecycleListener>>()
+
+  var mainHandler: Handler = Handler(Looper.getMainLooper())
 
   @VisibleForTesting
   var processLifecycleOwner: LifecycleOwner = ProcessLifecycleOwner.get()
@@ -20,9 +24,11 @@ object PayKitLifecycleObserver : DefaultLifecycleObserver {
   fun register(newInstance: PayKitLifecycleListener) {
     // Register for ProcessLifecycle changes if this is the first PayKitLifecycleListener.
     if (payKitInstances.isEmpty()) {
-      processLifecycleOwner
-        .lifecycle
-        .addObserver(this)
+      runOnUiThread {
+        processLifecycleOwner
+          .lifecycle
+          .addObserver(this)
+      }
     }
 
     payKitInstances.add(WeakReference(newInstance))
@@ -34,10 +40,16 @@ object PayKitLifecycleObserver : DefaultLifecycleObserver {
 
     // Stop listening for ProcessLifecycle changes if no more PayKitLifecycleListeners are available.
     if (payKitInstances.isEmpty()) {
-      processLifecycleOwner
-        .lifecycle
-        .removeObserver(this)
+      runOnUiThread {
+        processLifecycleOwner
+          .lifecycle
+          .removeObserver(this)
+      }
     }
+  }
+
+  private fun runOnUiThread(action: Runnable) {
+    mainHandler.post(action)
   }
 
   /*

@@ -3,10 +3,7 @@ package com.squareup.cash.paykit
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.Declined
@@ -33,14 +30,9 @@ class CashAppPayKit(
   private val useSandboxEnvironment: Boolean = false,
 ) : PayKitLifecycleListener {
 
-  // TODO: Consider network errors. (https://www.notion.so/cashappcash/Propagate-No-Network-expection-dcc26ef92e2f423f9fc73069275d2fe8)
-
   private var callbackListener: CashAppPayKitListener? = null
 
   private var customerResponseData: CustomerResponseData? = null
-
-  @VisibleForTesting
-  var mainHandler: Handler = Handler(Looper.getMainLooper())
 
   private var currentState: PayKitState = NotStarted
     set(value) {
@@ -54,13 +46,6 @@ class CashAppPayKit(
         }
     }
 
-  /*
-  * This property is made available for the MainLooper to execute immediately when running tests.
-  * TODO: temporary solution, that will likely get replace after this task: https://www.notion.so/cashappcash/Thread-Switching-VS-No-Thread-switching-e69b2b675dfc4248966e107a8a91d37c
-   */
-  @VisibleForTesting
-  var skipLooperForTesting = false
-
   init {
     if (useSandboxEnvironment) {
       NetworkManager.baseUrl = BASE_URL_SANDBOX
@@ -78,6 +63,9 @@ class CashAppPayKit(
   }
 
   /**
+   * Create customer request given a [PayKitPaymentAction].
+   * Must be called from a background thread.
+   *
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
@@ -87,22 +75,20 @@ class CashAppPayKit(
       val networkResult = NetworkManager.createCustomerRequest(clientId, paymentAction)
       when (networkResult) {
         is Failure -> {
-          runOnUiThread(mainHandler) {
-            currentState = PayKitException(networkResult.exception)
-          }
+          currentState = PayKitException(networkResult.exception)
         }
         is Success -> {
-          // TODO For now resorting to simple callbacks and thread switching. Need to investigate pros/cons of using coroutines internally as the default. (https://www.notion.so/cashappcash/Investigate-impact-of-Thread-switching-for-informing-callback-listeners-e69b2b675dfc4248966e107a8a91d37c)
-          runOnUiThread(mainHandler) {
-            customerResponseData = networkResult.data.customerResponseData
-            currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
-          }
+          customerResponseData = networkResult.data.customerResponseData
+          currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
         }
       }
     }.start()
   }
 
   /**
+   * Update an existing customer request given its [requestId] an the updated definitions contained within [PayKitPaymentAction].
+   * Must be called from a background thread.
+   *
    * @param requestId ID of the request we intent do update.
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
@@ -178,29 +164,25 @@ class CashAppPayKit(
         customerResponseData!!.id,
       )
       if (networkResult is Failure) {
-        runOnUiThread(mainHandler) {
-          currentState = PayKitException(networkResult.exception)
-        }
+        currentState = PayKitException(networkResult.exception)
         return@Thread
       }
       customerResponseData = (networkResult as Success).data.customerResponseData
 
-      runOnUiThread(mainHandler) {
-        if (customerResponseData?.status == "APPROVED") {
-          // Successful transaction.
-          setStateFinished(true)
-        } else {
-          // If status is pending, schedule to check again.
-          if (customerResponseData?.status == "PENDING") {
-            // TODO: Add backoff strategy for long polling. ( https://www.notion.so/cashappcash/Implement-Long-pooling-retry-logic-a9af47e2db9242faa5d64df2596fd78e )
-            Thread.sleep(500)
-            poolTransactionStatus()
-            return@runOnUiThread
-          }
-
-          // Unsuccessful transaction.
-          setStateFinished(false)
+      if (customerResponseData?.status == "APPROVED") {
+        // Successful transaction.
+        setStateFinished(true)
+      } else {
+        // If status is pending, schedule to check again.
+        if (customerResponseData?.status == "PENDING") {
+          // TODO: Add backoff strategy for long polling. ( https://www.notion.so/cashappcash/Implement-Long-pooling-retry-logic-a9af47e2db9242faa5d64df2596fd78e )
+          Thread.sleep(500)
+          poolTransactionStatus()
+          return@Thread
         }
+
+        // Unsuccessful transaction.
+        setStateFinished(false)
       }
     }.start()
   }
@@ -226,14 +208,6 @@ class CashAppPayKit(
       Approved(customerResponseData!!)
     } else {
       Declined
-    }
-  }
-
-  private fun runOnUiThread(mainHandler: Handler, action: Runnable) {
-    if (skipLooperForTesting) {
-      action.run()
-    } else {
-      mainHandler.post(action)
     }
   }
 
