@@ -3,11 +3,12 @@ package com.squareup.cash.paykit.devapp
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import com.squareup.cash.paykit.CashAppPayKit
-import com.squareup.cash.paykit.CashAppPayKitListener
-import com.squareup.cash.paykit.PayKitState
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.CreatingCustomerRequest
@@ -21,17 +22,12 @@ import com.squareup.cash.paykit.devapp.databinding.ActivityMainBinding
 import com.squareup.cash.paykit.models.sdk.PayKitCurrency.USD
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
+import kotlinx.coroutines.launch
 
-const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
-const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
-
-const val redirectURI = "cashapppaykit://checkout"
-
-class MainActivity : AppCompatActivity(), CashAppPayKitListener {
+class MainActivity : AppCompatActivity() {
 
   private lateinit var binding: ActivityMainBinding
-
-  private val payKitSdk = CashAppPayKit(sandboxClientID, useSandboxEnvironment = true)
+  private val viewModel: MainActivityViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -40,18 +36,12 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
     setContentView(view)
 
     registerButtons()
-  }
-
-  override fun onDestroy() {
-    super.onDestroy()
-    payKitSdk.unregisterFromStateUpdates()
+    handlePayKitStateChanges()
   }
 
   private fun registerButtons() {
     binding.apply {
       createCustomerBtn.setOnClickListener {
-        payKitSdk.registerForStateUpdates(this@MainActivity)
-
         val amount = amountField.text.toString().toIntOrNull()
         val currency = if (amount == null) null else USD
         val paymentAction = if (toggleButton.checkedButtonId == R.id.oneTimeButton) {
@@ -69,11 +59,11 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
           )
         }
 
-        payKitSdk.createCustomerRequest(paymentAction)
+        viewModel.createCustomerRequest(paymentAction)
       }
 
       authorizeCustomerBtn.setOnClickListener {
-        payKitSdk.authorizeCustomerRequest(this@MainActivity)
+        viewModel.authorizeCustomerRequest(this@MainActivity)
       }
 
       // Toggle Buttons.
@@ -93,27 +83,35 @@ class MainActivity : AppCompatActivity(), CashAppPayKitListener {
    */
 
   @SuppressLint("SetTextI18n")
-  override fun payKitStateDidChange(newState: PayKitState) {
-    when (newState) {
-      is Approved -> {
-        binding.statusText.text = "APPROVED!\n\n ${prettyPrintDataClass(newState.responseData)}"
+  private fun handlePayKitStateChanges() {
+    lifecycleScope.launch {
+      repeatOnLifecycle(Lifecycle.State.STARTED) {
+        viewModel.payKitState.collect { newState ->
+          when (newState) {
+            is Approved -> {
+              binding.statusText.text =
+                "APPROVED!\n\n ${prettyPrintDataClass(newState.responseData)}"
+            }
+            Authorizing -> {} // Ignored for now.
+            CreatingCustomerRequest -> {} // Ignored for now.
+            Declined -> {} // Ignored for now.
+            NotStarted -> {} // Ignored for now.
+            is PayKitException -> {
+              binding.statusText.text = prettyPrintDataClass(newState.exception)
+              Log.e(
+                "DevApp",
+                "Got an exception from the SDK. E.: ${newState.exception}",
+              )
+            } // Ignored for now.
+            PollingTransactionStatus -> {} // Ignored for now.
+            is ReadyToAuthorize -> {
+              binding.statusText.text = prettyPrintDataClass(newState.responseData)
+            }
+            UpdatingCustomerRequest -> {} // Ignored for now.
+          }
+
+        }
       }
-      Authorizing -> {} // Ignored for now.
-      CreatingCustomerRequest -> {} // Ignored for now.
-      Declined -> {} // Ignored for now.
-      NotStarted -> {} // Ignored for now.
-      is PayKitException -> {
-        binding.statusText.text = prettyPrintDataClass(newState.exception)
-        Log.e(
-          "DevApp",
-          "Got an exception from the SDK. E.: ${newState.exception}",
-        )
-      } // Ignored for now.
-      PollingTransactionStatus -> {} // Ignored for now.
-      is ReadyToAuthorize -> {
-        binding.statusText.text = prettyPrintDataClass(newState.responseData)
-      }
-      UpdatingCustomerRequest -> {} // Ignored for now.
     }
   }
 }
