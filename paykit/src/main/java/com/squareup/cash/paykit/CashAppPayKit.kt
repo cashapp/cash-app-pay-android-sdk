@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import androidx.annotation.WorkerThread
 import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.Declined
@@ -69,6 +70,7 @@ class CashAppPayKit(
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
+  @WorkerThread
   fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
     Thread {
@@ -93,6 +95,7 @@ class CashAppPayKit(
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
+  @WorkerThread
   fun updateCustomerRequest(requestId: String, paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
     TODO("Implement updateCustomerRequest") // https://www.notion.so/cashappcash/Implement-updateCustomerRequest-c32a61dcdb3e49a8abd18119384492f0
