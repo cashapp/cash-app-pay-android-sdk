@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
       authorizeCustomerBtn.setOnClickListener {
         try {
           viewModel.authorizeCustomerRequest(this@MainActivity)
-        } catch (error: IllegalArgumentException) {
+        } catch (error: Exception) {
           Toast.makeText(this@MainActivity, error.message, Toast.LENGTH_LONG).show()
         }
       }
