@@ -1,7 +1,6 @@
 package com.squareup.cash.paykit
 
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
-import com.squareup.cash.paykit.models.response.AuthFlowTriggers
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import io.mockk.every
 import io.mockk.mockk

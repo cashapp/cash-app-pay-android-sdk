@@ -56,14 +56,6 @@ class CashAppPayKit(
     }
   }
 
-  init {
-    if (useSandboxEnvironment) {
-      NetworkManager.baseUrl = BASE_URL_SANDBOX
-    } else {
-      NetworkManager.baseUrl = BASE_URL_PRODUCTION
-    }
-  }
-
   /**
    * Create customer request given a [PayKitPaymentAction].
    * Must be called from a background thread.
