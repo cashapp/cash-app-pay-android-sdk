@@ -1,5 +1,6 @@
 package com.squareup.cash.paykit
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -122,7 +123,7 @@ class CashAppPayKit(
    * This function will set this SDK instance internal state to the `customerData` provided here as a function parameter.
    *
    */
-  @Throws(IllegalArgumentException::class)
+  @Throws(IllegalArgumentException::class, RuntimeException::class)
   fun authorizeCustomerRequest(
     context: Context,
     customerData: CustomerResponseData,
@@ -146,7 +147,11 @@ class CashAppPayKit(
     // Register for process lifecycle updates.
     PayKitLifecycleObserver.register(this)
 
-    context.startActivity(intent)
+    try {
+      context.startActivity(intent)
+    } catch (activityNotFoundException: ActivityNotFoundException) {
+      throw RuntimeException("unable to open mobileUrl")
+    }
     currentState = Authorizing
   }
 
