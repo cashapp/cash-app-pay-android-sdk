@@ -253,6 +253,8 @@ internal object NetworkManager {
       return NetworkResult.failure(PayKitConnectivityNetworkException(e))
     } catch (e: JsonEncodingException) {
       return NetworkResult.failure(e)
+    } catch (e: Exception) {
+      return NetworkResult.failure(e)
     }
   }
 }

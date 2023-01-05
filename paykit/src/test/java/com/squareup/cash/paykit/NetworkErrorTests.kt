@@ -3,6 +3,7 @@ package com.squareup.cash.paykit
 import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.exceptions.PayKitApiNetworkException
 import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
+import com.squareup.moshi.JsonDataException
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Assert.assertEquals
@@ -110,6 +111,67 @@ class NetworkErrorTests {
     assertTrue(
       "Expected SocketTimeoutException",
       ((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e is SocketTimeoutException,
+    )
+  }
+
+  @Test
+  fun `unsupported json payload should be wrapped in corresponding SDK exception`() {
+    val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
+    val mockListener = MockListener()
+    payKit.registerForStateUpdates(mockListener)
+
+    // Setup server & mock responses.
+    val server = MockWebServer()
+
+    // Below response is an invalid JSON, because `id` should NOT be `null`.
+    server.enqueue(
+      MockResponse().setResponseCode(200).setHeader("content-type", "application/json").setBody(
+        """{
+  "request": {
+    "id": null,
+    "status": "PENDING",
+    "actions": [
+      {
+        "type": "ONE_TIME_PAYMENT",
+        "amount": 500,
+        "currency": "USD",
+        "scope_id": "BRAND_9kx6p0mkuo97jnl025q9ni94t"
+      }
+    ],
+    "origin": {
+      "type": "DIRECT"
+    },
+    "auth_flow_triggers": {
+      "qr_code_image_url": "https://sandbox.api.cash.app/qr/sandbox/v1/GRR_k1xx5sp48azs73kqgkpdqpff-rxb309?rounded=0&format=png",
+      "qr_code_svg_url": "https://sandbox.api.cash.app/qr/sandbox/v1/GRR_k1xx5sp48azs73kqgkpdqpff-rxb309?rounded=0&format=svg",
+      "mobile_url": "https://sandbox.api.cash.app/customer-request/v1/requests/GRR_k1xx5sp48azs73kqgkpdqpff/interstitial?validity_token=rxb309",
+      "refreshes_at": "2022-11-11T19:28:25.451Z"
+    },
+    "created_at": "2022-11-11T19:27:55.475Z",
+    "updated_at": "2022-11-11T19:27:55.475Z",
+    "expires_at": "2022-11-11T20:27:55.451Z",
+    "requester_profile": {
+      "name": "SDK Hacking: The Brand",
+      "logo_url": "defaultlogo.jpg"
+    },
+    "channel": "IN_APP"
+  }
+}""",
+      ),
+    )
+
+    // Start the server.
+    server.start()
+
+    val baseUrl = server.url("")
+    NetworkManager.baseUrl = baseUrl.toString()
+    payKit.createCustomerRequest(FakeData.oneTimePayment)
+
+    // Verify that we got the appropriate JSON deserialization error.
+    assertTrue("Expected PayKitException end state", mockListener.state is PayKitException)
+    assertTrue(
+      "Expected JsonDataException",
+      (mockListener.state as PayKitException).exception is JsonDataException,
     )
   }
 
