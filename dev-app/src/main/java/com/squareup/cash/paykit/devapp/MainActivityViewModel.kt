@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitListener
 import com.squareup.cash.paykit.PayKitState
+import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,8 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
   private val _payKitState = MutableStateFlow<PayKitState>(PayKitState.NotStarted)
   val payKitState: StateFlow<PayKitState> = _payKitState.asStateFlow()
 
+  var currentRequestId: String? = null
+
   private val payKitSdk = CashAppPayKit(sandboxClientID, useSandboxEnvironment = true)
 
   init {
@@ -35,12 +38,22 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
   }
 
   override fun payKitStateDidChange(newState: PayKitState) {
+    if (newState is ReadyToAuthorize) {
+      currentRequestId = newState.responseData.id
+    }
     _payKitState.value = newState
   }
 
   fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     viewModelScope.launch(Dispatchers.IO) {
       payKitSdk.createCustomerRequest(paymentAction)
+    }
+  }
+
+  fun updateCustomerRequest(paymentAction: PayKitPaymentAction) {
+    val requestId = currentRequestId ?: return
+    viewModelScope.launch(Dispatchers.IO) {
+      payKitSdk.updateCustomerRequest(requestId, paymentAction)
     }
   }
 

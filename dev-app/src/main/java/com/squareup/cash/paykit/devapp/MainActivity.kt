@@ -20,6 +20,7 @@ import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
 import com.squareup.cash.paykit.PayKitState.UpdatingCustomerRequest
 import com.squareup.cash.paykit.devapp.databinding.ActivityMainBinding
 import com.squareup.cash.paykit.models.sdk.PayKitCurrency.USD
+import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
 import kotlinx.coroutines.launch
@@ -41,29 +42,19 @@ class MainActivity : AppCompatActivity() {
 
   private fun registerButtons() {
     binding.apply {
+      // Create Customer button.
       createCustomerBtn.setOnClickListener {
-        val amount = amountField.text.toString().toIntOrNull()
-        val currency = if (amount == null) null else USD
-        val paymentAction = if (toggleButton.checkedButtonId == R.id.oneTimeButton) {
-          OneTimeAction(
-            redirectUri = redirectURI,
-            currency = currency,
-            amount = amount,
-            scopeId = sandboxBrandID,
-          )
-        } else {
-          OnFileAction(
-            redirectUri = redirectURI,
-            scopeId = sandboxBrandID,
-            accountReferenceId = referenceField.text.toString(),
-          )
-        }
-
-        viewModel.createCustomerRequest(paymentAction)
+        viewModel.createCustomerRequest(buildPaymentAction())
       }
 
+      // Authorize button.
       authorizeCustomerBtn.setOnClickListener {
         viewModel.authorizeCustomerRequest(this@MainActivity)
+      }
+
+      // Update request button.
+      updateCustomerBtn.setOnClickListener {
+        viewModel.updateCustomerRequest(buildPaymentAction())
       }
 
       // Toggle Buttons.
@@ -75,6 +66,28 @@ class MainActivity : AppCompatActivity() {
         amountContainer.isVisible = false
         referenceContainer.isVisible = true
       }
+    }
+  }
+
+  /**
+   * Produce a [PayKitPaymentAction] payload based on the current form parameters.
+   */
+  private fun buildPaymentAction(): PayKitPaymentAction {
+    val amount = binding.amountField.text.toString().toIntOrNull()
+    val currency = if (amount == null) null else USD
+    return if (binding.toggleButton.checkedButtonId == R.id.oneTimeButton) {
+      OneTimeAction(
+        redirectUri = redirectURI,
+        currency = currency,
+        amount = amount,
+        scopeId = sandboxBrandID,
+      )
+    } else {
+      OnFileAction(
+        redirectUri = redirectURI,
+        scopeId = sandboxBrandID,
+        accountReferenceId = binding.referenceField.text.toString(),
+      )
     }
   }
 

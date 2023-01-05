@@ -2,20 +2,17 @@ package com.squareup.cash.paykit
 
 import androidx.annotation.VisibleForTesting
 import com.squareup.cash.paykit.RequestType.GET
+import com.squareup.cash.paykit.RequestType.PATCH
 import com.squareup.cash.paykit.RequestType.POST
 import com.squareup.cash.paykit.exceptions.PayKitApiNetworkException
 import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
-import com.squareup.cash.paykit.models.common.Action
 import com.squareup.cash.paykit.models.common.NetworkResult
 import com.squareup.cash.paykit.models.common.NetworkResult.Failure
 import com.squareup.cash.paykit.models.common.NetworkResult.Success
-import com.squareup.cash.paykit.models.request.CreateCustomerRequest
-import com.squareup.cash.paykit.models.request.CustomerRequestData
+import com.squareup.cash.paykit.models.request.CreateCustomerRequestFactory
 import com.squareup.cash.paykit.models.response.ApiErrorResponse
 import com.squareup.cash.paykit.models.response.CustomerTopLevelResponse
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
-import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
-import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
@@ -28,7 +25,6 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
-import java.util.UUID
 
 enum class RequestType {
   GET,
@@ -38,14 +34,13 @@ enum class RequestType {
 
 internal object NetworkManager {
 
-  private const val CHANNEL_IN_APP = "IN_APP"
-  private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
-  private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
-
   val CREATE_CUSTOMER_REQUEST_ENDPOINT: String
     get() = "${baseUrl}requests"
 
   val RETRIEVE_EXISTING_REQUEST_ENDPOINT: String
+    get() = "${baseUrl}requests/"
+
+  val UPDATE_CUSTOMER_REQUEST_ENDPOINT: String
     get() = "${baseUrl}requests/"
 
   @VisibleForTesting
@@ -58,10 +53,28 @@ internal object NetworkManager {
     clientId: String,
     paymentAction: PayKitPaymentAction,
   ): NetworkResult<CustomerTopLevelResponse> {
-    return when (paymentAction) {
-      is OnFileAction -> onFilePaymentCustomerRequest(clientId, paymentAction)
-      is OneTimeAction -> oneTimePaymentCustomerRequest(clientId, paymentAction)
-    }
+    val createCustomerRequest = CreateCustomerRequestFactory.build(clientId, paymentAction)
+    return executeNetworkRequest(
+      POST,
+      CREATE_CUSTOMER_REQUEST_ENDPOINT,
+      clientId,
+      createCustomerRequest,
+    )
+  }
+
+  @Throws(IOException::class)
+  fun updateCustomerRequest(
+    clientId: String,
+    requestId: String,
+    paymentAction: PayKitPaymentAction,
+  ): NetworkResult<CustomerTopLevelResponse> {
+    val createCustomerRequest = CreateCustomerRequestFactory.build(clientId, paymentAction)
+    return executeNetworkRequest(
+      PATCH,
+      UPDATE_CUSTOMER_REQUEST_ENDPOINT + requestId,
+      clientId,
+      createCustomerRequest,
+    )
   }
 
   fun retrieveUpdatedRequestData(
@@ -73,66 +86,6 @@ internal object NetworkManager {
       RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
       clientId,
       null,
-    )
-  }
-
-  private fun onFilePaymentCustomerRequest(
-    clientId: String,
-    paymentAction: OnFileAction,
-  ): NetworkResult<CustomerTopLevelResponse> {
-    // Create request data.
-    val scopeIdOrClientId = paymentAction.scopeId ?: clientId
-    val requestAction =
-      Action(
-        scopeId = scopeIdOrClientId,
-        type = PAYMENT_TYPE_ON_FILE,
-      )
-    val requestData = CustomerRequestData(
-      actions = listOf(requestAction),
-      channel = CHANNEL_IN_APP,
-      redirectUri = paymentAction.redirectUri,
-    )
-    val createCustomerRequest = CreateCustomerRequest(
-      idempotencyKey = UUID.randomUUID().toString(),
-      customerRequestData = requestData,
-    )
-
-    return executeNetworkRequest(
-      POST,
-      CREATE_CUSTOMER_REQUEST_ENDPOINT,
-      clientId,
-      createCustomerRequest,
-    )
-  }
-
-  private fun oneTimePaymentCustomerRequest(
-    clientId: String,
-    paymentAction: OneTimeAction,
-  ): NetworkResult<CustomerTopLevelResponse> {
-    // Create request data.
-    val scopeIdOrClientId = paymentAction.scopeId ?: clientId
-    val requestAction =
-      Action(
-        amount_cents = paymentAction.amount,
-        currency = paymentAction.currency?.backendValue,
-        scopeId = scopeIdOrClientId,
-        type = PAYMENT_TYPE_ONE_TIME,
-      )
-    val requestData = CustomerRequestData(
-      actions = listOf(requestAction),
-      channel = CHANNEL_IN_APP,
-      redirectUri = paymentAction.redirectUri,
-    )
-    val createCustomerRequest = CreateCustomerRequest(
-      idempotencyKey = UUID.randomUUID().toString(),
-      customerRequestData = requestData,
-    )
-
-    return executeNetworkRequest(
-      POST,
-      CREATE_CUSTOMER_REQUEST_ENDPOINT,
-      clientId,
-      createCustomerRequest,
     )
   }
 
@@ -159,7 +112,7 @@ internal object NetworkManager {
     urlConnection.setRequestProperty("Accept", "application/json")
     urlConnection.setRequestProperty("Authorization", "Client $clientId")
 
-    if (requestType == POST) {
+    if (requestType == POST || requestType == PATCH) {
       urlConnection.doOutput = true
       urlConnection.setChunkedStreamingMode(0)
     }
