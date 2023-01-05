@@ -9,7 +9,8 @@ import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
 import com.squareup.cash.paykit.models.common.NetworkResult
 import com.squareup.cash.paykit.models.common.NetworkResult.Failure
 import com.squareup.cash.paykit.models.common.NetworkResult.Success
-import com.squareup.cash.paykit.models.request.CreateCustomerRequestFactory
+import com.squareup.cash.paykit.models.request.CreateCustomerRequest
+import com.squareup.cash.paykit.models.request.CustomerRequestDataFactory
 import com.squareup.cash.paykit.models.response.ApiErrorResponse
 import com.squareup.cash.paykit.models.response.CustomerTopLevelResponse
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
@@ -25,6 +26,7 @@ import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
+import java.util.UUID
 
 enum class RequestType {
   GET,
@@ -53,7 +55,12 @@ internal object NetworkManager {
     clientId: String,
     paymentAction: PayKitPaymentAction,
   ): NetworkResult<CustomerTopLevelResponse> {
-    val createCustomerRequest = CreateCustomerRequestFactory.build(clientId, paymentAction)
+    val customerRequestData = CustomerRequestDataFactory.build(clientId, paymentAction)
+    val createCustomerRequest = CreateCustomerRequest(
+      idempotencyKey = UUID.randomUUID().toString(),
+      customerRequestData = customerRequestData,
+    )
+
     return executeNetworkRequest(
       POST,
       CREATE_CUSTOMER_REQUEST_ENDPOINT,
@@ -68,7 +75,11 @@ internal object NetworkManager {
     requestId: String,
     paymentAction: PayKitPaymentAction,
   ): NetworkResult<CustomerTopLevelResponse> {
-    val createCustomerRequest = CreateCustomerRequestFactory.build(clientId, paymentAction)
+    val customerRequestData =
+      CustomerRequestDataFactory.build(clientId, paymentAction, isRequestUpdate = true)
+    val createCustomerRequest = CreateCustomerRequest(
+      customerRequestData = customerRequestData,
+    )
     return executeNetworkRequest(
       PATCH,
       UPDATE_CUSTOMER_REQUEST_ENDPOINT + requestId,

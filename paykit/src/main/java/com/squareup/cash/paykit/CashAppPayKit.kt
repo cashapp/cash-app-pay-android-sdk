@@ -96,7 +96,7 @@ class CashAppPayKit(
   @WorkerThread
   fun updateCustomerRequest(requestId: String, paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
-    val networkResult = NetworkManager.createCustomerRequest(clientId, paymentAction)
+    val networkResult = NetworkManager.updateCustomerRequest(clientId, requestId, paymentAction)
     when (networkResult) {
       is Failure -> {
         currentState = PayKitException(networkResult.exception)

@@ -4,12 +4,11 @@ import com.squareup.cash.paykit.models.common.Action
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OnFileAction
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction.OneTimeAction
-import java.util.UUID
 
 /**
  * Factory that will create a [CreateCustomerRequest] from a [PayKitPaymentAction].
  */
-object CreateCustomerRequestFactory {
+object CustomerRequestDataFactory {
 
   private const val CHANNEL_IN_APP = "IN_APP"
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
@@ -18,17 +17,19 @@ object CreateCustomerRequestFactory {
   fun build(
     clientId: String,
     paymentAction: PayKitPaymentAction,
-  ): CreateCustomerRequest {
+    isRequestUpdate: Boolean = false,
+  ): CustomerRequestData {
     return when (paymentAction) {
-      is OnFileAction -> buildFromOnFileAction(clientId, paymentAction)
-      is OneTimeAction -> buildFromOneTimeAction(clientId, paymentAction)
+      is OnFileAction -> buildFromOnFileAction(clientId, paymentAction, isRequestUpdate)
+      is OneTimeAction -> buildFromOneTimeAction(clientId, paymentAction, isRequestUpdate)
     }
   }
 
   private fun buildFromOnFileAction(
     clientId: String,
     onFileAction: OnFileAction,
-  ): CreateCustomerRequest {
+    isRequestUpdate: Boolean,
+  ): CustomerRequestData {
     // Create request data.
     val scopeIdOrClientId = onFileAction.scopeId ?: clientId
     val requestAction =
@@ -36,21 +37,26 @@ object CreateCustomerRequestFactory {
         scopeId = scopeIdOrClientId,
         type = PAYMENT_TYPE_ON_FILE,
       )
-    val requestData = CustomerRequestData(
-      actions = listOf(requestAction),
-      channel = CHANNEL_IN_APP,
-      redirectUri = onFileAction.redirectUri,
-    )
-    return CreateCustomerRequest(
-      idempotencyKey = UUID.randomUUID().toString(),
-      customerRequestData = requestData,
-    )
+    return if (isRequestUpdate) {
+      CustomerRequestData(
+        actions = listOf(requestAction),
+        channel = null,
+        redirectUri = null,
+      )
+    } else {
+      CustomerRequestData(
+        actions = listOf(requestAction),
+        channel = CHANNEL_IN_APP,
+        redirectUri = onFileAction.redirectUri,
+      )
+    }
   }
 
   private fun buildFromOneTimeAction(
     clientId: String,
     oneTimeAction: OneTimeAction,
-  ): CreateCustomerRequest {
+    isRequestUpdate: Boolean,
+  ): CustomerRequestData {
     // Create request data.
     val scopeIdOrClientId = oneTimeAction.scopeId ?: clientId
     val requestAction =
@@ -60,14 +66,18 @@ object CreateCustomerRequestFactory {
         scopeId = scopeIdOrClientId,
         type = PAYMENT_TYPE_ONE_TIME,
       )
-    val requestData = CustomerRequestData(
-      actions = listOf(requestAction),
-      channel = CHANNEL_IN_APP,
-      redirectUri = oneTimeAction.redirectUri,
-    )
-    return CreateCustomerRequest(
-      idempotencyKey = UUID.randomUUID().toString(),
-      customerRequestData = requestData,
-    )
+    return if (isRequestUpdate) {
+      CustomerRequestData(
+        actions = listOf(requestAction),
+        channel = null,
+        redirectUri = null,
+      )
+    } else {
+      CustomerRequestData(
+        actions = listOf(requestAction),
+        channel = CHANNEL_IN_APP,
+        redirectUri = oneTimeAction.redirectUri,
+      )
+    }
   }
 }
