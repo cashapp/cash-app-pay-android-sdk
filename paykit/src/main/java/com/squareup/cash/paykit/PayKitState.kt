@@ -26,8 +26,8 @@ sealed interface PayKitState {
   object UpdatingCustomerRequest : PayKitState
 
   /**
-   *	This state denotes that a valid Customer Request exists, and we're ready to authorize upon
-   *	user action.
+   * This state denotes that a valid Customer Request exists, and we're ready to authorize upon
+   * user action.
    */
   class ReadyToAuthorize(val responseData: CustomerResponseData) : PayKitState
 
