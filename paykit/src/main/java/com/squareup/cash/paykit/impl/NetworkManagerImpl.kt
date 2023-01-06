@@ -1,6 +1,5 @@
 package com.squareup.cash.paykit.impl
 
-import com.squareup.cash.paykit.NetworkManager
 import com.squareup.cash.paykit.exceptions.PayKitApiNetworkException
 import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
 import com.squareup.cash.paykit.impl.RequestType.GET

@@ -4,6 +4,7 @@ import android.content.Context
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.CreatingCustomerRequest
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
+import com.squareup.cash.paykit.impl.NetworkManager
 import com.squareup.cash.paykit.models.common.NetworkResult
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import io.mockk.MockKAnnotations
@@ -11,13 +12,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.verify
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
-@RunWith(RobolectricTestRunner::class)
 class CashAppPayKitStateTests {
 
   @MockK(relaxed = true)
@@ -29,11 +26,6 @@ class CashAppPayKitStateTests {
   @Before
   fun setup() {
     MockKAnnotations.init(this)
-  }
-
-  @After
-  fun tearDown() {
-    PayKitLifecycleObserver.reset()
   }
 
   @Test
@@ -86,6 +78,7 @@ class CashAppPayKitStateTests {
     CashAppPayKitImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
+      payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
     )
 }

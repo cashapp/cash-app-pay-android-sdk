@@ -4,8 +4,10 @@ import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.exceptions.PayKitApiNetworkException
 import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
+import com.squareup.cash.paykit.impl.NetworkManager
 import com.squareup.cash.paykit.impl.NetworkManagerImpl
 import com.squareup.moshi.JsonDataException
+import io.mockk.mockk
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Assert.assertEquals
@@ -193,6 +195,7 @@ class NetworkErrorTests {
     CashAppPayKitImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
+      payKitLifecycleListener = mockk(),
       useSandboxEnvironment = true,
     )
 }

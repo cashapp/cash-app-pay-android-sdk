@@ -1,4 +1,4 @@
-package com.squareup.cash.paykit
+package com.squareup.cash.paykit.impl
 
 import com.squareup.cash.paykit.models.common.NetworkResult
 import com.squareup.cash.paykit.models.response.CustomerTopLevelResponse

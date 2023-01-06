@@ -10,13 +10,10 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
 
 /**
  * Robolectric is used for the Lifecycle observer
  */
-@RunWith(RobolectricTestRunner::class)
 class CashAppPayKitAuthorizeTests {
 
   @MockK(relaxed = true)
@@ -78,6 +75,7 @@ class CashAppPayKitAuthorizeTests {
     CashAppPayKitImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = mockk(),
+      payKitLifecycleListener = mockk(),
       useSandboxEnvironment = true,
     )
 }

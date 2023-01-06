@@ -9,9 +9,6 @@ import androidx.annotation.WorkerThread
 import com.squareup.cash.paykit.BuildConfig
 import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitListener
-import com.squareup.cash.paykit.NetworkManager
-import com.squareup.cash.paykit.PayKitLifecycleListener
-import com.squareup.cash.paykit.PayKitLifecycleObserver
 import com.squareup.cash.paykit.PayKitState
 import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing
@@ -36,6 +33,7 @@ import com.squareup.cash.paykit.utils.orElse
 internal class CashAppPayKitImpl(
   private val clientId: String,
   private val networkManager: NetworkManager,
+  private val payKitLifecycleListener: PayKitLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
 ) : CashAppPayKit, PayKitLifecycleListener {
 
@@ -54,9 +52,6 @@ internal class CashAppPayKitImpl(
           )
         }
     }
-
-  init {
-  }
 
   /**
    * Create customer request given a [PayKitPaymentAction].
@@ -157,7 +152,7 @@ internal class CashAppPayKitImpl(
     customerResponseData = customerData
 
     // Register for process lifecycle updates.
-    PayKitLifecycleObserver.register(this)
+    payKitLifecycleListener.register(this)
 
     try {
       context.startActivity(intent)
@@ -179,7 +174,7 @@ internal class CashAppPayKitImpl(
    */
   override fun unregisterFromStateUpdates() {
     callbackListener = null
-    PayKitLifecycleObserver.unregister(this)
+    payKitLifecycleListener.unregister(this)
   }
 
   private fun enforceRegisteredStateUpdatesListener() {
@@ -238,7 +233,7 @@ internal class CashAppPayKitImpl(
   }
 
   private fun setStateFinished(wasSuccessful: Boolean) {
-    PayKitLifecycleObserver.unregister(this)
+    payKitLifecycleListener.unregister(this)
     currentState = if (wasSuccessful) {
       Approved(customerResponseData!!)
     } else {

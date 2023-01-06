@@ -5,6 +5,8 @@ import androidx.annotation.WorkerThread
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
 import com.squareup.cash.paykit.impl.NetworkManagerImpl
+import com.squareup.cash.paykit.impl.PayKitLifecycleObserver
+import com.squareup.cash.paykit.impl.PayKitLifecycleObserverImpl
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 
@@ -66,6 +68,8 @@ interface CashAppPayKit {
 
 object CashAppPayKitFactory {
 
+  private val payKitLifecycleObserver: PayKitLifecycleObserver = PayKitLifecycleObserverImpl()
+
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.
    */
@@ -75,6 +79,7 @@ object CashAppPayKitFactory {
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = NetworkManagerImpl(BASE_URL_PRODUCTION),
+      payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = false,
     )
   }
@@ -88,6 +93,7 @@ object CashAppPayKitFactory {
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = NetworkManagerImpl(BASE_URL_SANDBOX),
+      payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = true,
     )
   }
