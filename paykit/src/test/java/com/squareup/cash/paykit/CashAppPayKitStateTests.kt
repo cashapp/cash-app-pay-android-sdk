@@ -3,6 +3,7 @@ package com.squareup.cash.paykit
 import android.content.Context
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.CreatingCustomerRequest
+import com.squareup.cash.paykit.impl.CashAppPayKitImpl
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -72,5 +73,5 @@ class CashAppPayKitStateTests {
     verify { listener.payKitStateDidChange(Authorizing) }
   }
 
-  private fun createPayKit() = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
+  private fun createPayKit() = CashAppPayKitImpl(FakeData.CLIENT_ID, useSandboxEnvironment = true)
 }

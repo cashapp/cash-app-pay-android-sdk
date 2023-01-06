@@ -3,6 +3,7 @@ package com.squareup.cash.paykit
 import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.exceptions.PayKitApiNetworkException
 import com.squareup.cash.paykit.exceptions.PayKitConnectivityNetworkException
+import com.squareup.cash.paykit.impl.CashAppPayKitImpl
 import com.squareup.moshi.JsonDataException
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -17,7 +18,7 @@ class NetworkErrorTests {
 
   @Test
   fun `HTTP code without payload should be wrapped with correct SDK defined exception`() {
-    val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
+    val payKit = CashAppPayKitImpl(FakeData.CLIENT_ID, useSandboxEnvironment = true)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
@@ -46,7 +47,7 @@ class NetworkErrorTests {
 
   @Test
   fun `HTTP error code with payload should be wrapped with correct SDK defined exception and contains API deserialized data`() {
-    val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
+    val payKit = CashAppPayKitImpl(FakeData.CLIENT_ID, useSandboxEnvironment = true)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
@@ -90,7 +91,7 @@ class NetworkErrorTests {
 
   @Test
   fun `network request timeout should be wrapped with correct SDK defined exception`() {
-    val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
+    val payKit = CashAppPayKitImpl(FakeData.CLIENT_ID, useSandboxEnvironment = true)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
     // Setup server & mock responses.
@@ -116,7 +117,7 @@ class NetworkErrorTests {
 
   @Test
   fun `unsupported json payload should be wrapped in corresponding SDK exception`() {
-    val payKit = CashAppPayKit(FakeData.CLIENT_ID, useSandboxEnvironment = true)
+    val payKit = CashAppPayKitImpl(FakeData.CLIENT_ID, useSandboxEnvironment = true)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
