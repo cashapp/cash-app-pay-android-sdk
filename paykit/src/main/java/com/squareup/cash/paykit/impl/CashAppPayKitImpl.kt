@@ -29,15 +29,13 @@ import com.squareup.cash.paykit.models.response.CustomerResponseData
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 import com.squareup.cash.paykit.utils.orElse
 
-private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
-private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
-
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
  * @param useSandboxEnvironment Specify what development environment should be used.
  */
-class CashAppPayKitImpl(
+internal class CashAppPayKitImpl(
   private val clientId: String,
+  private val networkManager: NetworkManager,
   private val useSandboxEnvironment: Boolean = false,
 ) : CashAppPayKit, PayKitLifecycleListener {
 
@@ -58,11 +56,6 @@ class CashAppPayKitImpl(
     }
 
   init {
-    if (useSandboxEnvironment) {
-      NetworkManager.baseUrl = BASE_URL_SANDBOX
-    } else {
-      NetworkManager.baseUrl = BASE_URL_PRODUCTION
-    }
   }
 
   /**
@@ -76,7 +69,7 @@ class CashAppPayKitImpl(
   override fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
     currentState = CreatingCustomerRequest
-    val networkResult = NetworkManager.createCustomerRequest(clientId, paymentAction)
+    val networkResult = networkManager.createCustomerRequest(clientId, paymentAction)
     when (networkResult) {
       is Failure -> {
         currentState = PayKitException(networkResult.exception)
@@ -99,11 +92,11 @@ class CashAppPayKitImpl(
   @WorkerThread
   override fun updateCustomerRequest(
     requestId: String,
-    paymentAction: PayKitPaymentAction
+    paymentAction: PayKitPaymentAction,
   ) {
     enforceRegisteredStateUpdatesListener()
     currentState = UpdatingCustomerRequest
-    val networkResult = NetworkManager.updateCustomerRequest(clientId, requestId, paymentAction)
+    val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentAction)
     when (networkResult) {
       is Failure -> {
         currentState = PayKitException(networkResult.exception)
@@ -128,8 +121,8 @@ class CashAppPayKitImpl(
     if (customerData == null) {
       logAndSoftCrash(
         PayKitIntegrationException(
-          "Can't call authorizeCustomerRequest user before calling `createCustomerRequest`. Alternatively provide your own customerData"
-        )
+          "Can't call authorizeCustomerRequest user before calling `createCustomerRequest`. Alternatively provide your own customerData",
+        ),
       )
       return
     }
@@ -193,15 +186,15 @@ class CashAppPayKitImpl(
     if (callbackListener == null) {
       logAndSoftCrash(
         PayKitIntegrationException(
-          "Shouldn't call this function before registering for state updates via `registerForStateUpdates`."
-        )
+          "Shouldn't call this function before registering for state updates via `registerForStateUpdates`.",
+        ),
       )
     }
   }
 
   private fun poolTransactionStatus() {
     Thread {
-      val networkResult = NetworkManager.retrieveUpdatedRequestData(
+      val networkResult = networkManager.retrieveUpdatedRequestData(
         clientId,
         customerResponseData!!.id,
       )

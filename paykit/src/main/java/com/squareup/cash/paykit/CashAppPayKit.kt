@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.annotation.WorkerThread
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
+import com.squareup.cash.paykit.impl.NetworkManagerImpl
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction
 
@@ -29,7 +30,7 @@ interface CashAppPayKit {
   @WorkerThread
   fun updateCustomerRequest(
     requestId: String,
-    paymentAction: PayKitPaymentAction
+    paymentAction: PayKitPaymentAction,
   )
 
   /**
@@ -71,7 +72,11 @@ object CashAppPayKitFactory {
   fun create(
     clientId: String,
   ): CashAppPayKit {
-    return CashAppPayKitImpl(clientId, false)
+    return CashAppPayKitImpl(
+      clientId = clientId,
+      networkManager = NetworkManagerImpl(BASE_URL_PRODUCTION),
+      useSandboxEnvironment = false,
+    )
   }
 
   /**
@@ -80,8 +85,15 @@ object CashAppPayKitFactory {
   fun createSandbox(
     clientId: String,
   ): CashAppPayKit {
-    return CashAppPayKitImpl(clientId, true)
+    return CashAppPayKitImpl(
+      clientId = clientId,
+      networkManager = NetworkManagerImpl(BASE_URL_SANDBOX),
+      useSandboxEnvironment = true,
+    )
   }
+
+  private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
+  private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
 }
 
 interface CashAppPayKitListener {

@@ -4,6 +4,7 @@ import android.content.Context
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.CreatingCustomerRequest
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
+import com.squareup.cash.paykit.models.common.NetworkResult
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -22,6 +23,9 @@ class CashAppPayKitStateTests {
   @MockK(relaxed = true)
   private lateinit var context: Context
 
+  @MockK(relaxed = true)
+  private lateinit var networkManager: NetworkManager
+
   @Before
   fun setup() {
     MockKAnnotations.init(this)
@@ -37,6 +41,11 @@ class CashAppPayKitStateTests {
     val payKit = createPayKit()
     val listener = mockk<CashAppPayKitListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
+
+    every { networkManager.createCustomerRequest(any(), any()) } returns NetworkResult.failure(
+      Exception("bad"),
+    )
+
     payKit.createCustomerRequest(FakeData.oneTimePayment)
     verify { listener.payKitStateDidChange(CreatingCustomerRequest) }
   }
@@ -73,5 +82,10 @@ class CashAppPayKitStateTests {
     verify { listener.payKitStateDidChange(Authorizing) }
   }
 
-  private fun createPayKit() = CashAppPayKitImpl(FakeData.CLIENT_ID, useSandboxEnvironment = true)
+  private fun createPayKit() =
+    CashAppPayKitImpl(
+      clientId = FakeData.CLIENT_ID,
+      networkManager = networkManager,
+      useSandboxEnvironment = true,
+    )
 }

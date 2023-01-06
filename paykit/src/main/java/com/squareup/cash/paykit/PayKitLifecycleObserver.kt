@@ -8,6 +8,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import java.lang.ref.WeakReference
 
+//  todo make an interface, but use the static one when construction graph
 object PayKitLifecycleObserver : DefaultLifecycleObserver {
 
   private val payKitInstances = arrayListOf<WeakReference<PayKitLifecycleListener>>()

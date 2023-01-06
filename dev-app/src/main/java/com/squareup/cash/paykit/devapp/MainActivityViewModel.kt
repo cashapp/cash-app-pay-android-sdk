@@ -3,7 +3,6 @@ package com.squareup.cash.paykit.devapp
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitFactory
 import com.squareup.cash.paykit.CashAppPayKitListener
 import com.squareup.cash.paykit.PayKitState
