@@ -1,5 +1,6 @@
 package com.squareup.cash.paykit
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -48,14 +49,6 @@ class CashAppPayKit(
           )
         }
     }
-
-  init {
-    if (useSandboxEnvironment) {
-      NetworkManager.baseUrl = BASE_URL_SANDBOX
-    } else {
-      NetworkManager.baseUrl = BASE_URL_PRODUCTION
-    }
-  }
 
   init {
     if (useSandboxEnvironment) {
@@ -118,6 +111,7 @@ class CashAppPayKit(
    *
    * @param context Android context class.
    */
+  @Throws(IllegalArgumentException::class, PayKitIntegrationException::class)
   fun authorizeCustomerRequest(context: Context) {
     val customerData = customerResponseData
 
@@ -134,8 +128,23 @@ class CashAppPayKit(
    * This function will set this SDK instance internal state to the `customerData` provided here as a function parameter.
    *
    */
-  fun authorizeCustomerRequest(context: Context, customerData: CustomerResponseData) {
+  @Throws(IllegalArgumentException::class, RuntimeException::class)
+  fun authorizeCustomerRequest(
+    context: Context,
+    customerData: CustomerResponseData,
+  ) {
     enforceRegisteredStateUpdatesListener()
+
+    if (customerData.authFlowTriggers?.mobileUrl.isNullOrEmpty()) {
+      throw IllegalArgumentException("customerData is missing redirect url")
+    }
+    // Open Mobile URL provided by backend response.
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.data = try {
+      Uri.parse(customerData.authFlowTriggers?.mobileUrl)
+    } catch (error: NullPointerException) {
+      throw IllegalArgumentException("Cannot parse redirect url")
+    }
 
     // Replace internal state.
     customerResponseData = customerData
@@ -143,10 +152,11 @@ class CashAppPayKit(
     // Register for process lifecycle updates.
     PayKitLifecycleObserver.register(this)
 
-    // Open Mobile URL provided by backend response.
-    val intent = Intent(Intent.ACTION_VIEW)
-    intent.data = Uri.parse(customerData.authFlowTriggers?.mobileUrl)
-    context.startActivity(intent)
+    try {
+      context.startActivity(intent)
+    } catch (activityNotFoundException: ActivityNotFoundException) {
+      throw RuntimeException("unable to open mobileUrl")
+    }
     currentState = Authorizing
   }
 
