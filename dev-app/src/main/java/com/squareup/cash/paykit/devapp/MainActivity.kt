@@ -3,6 +3,7 @@ package com.squareup.cash.paykit.devapp
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -49,7 +50,11 @@ class MainActivity : AppCompatActivity() {
 
       // Authorize button.
       authorizeCustomerBtn.setOnClickListener {
-        viewModel.authorizeCustomerRequest(this@MainActivity)
+        try {
+          viewModel.authorizeCustomerRequest(this@MainActivity)
+        } catch (error: Exception) {
+          Toast.makeText(this@MainActivity, error.message, Toast.LENGTH_LONG).show()
+        }
       }
 
       // Update request button.
