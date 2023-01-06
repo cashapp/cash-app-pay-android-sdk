@@ -96,7 +96,16 @@ class CashAppPayKit(
   @WorkerThread
   fun updateCustomerRequest(requestId: String, paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
-    TODO("Implement updateCustomerRequest") // https://www.notion.so/cashappcash/Implement-updateCustomerRequest-c32a61dcdb3e49a8abd18119384492f0
+    val networkResult = NetworkManager.updateCustomerRequest(clientId, requestId, paymentAction)
+    when (networkResult) {
+      is Failure -> {
+        currentState = PayKitException(networkResult.exception)
+      }
+      is Success -> {
+        customerResponseData = networkResult.data.customerResponseData
+        currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
+      }
+    }
   }
 
   /**

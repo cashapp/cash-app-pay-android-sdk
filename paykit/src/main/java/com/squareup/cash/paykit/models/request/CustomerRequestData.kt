@@ -9,7 +9,7 @@ data class CustomerRequestData(
   @Json(name = "actions")
   val actions: List<Action>,
   @Json(name = "channel")
-  val channel: String,
+  val channel: String?,
   @Json(name = "redirect_url")
-  val redirectUri: String,
+  val redirectUri: String?,
 )
