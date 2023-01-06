@@ -4,6 +4,15 @@ plugins {
   id("com.google.devtools.ksp").version("1.6.21-1.0.5")
 }
 
+def LIB_GROUP_ID = 'app.cash.paykit'
+def LIB_ARTIFACT_ID = 'core'
+def LIB_VERSION = '0.0.1-SNAPSHOT'
+
+task sourceJar(type: Jar) {
+  from android.sourceSets.main.java.srcDirs
+  classifier "sources"
+}
+
 android {
   namespace 'com.squareup.cash.paykit'
   compileSdk 31
@@ -17,11 +26,18 @@ android {
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"
+
+    publishing {
+      singleVariant("release") {
+        withSourcesJar()
+        withJavadocJar()
+      }
+    }
   }
 
   buildTypes {
     release {
-      minifyEnabled true
+      minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
   }
@@ -47,6 +63,32 @@ android {
     unitTests {
       returnDefaultValues = true
       includeAndroidResources = true
+    }
+  }
+}
+
+afterEvaluate {
+  publishing {
+    publications {
+      release(MavenPublication) {
+        groupId LIB_GROUP_ID
+        artifactId LIB_ARTIFACT_ID
+        version LIB_VERSION
+        artifact("$buildDir/outputs/aar/paykit-release.aar")
+        artifact(sourceJar)
+
+        pom.withXml {
+          def dependenciesNode = asNode().appendNode('dependencies')
+          configurations.implementation.allDependencies.each { dependency ->
+            if (dependency.name != 'unspecified') {
+              def dependencyNode = dependenciesNode.appendNode('dependency')
+              dependencyNode.appendNode('groupId', dependency.group)
+              dependencyNode.appendNode('artifactId', dependency.name)
+              dependencyNode.appendNode('version', dependency.version)
+            }
+          }
+        }
+      }
     }
   }
 }
