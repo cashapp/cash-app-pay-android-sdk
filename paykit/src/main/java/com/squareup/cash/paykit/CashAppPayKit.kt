@@ -7,11 +7,13 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing
+import com.squareup.cash.paykit.PayKitState.CreatingCustomerRequest
 import com.squareup.cash.paykit.PayKitState.Declined
 import com.squareup.cash.paykit.PayKitState.NotStarted
 import com.squareup.cash.paykit.PayKitState.PayKitException
 import com.squareup.cash.paykit.PayKitState.PollingTransactionStatus
 import com.squareup.cash.paykit.PayKitState.ReadyToAuthorize
+import com.squareup.cash.paykit.PayKitState.UpdatingCustomerRequest
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
 import com.squareup.cash.paykit.models.common.NetworkResult.Failure
 import com.squareup.cash.paykit.models.common.NetworkResult.Success
@@ -73,6 +75,7 @@ class CashAppPayKit(
   @WorkerThread
   fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
+    currentState = CreatingCustomerRequest
     val networkResult = NetworkManager.createCustomerRequest(clientId, paymentAction)
     when (networkResult) {
       is Failure -> {
@@ -96,6 +99,7 @@ class CashAppPayKit(
   @WorkerThread
   fun updateCustomerRequest(requestId: String, paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
+    currentState = UpdatingCustomerRequest
     val networkResult = NetworkManager.updateCustomerRequest(clientId, requestId, paymentAction)
     when (networkResult) {
       is Failure -> {
