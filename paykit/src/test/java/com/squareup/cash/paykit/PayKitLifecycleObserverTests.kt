@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,6 +26,11 @@ class PayKitLifecycleObserverTests {
   @Before
   fun setup() {
     Dispatchers.setMain(testDispatcher)
+  }
+
+  @After
+  fun tearDown() {
+    PayKitLifecycleObserver.reset()
   }
 
   @Test

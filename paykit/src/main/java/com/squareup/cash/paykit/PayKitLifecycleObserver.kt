@@ -17,6 +17,15 @@ object PayKitLifecycleObserver : DefaultLifecycleObserver {
   @VisibleForTesting
   var processLifecycleOwner: LifecycleOwner = ProcessLifecycleOwner.get()
 
+  /**
+   * Reset the state of this class, so that Unit Tests can avoid side-effects.
+   */
+  @VisibleForTesting
+  fun reset() {
+    payKitInstances.clear()
+    mainHandler = Handler(Looper.getMainLooper())
+  }
+
   /*
   * Functions to register & unregister instances of [PayKitLifecycleListener].
    */
