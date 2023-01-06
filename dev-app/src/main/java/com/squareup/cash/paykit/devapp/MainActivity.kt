@@ -105,27 +105,43 @@ class MainActivity : AppCompatActivity() {
     lifecycleScope.launch {
       repeatOnLifecycle(Lifecycle.State.STARTED) {
         viewModel.payKitState.collect { newState ->
+          val stateTextPrefix = "SDK State: "
           when (newState) {
             is Approved -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix Approved"
               binding.statusText.text =
                 "APPROVED!\n\n ${prettyPrintDataClass(newState.responseData)}"
             }
-            Authorizing -> {} // Ignored for now.
-            CreatingCustomerRequest -> {} // Ignored for now.
-            Declined -> {} // Ignored for now.
-            NotStarted -> {} // Ignored for now.
+            Authorizing -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix Authorizing"
+            }
+            CreatingCustomerRequest -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix CreatingCsutomerRequest"
+            }
+            Declined -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix Declined"
+            }
+            NotStarted -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix NotStarted"
+            }
             is PayKitException -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix PayKitException (see logs)"
               binding.statusText.text = prettyPrintDataClass(newState.exception)
               Log.e(
                 "DevApp",
                 "Got an exception from the SDK. E.: ${newState.exception}",
               )
             } // Ignored for now.
-            PollingTransactionStatus -> {} // Ignored for now.
+            PollingTransactionStatus -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix PollingTransactionStatus"
+            }
             is ReadyToAuthorize -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix ReadyToAuthorize"
               binding.statusText.text = prettyPrintDataClass(newState.responseData)
             }
-            UpdatingCustomerRequest -> {} // Ignored for now.
+            UpdatingCustomerRequest -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix UpdatingCustomerRequest"
+            }
           }
         }
       }
