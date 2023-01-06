@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
               binding.topAppBar.subtitle = "$stateTextPrefix Authorizing"
             }
             CreatingCustomerRequest -> {
-              binding.topAppBar.subtitle = "$stateTextPrefix CreatingCsutomerRequest"
+              binding.topAppBar.subtitle = "$stateTextPrefix CreatingCustomerRequest"
             }
             Declined -> {
               binding.topAppBar.subtitle = "$stateTextPrefix Declined"
