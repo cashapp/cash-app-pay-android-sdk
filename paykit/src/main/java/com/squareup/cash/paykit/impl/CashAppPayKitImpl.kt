@@ -9,6 +9,8 @@ import androidx.annotation.WorkerThread
 import com.squareup.cash.paykit.BuildConfig
 import com.squareup.cash.paykit.CashAppPayKit
 import com.squareup.cash.paykit.CashAppPayKitListener
+import com.squareup.cash.paykit.NetworkManager
+import com.squareup.cash.paykit.PayKitLifecycleObserver
 import com.squareup.cash.paykit.PayKitState
 import com.squareup.cash.paykit.PayKitState.Approved
 import com.squareup.cash.paykit.PayKitState.Authorizing

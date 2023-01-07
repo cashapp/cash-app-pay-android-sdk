@@ -2,7 +2,6 @@ package com.squareup.cash.paykit
 
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
-import com.squareup.cash.paykit.impl.NetworkManager
 import com.squareup.cash.paykit.models.common.NetworkResult
 import io.mockk.MockKAnnotations
 import io.mockk.every

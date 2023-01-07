@@ -5,7 +5,6 @@ import androidx.annotation.WorkerThread
 import com.squareup.cash.paykit.exceptions.PayKitIntegrationException
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
 import com.squareup.cash.paykit.impl.NetworkManagerImpl
-import com.squareup.cash.paykit.impl.PayKitLifecycleObserver
 import com.squareup.cash.paykit.impl.PayKitLifecycleObserverImpl
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import com.squareup.cash.paykit.models.sdk.PayKitPaymentAction

@@ -4,7 +4,6 @@ import android.content.Context
 import com.squareup.cash.paykit.PayKitState.Authorizing
 import com.squareup.cash.paykit.PayKitState.CreatingCustomerRequest
 import com.squareup.cash.paykit.impl.CashAppPayKitImpl
-import com.squareup.cash.paykit.impl.NetworkManager
 import com.squareup.cash.paykit.models.common.NetworkResult
 import com.squareup.cash.paykit.models.response.CustomerResponseData
 import io.mockk.MockKAnnotations

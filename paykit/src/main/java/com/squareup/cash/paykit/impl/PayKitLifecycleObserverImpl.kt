@@ -6,7 +6,13 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import java.lang.ref.WeakReference
+import com.squareup.cash.paykit.CashAppPayKitFactory
+import com.squareup.cash.paykit.PayKitLifecycleObserver
 
+/**
+ * This class is intended to be a singleton.
+ * The [CashAppPayKitFactory] static object creates and holds onto this single instance.
+ */
 internal class PayKitLifecycleObserverImpl(
   private val processLifecycleOwner: LifecycleOwner = ProcessLifecycleOwner.get(),
 ) : DefaultLifecycleObserver,
