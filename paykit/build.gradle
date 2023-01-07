@@ -14,7 +14,7 @@ task sourceJar(type: Jar) {
 }
 
 android {
-  namespace 'com.squareup.cash.paykit'
+  namespace 'app.cash.paykit.core'
   compileSdk 31
 
   defaultConfig {

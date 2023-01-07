@@ -2,18 +2,4 @@
 <issues format="6" by="lint 7.3.1" type="baseline" client="gradle" dependencies="false"
     name="AGP (7.3.1)" variant="all" version="7.3.1">
 
-  <issue id="StopShip"
-      message="`TODO` call found; points to code which must be fixed prior to release"
-      errorLine1="    TODO(&quot;Implement updateCustomerRequest&quot;)"
-      errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-    <location file="src/main/java/com/squareup/cash/paykit/CashAppPayKit.kt" line="78" column="5" />
-  </issue>
-
-  <issue id="StopShip"
-      message="`TODO` call found; points to code which must be fixed prior to release"
-      errorLine1="      is OnFile -> TODO()" errorLine2="                   ~~~~~~">
-    <location file="src/main/java/com/squareup/cash/paykit/NetworkManager.kt" line="49"
-        column="20" />
-  </issue>
-
 </issues>
