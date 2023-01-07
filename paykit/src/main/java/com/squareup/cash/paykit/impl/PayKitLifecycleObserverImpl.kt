@@ -5,9 +5,9 @@ import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import java.lang.ref.WeakReference
 import com.squareup.cash.paykit.CashAppPayKitFactory
 import com.squareup.cash.paykit.PayKitLifecycleObserver
+import java.lang.ref.WeakReference
 
 /**
  * This class is intended to be a singleton.
