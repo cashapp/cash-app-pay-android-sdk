@@ -37,13 +37,15 @@ internal class CashAppPayKitImpl(
   private val networkManager: NetworkManager,
   private val payKitLifecycleListener: PayKitLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
+  initialState: PayKitState = NotStarted,
+  initialCustomerResponseData: CustomerResponseData? = null,
 ) : CashAppPayKit, PayKitLifecycleListener {
 
   private var callbackListener: CashAppPayKitListener? = null
 
-  private var customerResponseData: CustomerResponseData? = null
+  private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
 
-  private var currentState: PayKitState = NotStarted
+  private var currentState: PayKitState = initialState
     set(value) {
       field = value
       callbackListener?.payKitStateDidChange(value)
@@ -54,6 +56,11 @@ internal class CashAppPayKitImpl(
           )
         }
     }
+
+  init {
+    // Register for process lifecycle updates.
+    payKitLifecycleListener.register(this)
+  }
 
   /**
    * Create customer request given a [PayKitPaymentAction].
@@ -153,9 +160,6 @@ internal class CashAppPayKitImpl(
     // Replace internal state.
     customerResponseData = customerData
 
-    // Register for process lifecycle updates.
-    payKitLifecycleListener.register(this)
-
     try {
       context.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
@@ -235,7 +239,6 @@ internal class CashAppPayKitImpl(
   }
 
   private fun setStateFinished(wasSuccessful: Boolean) {
-    payKitLifecycleListener.unregister(this)
     currentState = if (wasSuccessful) {
       Approved(customerResponseData!!)
     } else {
