@@ -189,6 +189,11 @@ class CashAppPayKitStateTests {
       initialCustomerResponseData = initialCustomerResponseData,
     )
 
+  /**
+   * Specialized Mock [PayKitLifecycleObserver] that we can easily simulate the following events:
+   * - `onApplicationForegrounded`
+   * - `onApplicationBackgrounded`
+   */
   private class MockLifecycleListener : PayKitLifecycleObserver {
     private var listener: PayKitLifecycleListener? = null
 
