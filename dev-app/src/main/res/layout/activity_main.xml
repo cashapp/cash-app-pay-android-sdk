@@ -150,19 +150,25 @@
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Text is made copy-pasteable by setting `textIsSelectable` -->
-    <TextView
-        android:id="@+id/statusText"
+    <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textIsSelectable="true"
-        android:padding="4dp"
-        android:background="@color/cardview_shadow_start_color"
-        android:textColor="@color/black"
-        android:hint="@string/results_hint"
-        android:textSize="14sp"
-        android:layout_marginTop="6dp"
-        android:scrollbars="vertical"
-        />
+        >
+      <TextView
+          android:id="@+id/statusText"
+          android:layout_width="wrap_content"
+          android:layout_height="match_parent"
+          android:minWidth="380dp"
+          android:textIsSelectable="true"
+          android:padding="4dp"
+          android:background="@color/cardview_shadow_start_color"
+          android:textColor="@color/black"
+          android:hint="@string/results_hint"
+          android:textSize="14sp"
+          android:layout_marginTop="6dp"
+          android:scrollbars="vertical"
+          />
+    </HorizontalScrollView>
 
   </LinearLayout>
 
