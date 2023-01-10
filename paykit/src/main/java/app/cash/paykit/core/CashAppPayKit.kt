@@ -35,6 +35,17 @@ interface CashAppPayKit {
   )
 
   /**
+   * Retrieve an existing customer request, provided its [requestId].
+   * Must be called from a background thread.
+   *
+   * @param requestId ID of the request we intent do retrieve.
+   */
+  @WorkerThread
+  fun retrieveExistingCustomerRequest(
+    requestId: String,
+  )
+
+  /**
    * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
    * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
    *
