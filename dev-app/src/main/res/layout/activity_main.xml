@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".MainActivity"
+    tools:context="app.cash.paykit.devapp.MainActivity"
     android:orientation="vertical"
     >
 
@@ -117,7 +117,7 @@
 
       <LinearLayout
           android:layout_width="match_parent"
-          android:layout_height="wrap_content"
+          android:layout_height="200dp"
           android:padding="8dp"
           android:orientation="vertical"
           >
@@ -129,29 +129,20 @@
             style="@style/DevAppTextTitle"
             />
 
-        <Button
-            android:id="@+id/createCustomerBtn"
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/create_customer_btn"
-            style="@style/DevAppButton"
-            />
+            android:scrollbars="vertical"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            >
+          <include
+              android:id="@+id/operations"
+              layout="@layout/operations_section"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              />
 
-        <Button
-            android:id="@+id/authorizeCustomerBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/authorize_customer_btn"
-            style="@style/DevAppButton"
-            />
-
-        <Button
-            android:id="@+id/updateCustomerBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/update_customer_btn"
-            style="@style/DevAppButton"
-            />
+        </androidx.core.widget.NestedScrollView>
 
       </LinearLayout>
 
@@ -164,6 +155,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:textIsSelectable="true"
+        android:padding="4dp"
         android:background="@color/cardview_shadow_start_color"
         android:textColor="@color/black"
         android:hint="@string/results_hint"

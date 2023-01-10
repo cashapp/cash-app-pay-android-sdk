@@ -44,12 +44,12 @@ class MainActivity : AppCompatActivity() {
   private fun registerButtons() {
     binding.apply {
       // Create Customer button.
-      createCustomerBtn.setOnClickListener {
+      operations.createCustomerBtn.setOnClickListener {
         viewModel.createCustomerRequest(buildPaymentAction())
       }
 
       // Authorize button.
-      authorizeCustomerBtn.setOnClickListener {
+      operations.authorizeCustomerBtn.setOnClickListener {
         try {
           viewModel.authorizeCustomerRequest(this@MainActivity)
         } catch (error: Exception) {
@@ -58,8 +58,12 @@ class MainActivity : AppCompatActivity() {
       }
 
       // Update request button.
-      updateCustomerBtn.setOnClickListener {
+      operations.updateCustomerBtn.setOnClickListener {
         viewModel.updateCustomerRequest(buildPaymentAction())
+      }
+
+      operations.resetSdkBtn.setOnClickListener {
+        viewModel.resetSDK()
       }
 
       // Toggle Buttons.
@@ -123,6 +127,7 @@ class MainActivity : AppCompatActivity() {
             }
             NotStarted -> {
               binding.topAppBar.subtitle = "$stateTextPrefix NotStarted"
+              binding.statusText.text = ""
             }
             is PayKitException -> {
               binding.topAppBar.subtitle = "$stateTextPrefix PayKitException (see logs)"

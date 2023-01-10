@@ -3,6 +3,7 @@ package app.cash.paykit.devapp
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cash.paykit.core.CashAppPayKit
 import app.cash.paykit.core.CashAppPayKitFactory
 import app.cash.paykit.core.CashAppPayKitListener
 import app.cash.paykit.core.PayKitState
@@ -26,10 +27,10 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
 
   var currentRequestId: String? = null
 
-  private val payKitSdk = CashAppPayKitFactory.createSandbox(sandboxClientID)
+  private lateinit var payKitSdk: CashAppPayKit
 
   init {
-    payKitSdk.registerForStateUpdates(this@MainActivityViewModel)
+    setupNewSdk()
   }
 
   override fun onCleared() {
@@ -59,5 +60,18 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
 
   fun authorizeCustomerRequest(context: Context) {
     payKitSdk.authorizeCustomerRequest(context)
+  }
+
+  fun resetSDK() {
+    setupNewSdk()
+    _payKitState.value = PayKitState.NotStarted
+  }
+
+  private fun setupNewSdk() {
+    if (::payKitSdk.isInitialized) {
+      payKitSdk.unregisterFromStateUpdates()
+    }
+    payKitSdk = CashAppPayKitFactory.createSandbox(sandboxClientID)
+    payKitSdk.registerForStateUpdates(this@MainActivityViewModel)
   }
 }
