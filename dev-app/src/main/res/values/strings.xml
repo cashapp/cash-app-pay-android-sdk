@@ -8,6 +8,8 @@
   <string name="operations_title">Operations</string>
   <string name="create_customer_btn">Create Customer</string>
   <string name="update_customer_btn">Update Customer (optional)</string>
+  <string name="retrieve_existing_btn">Get Existing (optional)</string>
+  <string name="reset_sdk_btn">Reset SDK</string>
   <string name="authorize_customer_btn">Authorize Customer</string>
   <string name="results_hint">Results will display here</string>
 </resources>

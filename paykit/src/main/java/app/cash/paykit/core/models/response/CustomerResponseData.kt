@@ -17,7 +17,7 @@ data class CustomerResponseData(
   @Json(name = "origin")
   val origin: Origin,
   @Json(name = "requester_profile")
-  val requesterProfile: RequesterProfile,
+  val requesterProfile: RequesterProfile?,
   @Json(name = "status")
   val status: String,
   @Json(name = "updated_at")

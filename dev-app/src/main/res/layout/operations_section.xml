@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:orientation="vertical"
+    >
+
+  <Button
+      android:id="@+id/createCustomerBtn"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/create_customer_btn"
+      style="@style/DevAppButton"
+      />
+
+  <Button
+      android:id="@+id/authorizeCustomerBtn"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/authorize_customer_btn"
+      style="@style/DevAppButton"
+      />
+
+  <Button
+      android:id="@+id/updateCustomerBtn"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/update_customer_btn"
+      style="@style/DevAppButton"
+      />
+
+  <Button
+      android:id="@+id/retrieveExistingBtn"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/retrieve_existing_btn"
+      style="@style/DevAppButton"
+      />
+
+  <Button
+      android:id="@+id/resetSdkBtn"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/reset_sdk_btn"
+      style="@style/DevAppButton"
+      />
+</LinearLayout>
