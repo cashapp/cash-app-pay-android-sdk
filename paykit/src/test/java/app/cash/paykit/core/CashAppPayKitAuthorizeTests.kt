@@ -75,7 +75,7 @@ class CashAppPayKitAuthorizeTests {
     CashAppPayKitImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = mockk(),
-      payKitLifecycleListener = mockk(),
+      payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
     )
 }

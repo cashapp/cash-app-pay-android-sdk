@@ -194,7 +194,7 @@ class NetworkErrorTests {
     CashAppPayKitImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
-      payKitLifecycleListener = mockk(),
+      payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
     )
 }
