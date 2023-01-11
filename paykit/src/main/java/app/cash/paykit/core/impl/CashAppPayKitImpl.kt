@@ -20,11 +20,14 @@ import app.cash.paykit.core.PayKitState.NotStarted
 import app.cash.paykit.core.PayKitState.PayKitException
 import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
+import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.response.CustomerResponseData
+import app.cash.paykit.core.models.response.STATUS_APPROVED
+import app.cash.paykit.core.models.response.STATUS_PENDING
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 import app.cash.paykit.core.utils.orElse
 
@@ -40,6 +43,8 @@ internal class CashAppPayKitImpl(
   initialState: PayKitState = NotStarted,
   initialCustomerResponseData: CustomerResponseData? = null,
 ) : CashAppPayKit, PayKitLifecycleListener {
+
+  // TODO: Check if a given API call is allowed against a given internal SDK state. ( https://www.notion.so/cashappcash/Check-if-a-given-API-call-is-allowed-against-current-internal-SDK-state-0073051cd5aa42c7b9672542e9576f85 )
 
   private var callbackListener: CashAppPayKitListener? = null
 
@@ -108,6 +113,34 @@ internal class CashAppPayKitImpl(
       is Success -> {
         customerResponseData = networkResult.data.customerResponseData
         currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
+      }
+    }
+  }
+
+  @WorkerThread
+  override fun startWithExistingCustomerRequest(requestId: String) {
+    enforceRegisteredStateUpdatesListener()
+    currentState = RetrievingExistingCustomerRequest
+    val networkResult = networkManager.retrieveUpdatedRequestData(clientId, requestId)
+    when (networkResult) {
+      is Failure -> {
+        currentState = PayKitException(networkResult.exception)
+      }
+      is Success -> {
+        customerResponseData = networkResult.data.customerResponseData
+
+        // Determine what kind of status we got.
+        currentState = when (customerResponseData?.status) {
+          STATUS_PENDING -> {
+            ReadyToAuthorize(networkResult.data.customerResponseData)
+          }
+          STATUS_APPROVED -> {
+            Approved(networkResult.data.customerResponseData)
+          }
+          else -> {
+            Declined
+          }
+        }
       }
     }
   }
@@ -205,12 +238,12 @@ internal class CashAppPayKitImpl(
       }
       customerResponseData = (networkResult as Success).data.customerResponseData
 
-      if (customerResponseData?.status == "APPROVED") {
+      if (customerResponseData?.status == STATUS_APPROVED) {
         // Successful transaction.
         setStateFinished(true)
       } else {
         // If status is pending, schedule to check again.
-        if (customerResponseData?.status == "PENDING") {
+        if (customerResponseData?.status == STATUS_PENDING) {
           // TODO: Add backoff strategy for long polling. ( https://www.notion.so/cashappcash/Implement-Long-pooling-retry-logic-a9af47e2db9242faa5d64df2596fd78e )
           Thread.sleep(500)
           poolTransactionStatus()

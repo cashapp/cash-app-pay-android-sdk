@@ -26,6 +26,13 @@ sealed interface PayKitState {
   object UpdatingCustomerRequest : PayKitState
 
   /**
+   * This state denotes that the SDK is in the process of retrieving an existing Customer Request.
+   * If successful, this state will transition into the corresponding state of the request that was
+   * retrieved, which can be one of the following: [ReadyToAuthorize], [Approved], [Declined].
+   */
+  object RetrievingExistingCustomerRequest : PayKitState
+
+  /**
    * This state denotes that a valid Customer Request exists, and we're ready to authorize upon
    * user action.
    */

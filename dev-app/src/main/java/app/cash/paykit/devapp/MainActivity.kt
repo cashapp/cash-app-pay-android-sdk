@@ -1,8 +1,11 @@
 package app.cash.paykit.devapp
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -46,6 +49,7 @@ class MainActivity : AppCompatActivity() {
       // Create Customer button.
       operations.createCustomerBtn.setOnClickListener {
         viewModel.createCustomerRequest(buildPaymentAction())
+        hideKeyboard()
       }
 
       // Authorize button.
@@ -55,11 +59,24 @@ class MainActivity : AppCompatActivity() {
         } catch (error: Exception) {
           Toast.makeText(this@MainActivity, error.message, Toast.LENGTH_LONG).show()
         }
+        hideKeyboard()
       }
 
       // Update request button.
       operations.updateCustomerBtn.setOnClickListener {
         viewModel.updateCustomerRequest(buildPaymentAction())
+        hideKeyboard()
+      }
+
+      operations.resetSdkBtn.setOnClickListener {
+        viewModel.resetSDK()
+        hideKeyboard()
+      }
+
+      operations.retrieveExistingBtn.setOnClickListener {
+        val requestId = operations.existingReqField.text.toString()
+        viewModel.retrieveExistingRequest(requestId)
+        hideKeyboard()
       }
 
       operations.resetSdkBtn.setOnClickListener {
@@ -151,5 +168,15 @@ class MainActivity : AppCompatActivity() {
         }
       }
     }
+  }
+
+  private fun hideKeyboard() {
+    val imm: InputMethodManager =
+      getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    var view: View? = currentFocus
+    if (view == null) {
+      view = View(this)
+    }
+    imm.hideSoftInputFromWindow(view.windowToken, 0)
   }
 }
