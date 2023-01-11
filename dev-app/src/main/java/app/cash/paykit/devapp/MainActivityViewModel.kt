@@ -62,6 +62,12 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
     payKitSdk.authorizeCustomerRequest(context)
   }
 
+  fun retrieveExistingRequest(requestId: String) {
+    viewModelScope.launch(Dispatchers.IO) {
+      payKitSdk.startWithExistingCustomerRequest(requestId)
+    }
+  }
+
   fun resetSDK() {
     setupNewSdk()
     _payKitState.value = PayKitState.NotStarted

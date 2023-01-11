@@ -30,12 +30,43 @@
       style="@style/DevAppButton"
       />
 
+  <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:layout_margin="8dp"
+      android:background="@color/cardview_shadow_start_color"
+      />
+
+  <!-- Existing Request ID -->
+  <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/existingReqContainer"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:hint="@string/hint_existing_request_id"
+      >
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/existingReqField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        />
+
+  </com.google.android.material.textfield.TextInputLayout>
+
   <Button
       android:id="@+id/retrieveExistingBtn"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:text="@string/retrieve_existing_btn"
       style="@style/DevAppButton"
+      />
+
+  <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:layout_margin="8dp"
+      android:background="@color/cardview_shadow_start_color"
       />
 
   <Button

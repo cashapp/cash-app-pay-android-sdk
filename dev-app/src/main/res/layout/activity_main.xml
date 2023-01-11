@@ -73,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="@string/amount_title"
+        android:hint="@string/hint_amount_title"
         >
 
       <com.google.android.material.textfield.TextInputEditText
@@ -92,7 +92,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:visibility="gone"
-        android:hint="@string/account_ref_title"
+        android:hint="@string/hint_account_ref_title"
         tools:visibility="visible"
         >
 
@@ -153,6 +153,7 @@
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+
         >
       <TextView
           android:id="@+id/statusText"
