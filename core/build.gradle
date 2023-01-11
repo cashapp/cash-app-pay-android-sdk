@@ -6,7 +6,6 @@ plugins {
   id "com.vanniktech.maven.publish.base"
 }
 
-
 task sourceJar(type: Jar) {
   from android.sourceSets.main.java.srcDirs
   classifier "sources"
@@ -92,8 +91,6 @@ dependencies {
 }
 
 mavenPublishing {
-  // the first parameter represents which variant is published
-  // the second whether to publish a sources jar
-  // the third whether to publish a javadoc jar
+  // TODO: stop publishing the debug release
   configure(new com.vanniktech.maven.publish.AndroidMultiVariantLibrary(true, true))
 }
