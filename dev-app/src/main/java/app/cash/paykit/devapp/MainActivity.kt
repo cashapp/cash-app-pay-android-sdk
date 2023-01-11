@@ -79,6 +79,10 @@ class MainActivity : AppCompatActivity() {
         hideKeyboard()
       }
 
+      operations.resetSdkBtn.setOnClickListener {
+        viewModel.resetSDK()
+      }
+
       // Toggle Buttons.
       oneTimeButton.setOnClickListener {
         amountContainer.isVisible = true
