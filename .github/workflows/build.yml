@@ -27,11 +27,11 @@ jobs:
 
       - name: Test
         run: |
-          ./gradlew build --stacktrace
+          ./gradlew test assemble --stacktrace
 
   publish:
     runs-on: ubuntu-latest
-    if: github.repository == 'squareup/android-cash-paykit-sdk' && github.ref == 'refs/heads/main'
+    if: github.repository == 'square/android-cash-paykit-sdk' && github.ref == 'refs/heads/main'
     needs: [jvm]
 
     steps:
