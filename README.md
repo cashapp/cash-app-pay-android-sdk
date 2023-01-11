@@ -14,7 +14,4 @@ The sample app is build via [this job](https://kochiku.sqprod.co/squareup/androi
 The SDK artifact will be deployed as an AAR to our public [artifactory repository](https://artifactory.global.square/ui/repos/tree/General/releases/)
 
 #### Locally
-1.) Ensure connection to SQ VPN
-2.) Update `LIB_VERSION` in build.gradle
-3.) Ensure your username and [Artifactory API key](https://artifactory.global.square/artifactory/webapp/#/profile) are available as SONATYPE_NEXUS_USERNAME and SONATYPE_NEXUS_PASSWORD  in ~/.gradle/gradle.properties (or you can add them with additional -P flags on the next step's command).
-4.) Run ./gradlew publish -PRELEASE_REPOSITORY_URL="https://maven.global.square/artifactory/releases"
+// TODO grab from OKIO

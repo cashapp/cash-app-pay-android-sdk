@@ -1,6 +1,5 @@
 
 
-import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -51,12 +50,12 @@ allprojects {
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     mavenPublishing {
-      publishToMavenCentral(SonatypeHost.S01, true)
+      publishToMavenCentral(SonatypeHost.DEFAULT, true)
       signAllPublications()
       pom {
-        description.set("A modern I/O API for Java")
+        description.set("Cash App Pay SDK")
         name.set(project.name)
-        url.set("https://github.com/square/okio/")
+        url.set("https://github.com/cashapp/android-cash-paykit-sdk/")
         licenses {
           license {
             name.set("The Apache Software License, Version 2.0")
@@ -65,9 +64,9 @@ allprojects {
           }
         }
         scm {
-          url.set("https://github.com/square/okio/")
-          connection.set("scm:git:git://github.com/square/okio.git")
-          developerConnection.set("scm:git:ssh://git@github.com/square/okio.git")
+          url.set("https://github.com/cashapp/android-cash-paykit-sdk/")
+          connection.set("scm:git:git://github.com/cashapp/android-cash-paykit-sdk.git")
+          developerConnection.set("scm:git:ssh://git@github.com/cashapp/android-cash-paykit-sdk.git")
         }
         developers {
           developer {

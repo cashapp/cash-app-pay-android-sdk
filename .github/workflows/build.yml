@@ -31,7 +31,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    if: github.repository == 'square/android-cash-paykit-sdk' && github.ref == 'refs/heads/main'
+    if: github.repository == 'cashapp/android-cash-paykit-sdk' && github.ref == 'refs/heads/main'
     needs: [jvm]
 
     steps:
