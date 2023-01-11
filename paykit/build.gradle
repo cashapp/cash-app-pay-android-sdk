@@ -3,11 +3,9 @@ plugins {
   id 'org.jetbrains.kotlin.android'
   id("com.google.devtools.ksp").version("1.6.21-1.0.5")
   id 'project-report' // run ./gradlew htmlDependencyReport
+  id "com.vanniktech.maven.publish.base"
 }
 
-def LIB_GROUP_ID = 'app.cash.paykit'
-def LIB_ARTIFACT_ID = 'core'
-def LIB_VERSION = '0.0.1-SNAPSHOT'
 
 task sourceJar(type: Jar) {
   from android.sourceSets.main.java.srcDirs
@@ -68,32 +66,6 @@ android {
   }
 }
 
-afterEvaluate {
-  publishing {
-    publications {
-      release(MavenPublication) {
-        groupId LIB_GROUP_ID
-        artifactId LIB_ARTIFACT_ID
-        version LIB_VERSION
-        artifact("$buildDir/outputs/aar/paykit-release.aar")
-        artifact(sourceJar)
-
-        pom.withXml {
-          def dependenciesNode = asNode().appendNode('dependencies')
-          configurations.implementation.allDependencies.each { dependency ->
-            if (dependency.name != 'unspecified') {
-              def dependencyNode = dependenciesNode.appendNode('dependency')
-              dependencyNode.appendNode('groupId', dependency.group)
-              dependencyNode.appendNode('artifactId', dependency.name)
-              dependencyNode.appendNode('version', dependency.version)
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
 dependencies {
 
   // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
@@ -117,4 +89,11 @@ dependencies {
   testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_test_version"
   //Test helpers for Lifecycle runtime
   testImplementation "androidx.lifecycle:lifecycle-runtime-testing:$lifecycle_version"
+}
+
+mavenPublishing {
+  // the first parameter represents which variant is published
+  // the second whether to publish a sources jar
+  // the third whether to publish a javadoc jar
+  configure(new com.vanniktech.maven.publish.AndroidMultiVariantLibrary(true, true))
 }
