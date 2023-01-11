@@ -39,6 +39,8 @@ internal class NetworkManagerImpl(
   private val networkTimeoutMilliseconds: Int = DEFAULT_NETWORK_TIMEOUT_MILLISECONDS,
 ) : NetworkManager {
 
+  // TODO: Generic network calls retry logic. ( https://www.notion.so/cashappcash/Generic-Retry-logic-for-all-network-requests-2fce583bb4154476835af908c8688995 )
+
   val CREATE_CUSTOMER_REQUEST_ENDPOINT: String
     get() = "${baseUrl}requests"
 

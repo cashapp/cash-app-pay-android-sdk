@@ -3,13 +3,13 @@
   <string name="payment_type_title">Payment Type</string>
   <string name="payment_type_one_time">One-Time</string>
   <string name="payment_type_on_fine">On File</string>
-  <string name="amount_title">Amount in cents - Optional</string>
-  <string name="account_ref_title">Account Reference ID - Optional</string>
+  <string name="hint_amount_title">Amount in cents - Optional</string>
+  <string name="hint_account_ref_title">Account Reference ID - Optional</string>
   <string name="operations_title">Operations</string>
   <string name="create_customer_btn">Create Customer</string>
   <string name="update_customer_btn">Update Customer (optional)</string>
   <string name="retrieve_existing_btn">Get Existing (optional)</string>
-  <string name="existing_request_id">Existing request ID</string>
+  <string name="hint_existing_request_id">Existing request ID</string>
   <string name="reset_sdk_btn">Reset SDK</string>
   <string name="authorize_customer_btn">Authorize Customer</string>
   <string name="results_hint">Results will display here</string>

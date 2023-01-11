@@ -12,6 +12,7 @@ import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 interface CashAppPayKit {
   /**
    * Create customer request given a [PayKitPaymentAction].
+   *
    * Must be called from a background thread.
    *
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
@@ -22,6 +23,7 @@ interface CashAppPayKit {
 
   /**
    * Update an existing customer request given its [requestId] an the updated definitions contained within [PayKitPaymentAction].
+   *
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do update.
@@ -35,13 +37,16 @@ interface CashAppPayKit {
   )
 
   /**
-   * Retrieve an existing customer request, provided its [requestId].
+   * Retrieve an existing customer request, provided its [requestId]. This should be used as a
+   * starting point, for cases where you want to recover the state of an existing or in-flight customer
+   * request.
+   *
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do retrieve.
    */
   @WorkerThread
-  fun retrieveExistingCustomerRequest(
+  fun startWithExistingCustomerRequest(
     requestId: String,
   )
 

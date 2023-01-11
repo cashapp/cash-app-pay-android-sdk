@@ -44,6 +44,8 @@ internal class CashAppPayKitImpl(
   initialCustomerResponseData: CustomerResponseData? = null,
 ) : CashAppPayKit, PayKitLifecycleListener {
 
+  // TODO: Check if a given API call is allowed against a given internal SDK state. ( https://www.notion.so/cashappcash/Check-if-a-given-API-call-is-allowed-against-current-internal-SDK-state-0073051cd5aa42c7b9672542e9576f85 )
+
   private var callbackListener: CashAppPayKitListener? = null
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
@@ -116,7 +118,7 @@ internal class CashAppPayKitImpl(
   }
 
   @WorkerThread
-  override fun retrieveExistingCustomerRequest(requestId: String) {
+  override fun startWithExistingCustomerRequest(requestId: String) {
     enforceRegisteredStateUpdatesListener()
     currentState = RetrievingExistingCustomerRequest
     val networkResult = networkManager.retrieveUpdatedRequestData(clientId, requestId)

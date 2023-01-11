@@ -42,7 +42,7 @@
       android:id="@+id/existingReqContainer"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:hint="@string/existing_request_id"
+      android:hint="@string/hint_existing_request_id"
       >
 
     <com.google.android.material.textfield.TextInputEditText

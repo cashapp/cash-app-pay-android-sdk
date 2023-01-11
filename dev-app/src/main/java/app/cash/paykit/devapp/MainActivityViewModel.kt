@@ -64,7 +64,7 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
 
   fun retrieveExistingRequest(requestId: String) {
     viewModelScope.launch(Dispatchers.IO) {
-      payKitSdk.retrieveExistingCustomerRequest(requestId)
+      payKitSdk.startWithExistingCustomerRequest(requestId)
     }
   }
 
