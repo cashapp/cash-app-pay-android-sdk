@@ -83,6 +83,10 @@ class MainActivity : AppCompatActivity() {
         viewModel.resetSDK()
       }
 
+      operations.resetSdkBtn.setOnClickListener {
+        viewModel.resetSDK()
+      }
+
       // Toggle Buttons.
       oneTimeButton.setOnClickListener {
         amountContainer.isVisible = true
