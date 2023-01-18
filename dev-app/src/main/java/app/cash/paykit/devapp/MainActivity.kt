@@ -145,12 +145,12 @@ class MainActivity : AppCompatActivity() {
         redirectUri = redirectURI,
         currency = currency,
         amount = amount,
-        scopeId = stagingBrandID,
+        scopeId = viewModel.brandId,
       )
     } else {
       OnFileAction(
         redirectUri = redirectURI,
-        scopeId = stagingBrandID,
+        scopeId = viewModel.brandId,
         accountReferenceId = binding.referenceField.text.toString(),
       )
     }

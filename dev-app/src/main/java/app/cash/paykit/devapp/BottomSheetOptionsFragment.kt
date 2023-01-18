@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import app.cash.paykit.devapp.SDKEnvironments.SANDBOX
+import app.cash.paykit.devapp.SDKEnvironments.STAGING
 import app.cash.paykit.devapp.databinding.FragmentBottomSheetBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -26,10 +28,30 @@ class BottomSheetOptionsFragment : BottomSheetDialogFragment() {
   }
 
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    updateCurrentInfo()
+
+    // Environment Toggle Buttons.
+    binding.sandboxButton.setOnClickListener {
+      activityViewModel.currentEnvironment = SANDBOX
+      activityViewModel.resetSDK()
+      updateCurrentInfo()
+    }
+    binding.stagingButton.setOnClickListener {
+      activityViewModel.currentEnvironment = STAGING
+      activityViewModel.resetSDK()
+      updateCurrentInfo()
+    }
+  }
+
+  private fun updateCurrentInfo() {
     val currentInfo = StringBuilder()
       .append("Backend Environment: ${activityViewModel.currentEnvironment}")
       .append("\n")
       .append("SDK State: ${activityViewModel.payKitState.value.javaClass.simpleName}")
+      .append("\n")
+      .append("Client ID: ${activityViewModel.clientId}")
+      .append("\n")
+      .append("Brand ID: ${activityViewModel.brandId}")
       .append("\n")
       .append("Request ID: ${activityViewModel.currentRequestId}")
       .toString()

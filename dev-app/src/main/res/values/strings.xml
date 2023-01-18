@@ -14,4 +14,6 @@
   <string name="authorize_customer_btn">Authorize Customer</string>
   <string name="results_hint">Results will display here</string>
   <string name="logo_dev_options">Dev Options</string>
+  <string name="environment_staging">Staging</string>
+  <string name="environment_sandbox">Sandbox</string>
 </resources>

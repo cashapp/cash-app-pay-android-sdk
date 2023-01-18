@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:id="@+id/sheetRoot"
     android:padding="8dp"
@@ -18,7 +19,35 @@
       android:background="?attr/selectableItemBackground"
       android:layout_marginTop="8dp"
       android:textAppearance="@style/DevAppTextBody"
-      android:text="Testing"
+      tools:text="Testing"
       />
+
+  <com.google.android.material.button.MaterialButtonToggleGroup
+      android:id="@+id/environmentToggleButton"
+      android:layout_width="match_parent"
+      android:layout_marginTop="16dp"
+      android:layout_height="wrap_content"
+      app:singleSelection="true"
+      app:selectionRequired="true"
+      app:checkedButton="@+id/sandboxButton"
+      >
+    <Button
+        style="?attr/materialButtonOutlinedStyle"
+        android:id="@+id/sandboxButton"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/environment_sandbox"
+        />
+    <Button
+        style="?attr/materialButtonOutlinedStyle"
+        android:id="@+id/stagingButton"
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/environment_staging"
+        />
+
+  </com.google.android.material.button.MaterialButtonToggleGroup>
 
 </LinearLayout>

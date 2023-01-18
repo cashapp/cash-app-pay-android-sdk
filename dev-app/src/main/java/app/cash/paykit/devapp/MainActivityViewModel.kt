@@ -18,11 +18,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
-const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
+private const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
+private const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
 
-const val stagingClientID = "CASH_CHECKOUT"
-const val stagingBrandID = "BRAND_4wv02dz5v4eg22b3enoffn6rt"
+private const val stagingClientID = "CASH_CHECKOUT"
+private const val stagingBrandID = "BRAND_4wv02dz5v4eg22b3enoffn6rt"
 
 const val redirectURI = "cashapppaykit://checkout"
 
@@ -40,6 +40,9 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
   var currentRequestId: String? = null
 
   var currentEnvironment: SDKEnvironments = SANDBOX
+
+  lateinit var clientId: String
+  var brandId: String? = null
 
   private lateinit var payKitSdk: CashAppPayKit
 
@@ -92,9 +95,21 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
       payKitSdk.unregisterFromStateUpdates()
     }
     payKitSdk = when (currentEnvironment) {
-      PRODUCTION -> CashAppPayKitFactory.create(stagingClientID)
-      SANDBOX -> CashAppPayKitFactory.createSandbox(stagingClientID)
-      STAGING -> CashAppPayKitFactory.createStaging(stagingClientID)
+      PRODUCTION -> {
+        CashAppPayKitFactory.create(clientId)
+      }
+
+      SANDBOX -> {
+        clientId = sandboxClientID
+        brandId = sandboxBrandID
+        CashAppPayKitFactory.createSandbox(clientId)
+      }
+
+      STAGING -> {
+        clientId = stagingClientID
+        brandId = stagingBrandID
+        CashAppPayKitFactory.createStaging(clientId)
+      }
     }
 
     payKitSdk.registerForStateUpdates(this@MainActivityViewModel)
