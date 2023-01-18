@@ -13,4 +13,5 @@
   <string name="reset_sdk_btn">Reset SDK</string>
   <string name="authorize_customer_btn">Authorize Customer</string>
   <string name="results_hint">Results will display here</string>
+  <string name="logo_dev_options">Dev Options</string>
 </resources>

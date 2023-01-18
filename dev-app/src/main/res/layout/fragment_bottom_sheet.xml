@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/sheetRoot"
+    android:padding="8dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="100dp"
+    >
+
+  <TextView
+      android:id="@+id/currentInfo"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="?attr/selectableItemBackground"
+      android:layout_marginTop="8dp"
+      android:textAppearance="@style/DevAppTextBody"
+      android:text="Testing"
+      />
+
+</LinearLayout>

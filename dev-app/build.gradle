@@ -46,12 +46,14 @@ android {
 dependencies {
 
   implementation 'androidx.core:core-ktx:1.9.0'
-  implementation 'androidx.appcompat:appcompat:1.5.1'
+  implementation 'androidx.appcompat:appcompat:1.6.0'
   implementation 'com.google.android.material:material:1.7.0'
   implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.22"
   implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
   implementation project(':core')
+  implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+  implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
   testImplementation "junit:junit:$junit_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"

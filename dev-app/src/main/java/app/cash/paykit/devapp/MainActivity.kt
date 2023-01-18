@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -21,6 +24,7 @@ import app.cash.paykit.core.PayKitState.NotStarted
 import app.cash.paykit.core.PayKitState.PayKitException
 import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
+import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
 import app.cash.paykit.core.models.sdk.PayKitCurrency.USD
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
@@ -34,14 +38,45 @@ class MainActivity : AppCompatActivity() {
   private lateinit var binding: ActivityMainBinding
   private val viewModel: MainActivityViewModel by viewModels()
 
+  private val modalBottomSheet = BottomSheetOptionsFragment()
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     binding = ActivityMainBinding.inflate(layoutInflater)
     val view = binding.root
     setContentView(view)
 
+    setupTopbar()
     registerButtons()
     handlePayKitStateChanges()
+  }
+
+  private fun setupTopbar() {
+    setSupportActionBar(binding.topAppBar)
+  }
+
+  private fun showBottomSheet() {
+    modalBottomSheet.show(supportFragmentManager, "BottomSheet")
+  }
+
+  override fun onTouchEvent(event: MotionEvent?): Boolean {
+    // Swipe up on any static area of the screen will show up the bottom sheet.
+    if (event?.action == MotionEvent.ACTION_UP) {
+      showBottomSheet()
+    }
+    return true
+  }
+
+  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    menuInflater.inflate(R.menu.topbar_menu, menu)
+    return super.onCreateOptionsMenu(menu)
+  }
+
+  override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    if ((item.itemId) == R.id.devButton) {
+      showBottomSheet()
+    }
+    return super.onOptionsItemSelected(item)
   }
 
   private fun registerButtons() {
@@ -121,9 +156,9 @@ class MainActivity : AppCompatActivity() {
     }
   }
 
-    /*
-     * Cash App PayKit state changes.
-     */
+  /*
+   * Cash App PayKit state changes.
+   */
 
   @SuppressLint("SetTextI18n")
   private fun handlePayKitStateChanges() {
@@ -175,6 +210,10 @@ class MainActivity : AppCompatActivity() {
 
             UpdatingCustomerRequest -> {
               binding.topAppBar.subtitle = "$stateTextPrefix UpdatingCustomerRequest"
+            }
+
+            RetrievingExistingCustomerRequest -> {
+              binding.topAppBar.subtitle = "$stateTextPrefix RetrievingExistingCustomerRequest"
             }
           }
         }
