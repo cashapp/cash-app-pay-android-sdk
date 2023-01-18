@@ -7,9 +7,6 @@
     android:orientation="vertical"
     android:id="@+id/sheetRoot"
     android:padding="8dp"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-    app:behavior_hideable="false"
-    app:behavior_peekHeight="100dp"
     >
 
   <TextView
