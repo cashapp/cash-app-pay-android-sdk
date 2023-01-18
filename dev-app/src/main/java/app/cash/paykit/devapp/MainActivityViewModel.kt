@@ -18,6 +18,9 @@ import kotlinx.coroutines.launch
 const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
 const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
 
+const val stagingClientID = "CASH_CHECKOUT"
+const val stagingBrandID = "BRAND_4wv02dz5v4eg22b3enoffn6rt"
+
 const val redirectURI = "cashapppaykit://checkout"
 
 class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
@@ -77,7 +80,7 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
     if (::payKitSdk.isInitialized) {
       payKitSdk.unregisterFromStateUpdates()
     }
-    payKitSdk = CashAppPayKitFactory.createSandbox(sandboxClientID)
+    payKitSdk = CashAppPayKitFactory.createStaging(stagingClientID)
     payKitSdk.registerForStateUpdates(this@MainActivityViewModel)
   }
 }

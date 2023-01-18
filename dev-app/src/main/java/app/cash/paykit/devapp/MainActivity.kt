@@ -110,20 +110,20 @@ class MainActivity : AppCompatActivity() {
         redirectUri = redirectURI,
         currency = currency,
         amount = amount,
-        scopeId = sandboxBrandID,
+        scopeId = stagingBrandID,
       )
     } else {
       OnFileAction(
         redirectUri = redirectURI,
-        scopeId = sandboxBrandID,
+        scopeId = stagingBrandID,
         accountReferenceId = binding.referenceField.text.toString(),
       )
     }
   }
 
-  /*
-   * Cash App PayKit state changes.
-   */
+    /*
+     * Cash App PayKit state changes.
+     */
 
   @SuppressLint("SetTextI18n")
   private fun handlePayKitStateChanges() {
@@ -137,21 +137,27 @@ class MainActivity : AppCompatActivity() {
               binding.statusText.text =
                 "APPROVED!\n\n ${prettyPrintDataClass(newState.responseData)}"
             }
+
             Authorizing -> {
               binding.topAppBar.subtitle = "$stateTextPrefix Authorizing"
             }
+
             CreatingCustomerRequest -> {
               binding.topAppBar.subtitle = "$stateTextPrefix CreatingCustomerRequest"
             }
+
             Declined -> {
               binding.topAppBar.subtitle = "$stateTextPrefix Declined"
             }
+
             NotStarted -> {
               binding.topAppBar.subtitle = "$stateTextPrefix NotStarted"
               binding.statusText.text = ""
             }
+
             is PayKitException -> {
-              binding.topAppBar.subtitle = "$stateTextPrefix PayKitException (see logs)"
+              binding.topAppBar.subtitle =
+                "$stateTextPrefix PayKitException (see logs)"
               binding.statusText.text = prettyPrintDataClass(newState.exception)
               Log.e(
                 "DevApp",
@@ -161,10 +167,12 @@ class MainActivity : AppCompatActivity() {
             PollingTransactionStatus -> {
               binding.topAppBar.subtitle = "$stateTextPrefix PollingTransactionStatus"
             }
+
             is ReadyToAuthorize -> {
               binding.topAppBar.subtitle = "$stateTextPrefix ReadyToAuthorize"
               binding.statusText.text = prettyPrintDataClass(newState.responseData)
             }
+
             UpdatingCustomerRequest -> {
               binding.topAppBar.subtitle = "$stateTextPrefix UpdatingCustomerRequest"
             }
