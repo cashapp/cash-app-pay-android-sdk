@@ -1,0 +1,25 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'cpetzel[0-9]'
+
+jobs:
+  call-build-workflow:
+    uses: cashapp/android-cash-paykit-sdk/.github/workflows/build.yml@main
+
+  publish:
+    runs-on: ubuntu-latest
+    if: github.repository == 'cashapp/android-cash-paykit-sdk'
+    needs: [build]
+
+    steps:
+      - name: Upload Artifacts
+        run: |
+          #          ./gradlew clean publish --stacktrace
+               echo "will publish"
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ARTIFACT_SIGNING_PRIVATE_KEY }}
