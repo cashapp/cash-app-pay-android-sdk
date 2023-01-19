@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-build-workflow:
-    uses: cashapp/android-cash-paykit-sdk/.github/workflows/build.yml@main
+    uses: cashapp/android-cash-paykit-sdk/.github/workflows/build.yml
 
   publish:
     runs-on: ubuntu-latest
