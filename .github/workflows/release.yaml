@@ -12,7 +12,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     if: github.repository == 'cashapp/android-cash-paykit-sdk'
-    needs: [build]
 
     steps:
       - name: Upload Artifacts
