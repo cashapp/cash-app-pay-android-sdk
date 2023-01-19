@@ -13,7 +13,6 @@ buildscript {
     coroutines_test_version = '1.6.4'
     robolectric_version = '4.9.2'
     mockwebserver_version = '4.10.0'
-    eventstream_version = '5.3.2'
   }
 }
 
