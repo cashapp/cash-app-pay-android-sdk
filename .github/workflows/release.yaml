@@ -1,11 +1,9 @@
 name: release
 
 on:
-  # TODO remove
-  workflow_dispatch:
-#  push:
-#    tags:
-#      - 'cpetzel[0-9]'
+  push:
+    tags:
+      - 'cpetzel[0-9]'
 
 jobs:
   call-build-workflow:
