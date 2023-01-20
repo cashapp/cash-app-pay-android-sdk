@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import app.cash.paykit.devapp.SDKEnvironments.SANDBOX
 import app.cash.paykit.devapp.SDKEnvironments.STAGING
@@ -40,6 +41,13 @@ class BottomSheetOptionsFragment : BottomSheetDialogFragment() {
       activityViewModel.currentEnvironment = STAGING
       activityViewModel.resetSDK()
       updateCurrentInfo()
+    }
+
+    binding.payKitButton1.setOnClickListener {
+      Toast.makeText(requireContext(), "Light Button pressed", Toast.LENGTH_SHORT).show()
+    }
+    binding.payKitButton2.setOnClickListener {
+      Toast.makeText(requireContext(), "Dark Button pressed", Toast.LENGTH_SHORT).show()
     }
   }
 

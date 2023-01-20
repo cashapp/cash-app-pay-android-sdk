@@ -16,6 +16,7 @@
       android:background="?attr/selectableItemBackground"
       android:layout_marginTop="8dp"
       android:textAppearance="@style/DevAppTextBody"
+      android:textIsSelectable="true"
       tools:text="Testing"
       />
 
@@ -65,13 +66,12 @@
       style="@style/DevAppTextTitle"
       />
 
-  <ImageButton
-      style="@style/CashPayKitButtonStyle.Light"
+  <app.cash.paykit.core.ui.CashPayKitLightButton
+      android:id="@+id/payKitButton1"
+      android:layout_height="54dp"
       android:layout_marginVertical="16dp"
       android:layout_width="match_parent"
-      android:layout_height="54dp"
       android:layout_marginHorizontal="8dp"
-      tools:ignore="ContentDescription"
       />
 
 
@@ -81,13 +81,12 @@
       android:background="#111111"
       android:orientation="vertical"
       >
-    <ImageButton
-        style="@style/CashPayKitButtonStyle.Dark"
+    <app.cash.paykit.core.ui.CashPayKitDarkButton
+        android:id="@+id/payKitButton2"
         android:layout_marginVertical="16dp"
         android:layout_width="match_parent"
         android:layout_marginHorizontal="8dp"
         android:layout_height="54dp"
-        tools:ignore="ContentDescription"
         />
   </LinearLayout>
 
