@@ -33,10 +33,10 @@ jobs:
           java-version: 11
 
       - name: Static Analysis
-          run: ./gradlew core:lint dev-app:lint spotlessCheck --stacktrace
+        run: ./gradlew core:lint dev-app:lint spotlessCheck --stacktrace
 
       - name: Test
-          run: ./gradlew test --stacktrace
+        run: ./gradlew test --stacktrace
 
       - name: Build
-          run: ./gradlew dev-app:assembleDebug core:assemble --stacktrace
+        run: ./gradlew dev-app:assembleDebug core:assemble --stacktrace
