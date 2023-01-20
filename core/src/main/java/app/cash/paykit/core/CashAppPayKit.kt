@@ -113,23 +113,9 @@ object CashAppPayKitFactory {
     )
   }
 
-  /**
-   * @param clientId Client Identifier that should be provided by Cash PayKit integration.
-   */
-  fun createStaging(
-    clientId: String,
-  ): CashAppPayKit {
-    return CashAppPayKitImpl(
-      clientId = clientId,
-      networkManager = NetworkManagerImpl(BASE_URL_STAGING),
-      payKitLifecycleListener = payKitLifecycleObserver,
-      useSandboxEnvironment = false,
-    )
-  }
-
-  private const val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
-  private const val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
-  private const val BASE_URL_STAGING = "https://api.cashstaging.app/customer-request/v1/"
+  // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
+  private val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
+  private val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
 }
 
 interface CashAppPayKitListener {
