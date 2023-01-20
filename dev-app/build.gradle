@@ -58,6 +58,7 @@ dependencies {
   releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
   
   implementation project(':core')
+  implementation project(':analytics-core')
 
   testImplementation "junit:junit:$junit_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"

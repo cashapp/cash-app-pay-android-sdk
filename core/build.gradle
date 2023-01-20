@@ -13,14 +13,13 @@ task sourceJar(type: Jar) {
 
 android {
   namespace 'app.cash.paykit.core'
-  compileSdk 31
+  compileSdk versions.compileSdk
 
   defaultConfig {
-    minSdk 21
-
+    minSdk versions.minSdk
     // We target the minimum API that meets Google Play's target level, for higher compatibility: https://developer.android.com/google/play/requirements/target-sdk
     //noinspection OldTargetApi
-    targetSdk 31
+    targetSdk versions.targetSdk
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"
