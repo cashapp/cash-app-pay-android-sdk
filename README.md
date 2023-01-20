@@ -18,6 +18,6 @@ The Github Actions build configuration determines which repository is used. If t
 
 
 #### Maven Publishing
-Create a new tag with the format `v{SEMVER}` or `v{SEMVER}-SNAPSHOT` and publish the tag to git. 
+Create a new tag with the format `v{SEMVER}` and publish the tag to git. 
 
-Github actions should build and upload the AAR artifacts using the version declared in the root [build.gradle](./build.gradle) 
+Github actions should build and upload the AAR artifacts using the version declared in the root [build.gradle](./build.gradle)
