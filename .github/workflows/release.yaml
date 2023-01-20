@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: PWD
         run: pwd
-        
+
       - name: ls
         run: ls ./core/build/outputs/aar
 
