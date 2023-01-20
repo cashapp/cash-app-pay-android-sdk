@@ -15,6 +15,18 @@ jobs:
     needs: call-build-workflow
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Configure JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 11
+
       - name: Publish Artifacts
         # TODO pass in the maven version as a param?
         run: |
