@@ -4,14 +4,45 @@ Cash Android PayKit SDK for merchant integrations with Cash App Pay.
 
 ### CI
 
-We use Kochiku to build or SDK and our sample app. 
+Github Actions will build our artifacts.
+
 #### Sample App
 
-The sample app is build via [this job](https://kochiku.sqprod.co/squareup/android-cash-paykit-sdk), and uploads the APK to [go/mr](https://mobile-releases.squareup.com/cash-apps)
-
+The sample app is build via [this job](https://kochiku.sqprod.co/squareup/android-cash-paykit-sdk),
+and uploads the APK to [go/mr](https://mobile-releases.squareup.com/cash-apps)
 
 ### RELEASING
-The SDK artifact will be deployed as an AAR to our public [artifactory repository](https://artifactory.global.square/ui/repos/tree/General/releases/)
 
-#### Locally
-// TODO grab from OKIO
+The SDK artifact will be uploaded to Maven Central (SonaType). Snapshots will be uploaded to the
+snapshots repository.
+
+The Github Actions build configuration determines which repository is used. If the version name
+contains "SNAPSHOT", it will be uploaded to the snapshots repository. If it contains a normal
+SEMVER, then it will upload to Maven Central.
+
+#### Maven Publishing
+
+Create a new tag with the format `v{SEMVER}` and publish the tag to git.
+
+Github actions should build and upload the AAR artifacts using the version declared in the
+root [build.gradle](./build.gradle)
+
+# Development tasks
+
+### Run Android lint on the project
+
+```bash
+./gradlew dev-app:lint core:lint
+```
+
+### Apply Ktlint formatting via Spotless
+
+```bash
+./gradlew :dev-app:spotlessApply ; ./gradlew :core:spotlessApply
+```
+
+### Run all Unit Tests
+
+```bash
+./gradlew test
+```
