@@ -17,10 +17,16 @@ jobs:
     needs: call-build-workflow
 
     steps:
+      - name: PWD
+        run: pwd
+        
+      - name: ls
+        run: ls ./core/build/outputs/aar
+
       - name: Publish Artifacts
         run: |
           #          ./gradlew clean publish --stacktrace
-               echo "will publish" && pwd && ls core/build/outputs/aar/
+               echo "will publish"
         env:
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}

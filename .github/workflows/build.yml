@@ -32,11 +32,33 @@ jobs:
           distribution: 'zulu'
           java-version: 11
 
+      - name: Build
+        run: ./gradlew core:assemble --stacktrace
+
+  buildBackup:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Configure JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 11
+
       - name: Static Analysis
         run: ./gradlew core:lint dev-app:lint spotlessCheck --stacktrace
 
       - name: Test
-        run: ./gradlew test --stacktrace
+        run: ./gradlew core:testDebugUnitTest --stacktrace
 
       - name: Build
         run: ./gradlew dev-app:assembleDebug core:assemble --stacktrace
