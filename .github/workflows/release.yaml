@@ -1,20 +1,25 @@
 name: release
 
 on:
-  push:
-    tags:
-      - 'cpetzel[0-9]'
+  # TODO remove
+  workflow_dispatch:
+#  push:
+#    tags:
+#      - 'cpetzel[0-9]'
 
 jobs:
   call-build-workflow:
     uses: ./.github/workflows/build.yml
+    with:
+      upload-artifacts: true
 
   publish:
     runs-on: ubuntu-latest
     if: github.repository == 'cashapp/android-cash-paykit-sdk'
+    needs: call-build-workflow
 
     steps:
-      - name: Upload Artifacts
+      - name: publish Artifacts
         run: |
           #          ./gradlew clean publish --stacktrace
                echo "will publish"
