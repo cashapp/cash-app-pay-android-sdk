@@ -2,7 +2,7 @@ name: release
 
 # TODO we could consider creating a github release
 # https://www.notion.so/cashappcash/Change-github-triggers-to-build-on-new-Github-Release-8c3da4ce779e440299908e7ec734626a
-# from zipline https://github.com/cashapp/zipline/blob/trunk/.github/workflows/release.yaml#LL111C7-L130C22
+# from zipline - https://github.com/cashapp/zipline/blob/trunk/.github/workflows/release.yaml#LL111C7-L130C22
 
 on:
   push:
