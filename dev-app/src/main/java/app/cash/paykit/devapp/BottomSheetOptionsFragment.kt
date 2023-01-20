@@ -43,12 +43,16 @@ class BottomSheetOptionsFragment : BottomSheetDialogFragment() {
       updateCurrentInfo()
     }
 
-    binding.payKitButton1.setOnClickListener {
+    binding.payKitButtonLight.setOnClickListener {
       Toast.makeText(requireContext(), "Light Button pressed", Toast.LENGTH_SHORT).show()
     }
+
     binding.payKitButton2.setOnClickListener {
       Toast.makeText(requireContext(), "Dark Button pressed", Toast.LENGTH_SHORT).show()
     }
+
+    binding.payKitButtonLightDisabled.isEnabled = false
+    binding.payKitButtonDarkDisabled.isEnabled = false
   }
 
   private fun updateCurrentInfo() {

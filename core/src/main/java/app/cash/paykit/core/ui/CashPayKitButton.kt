@@ -22,7 +22,16 @@ class CashPayKitLightButton(context: Context, attrs: AttributeSet) :
     context,
     attrs,
     R.style.CashPayKitButtonStyle_Light,
-  )
+  ) {
+  override fun setEnabled(enabled: Boolean) {
+    super.setEnabled(enabled)
+    alpha = if (enabled) {
+      1f
+    } else {
+      .3f
+    }
+  }
+}
 
 /**
  * Cash PayKit button to be used in dark mode. Notice that the button itself is light, as
@@ -33,4 +42,13 @@ class CashPayKitDarkButton(context: Context, attrs: AttributeSet) :
     context,
     attrs,
     R.style.CashPayKitButtonStyle_Dark,
-  )
+  ) {
+  override fun setEnabled(enabled: Boolean) {
+    super.setEnabled(enabled)
+    alpha = if (enabled) {
+      1f
+    } else {
+      .4f
+    }
+  }
+}
