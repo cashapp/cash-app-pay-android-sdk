@@ -38,7 +38,7 @@ jobs:
         run: ./gradlew core:lint dev-app:lint spotlessCheck --stacktrace
 
       - name: Unit Tests
-        run: ./gradlew core:testDebugUnitTest --stacktrace
+        run: ./gradlew test --stacktrace
 
       - name: Build
         run: ./gradlew dev-app:assembleDebug core:assemble --stacktrace
