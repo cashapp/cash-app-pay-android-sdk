@@ -16,6 +16,7 @@
       android:background="?attr/selectableItemBackground"
       android:layout_marginTop="8dp"
       android:textAppearance="@style/DevAppTextBody"
+      android:textIsSelectable="true"
       tools:text="Testing"
       />
 
