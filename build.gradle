@@ -13,7 +13,6 @@ buildscript {
     coroutines_test_version = '1.6.4'
     robolectric_version = '4.9.2'
     mockwebserver_version = '4.10.0'
-    eventstream_version = '5.3.2'
   }
 }
 
@@ -43,11 +42,11 @@ subprojects { subproject ->
     }
   }
 }
-def NEXT_VERSION = "0.0.3"
+def NEXT_VERSION = "0.0.4"
 
 allprojects {
   group = 'app.cash.paykit'
-  version = '0.0.2-SNAPSHOT'
+  version = '0.0.3-SNAPSHOT'
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     mavenPublishing {
