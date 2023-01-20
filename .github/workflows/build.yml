@@ -1,12 +1,19 @@
 name: build
 
-on: [push, pull_request]
+on:
+  workflow_call:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - '**'
+  pull_request:
 
 env:
   GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
 
 jobs:
-  jvm:
+  build:
     runs-on: ubuntu-latest
 
     strategy:
@@ -25,29 +32,11 @@ jobs:
           distribution: 'zulu'
           java-version: 11
 
-      - name: Test
-        run: |
-          ./gradlew test assemble --stacktrace
+      - name: Static Analysis
+        run: ./gradlew core:lint dev-app:lint spotlessCheck --stacktrace
 
-  publish:
-    runs-on: ubuntu-latest
-    if: github.repository == 'cashapp/android-cash-paykit-sdk' && github.ref == 'refs/heads/main'
-    needs: [jvm]
+      - name: Unit Tests
+        run: ./gradlew test --stacktrace
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Configure JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: 11
-
-      - name: Upload Artifacts
-        run: |
-          ./gradlew clean publish --stacktrace
-        env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ARTIFACT_SIGNING_PRIVATE_KEY }}
+      - name: Build
+        run: ./gradlew dev-app:assembleDebug core:assemble --stacktrace
