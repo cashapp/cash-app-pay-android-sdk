@@ -8,8 +8,8 @@ on:
 jobs:
   call-build-workflow:
     uses: ./.github/workflows/build.yml
-    with:
-      upload-artifacts: true
+#    with:
+#      upload-artifacts: true
 
   publish:
     runs-on: ubuntu-latest
