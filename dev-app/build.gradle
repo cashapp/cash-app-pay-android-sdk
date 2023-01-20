@@ -52,6 +52,7 @@ dependencies {
   implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
   implementation project(':core')
+  implementation project(':analytics-core')
 
   testImplementation "junit:junit:$junit_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"
