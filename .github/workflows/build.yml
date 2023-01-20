@@ -2,16 +2,9 @@ name: build
 
 on:
   workflow_call:
-  #    inputs:
-  #      upload-artifacts:
-  #        required: false
-  #        default: false
-  #        type: boolean
   push:
     branches:
       - master
-  #    tags:
-  #      - 'v*.*.*'
   pull_request:
     branches:
       - master
@@ -40,18 +33,10 @@ jobs:
           java-version: 11
 
       - name: Static Analysis
-          run: |
-            ./gradlew core:lint dev-app:lint spotlessCheck --stacktrace
+          run: ./gradlew core:lint dev-app:lint spotlessCheck --stacktrace
 
       - name: Test
-          run: |
-            ./gradlew test --stacktrace
+          run: ./gradlew test --stacktrace
 
       - name: Build
-          run: |
-            ./gradlew dev-app:assembleDebug core:assemble --stacktrace
-
-#      - name: Upload Artifacts
-#        if: ${{ always() }}
-#        run: |
-#          ./gradlew test assemble --stacktrace
+          run: ./gradlew dev-app:assembleDebug core:assemble --stacktrace
