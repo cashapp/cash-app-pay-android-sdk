@@ -16,4 +16,5 @@
   <string name="logo_dev_options">Dev Options</string>
   <string name="environment_staging">Staging</string>
   <string name="environment_sandbox">Sandbox</string>
+  <string name="buttons_title">PayKit Buttons</string>
 </resources>

@@ -48,4 +48,64 @@
 
   </com.google.android.material.button.MaterialButtonToggleGroup>
 
+  <!-- PayKit Buttons. -->
+  <View
+      android:layout_width="match_parent"
+      android:layout_height="1dp"
+      android:layout_marginTop="8dp"
+      android:alpha="0.4"
+      android:background="@color/black"
+      />
+
+  <TextView
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:text="@string/buttons_title"
+      style="@style/DevAppTextTitle"
+      />
+
+  <app.cash.paykit.core.ui.CashPayKitLightButton
+      android:id="@+id/payKitButtonLight"
+      android:layout_height="54dp"
+      android:layout_marginTop="16dp"
+      android:layout_width="match_parent"
+      android:layout_marginHorizontal="8dp"
+      />
+
+
+  <app.cash.paykit.core.ui.CashPayKitLightButton
+      android:id="@+id/payKitButtonLightDisabled"
+      android:layout_height="54dp"
+      android:layout_width="match_parent"
+      android:layout_marginHorizontal="8dp"
+      android:layout_marginTop="8dp"
+      />
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="16dp"
+      android:background="#111111"
+      android:orientation="vertical"
+      >
+    <app.cash.paykit.core.ui.CashPayKitDarkButton
+        android:id="@+id/payKitButton2"
+        android:layout_marginTop="16dp"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="8dp"
+        android:layout_height="54dp"
+        />
+
+    <app.cash.paykit.core.ui.CashPayKitDarkButton
+        android:id="@+id/payKitButtonDarkDisabled"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="8dp"
+        android:layout_height="54dp"
+        />
+
+  </LinearLayout>
+
 </LinearLayout>
