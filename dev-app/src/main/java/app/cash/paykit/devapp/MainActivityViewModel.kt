@@ -9,23 +9,40 @@ import app.cash.paykit.core.CashAppPayKitListener
 import app.cash.paykit.core.PayKitState
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.devapp.SDKEnvironments.SANDBOX
+import app.cash.paykit.devapp.SDKEnvironments.STAGING
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
-const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
+private const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
+private const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
+
+private const val stagingClientID = "CASH_CHECKOUT"
+private const val stagingBrandID = "BRAND_4wv02dz5v4eg22b3enoffn6rt"
 
 const val redirectURI = "cashapppaykit://checkout"
 
+enum class SDKEnvironments {
+  SANDBOX,
+  STAGING,
+}
+
 class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
+
+  private val BASE_URL_STAGING = "https://api.cashstaging.app/customer-request/v1/"
 
   private val _payKitState = MutableStateFlow<PayKitState>(PayKitState.NotStarted)
   val payKitState: StateFlow<PayKitState> = _payKitState.asStateFlow()
 
   var currentRequestId: String? = null
+
+  var currentEnvironment: SDKEnvironments = SANDBOX
+
+  lateinit var clientId: String
+  var brandId: String? = null
 
   private lateinit var payKitSdk: CashAppPayKit
 
@@ -77,7 +94,24 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
     if (::payKitSdk.isInitialized) {
       payKitSdk.unregisterFromStateUpdates()
     }
-    payKitSdk = CashAppPayKitFactory.createSandbox(sandboxClientID)
+    payKitSdk = when (currentEnvironment) {
+      SANDBOX -> {
+        clientId = sandboxClientID
+        brandId = sandboxBrandID
+        CashAppPayKitFactory.createSandbox(clientId)
+      }
+
+      STAGING -> {
+        // Change internal production URL via Reflection, to act as staging.
+        val baseUrlProd = CashAppPayKitFactory::class.java.getDeclaredField("BASE_URL_PRODUCTION")
+        baseUrlProd.isAccessible = true
+        baseUrlProd.set(CashAppPayKitFactory, BASE_URL_STAGING)
+        clientId = stagingClientID
+        brandId = stagingBrandID
+        CashAppPayKitFactory.create(clientId)
+      }
+    }
+
     payKitSdk.registerForStateUpdates(this@MainActivityViewModel)
   }
 }

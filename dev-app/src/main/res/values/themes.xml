@@ -11,13 +11,34 @@
     <item name="colorOnSecondary">@color/black</item>
     <!-- Status bar color. -->
     <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
-    <!-- Customize your theme here. -->
+    <item name="bottomSheetDialogTheme">@style/ThemeOverlay.App.BottomSheetDialog</item>
+  </style>
+
+  <style name="ThemeOverlay.App.BottomSheetDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+    <item name="bottomSheetStyle">@style/ModalBottomSheetDialog</item>
+  </style>
+
+  <style name="ModalBottomSheetDialog" parent="Widget.MaterialComponents.BottomSheet.Modal">
+    <item name="shapeAppearance">@style/ShapeAppearance.App.LargeComponent</item>
+    <item name="gestureInsetBottomIgnored">true</item>
+  </style>
+
+  <style name="ShapeAppearance.App.LargeComponent" parent="ShapeAppearance.MaterialComponents.LargeComponent">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSize">12dp</item>
   </style>
 
   <style name="DevAppTextTitle" parent="TextAppearance.MaterialComponents.Headline1">
     <item name="android:textSize">20sp</item>
     <item name="android:fontFamily">sans-serif-medium</item>
     <item name="fontFamily">sans-serif-medium</item>
+    <item name="android:textColor">@color/black</item>
+  </style>
+
+  <style name="DevAppTextBody" parent="TextAppearance.MaterialComponents.Body1">
+    <item name="android:textSize">14sp</item>
+    <item name="android:fontFamily">sans-serif</item>
+    <item name="fontFamily">sans-serif</item>
     <item name="android:textColor">@color/black</item>
   </style>
 
