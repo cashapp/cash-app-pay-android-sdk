@@ -45,11 +45,6 @@ class SQLiteDataSourceTest {
   }
 
   @Test
-  fun `test it`() {
-    assertEquals(4, 2 + 2)
-  }
-
-  @Test
   fun testInsertPackage() {
     val dataSource = AnalyticsSQLiteDataSource(helper, options)
     val pkgId: Long =
