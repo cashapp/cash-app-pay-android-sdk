@@ -41,7 +41,7 @@ subprojects { subproject ->
   }
 }
 def NEXT_VERSION = "0.0.7"
-
+DONT MERGE ME
 allprojects {
   group = 'app.cash.paykit'
   version = '0.0.6-SNAPSHOT'
