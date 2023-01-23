@@ -6,12 +6,17 @@ name: release
 
 on:
   push:
-    branches:
-      - main
     tags:
     - 'v[0-9]+.[0-9]+.[0-9]+-[a-zA-Z]*'
 
 jobs:
+  only-deploy-from-main:
+    runs-on: ubuntu-latest
+    if: github.repository != 'cashapp/android-cash-paykit-sdk' || github.ref != 'refs/heads/main'
+    steps:
+      - name: Fail
+        run: echo "Publishing only allowed from the main branch..." && exit 1
+
   call-build-workflow:
     uses: ./.github/workflows/build.yml
 
