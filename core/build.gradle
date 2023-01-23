@@ -80,6 +80,9 @@ dependencies {
   // Provides a lifecycle for the whole application process.
   implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
 
+  // AndroidX Startup.
+  implementation "androidx.startup:startup-runtime:1.1.1"
+
   // TEST RELATED.
 
   testImplementation "junit:junit:$junit_version"

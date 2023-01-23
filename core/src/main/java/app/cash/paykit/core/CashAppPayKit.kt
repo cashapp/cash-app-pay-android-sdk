@@ -2,12 +2,14 @@ package app.cash.paykit.core
 
 import android.content.Context
 import androidx.annotation.WorkerThread
+import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.impl.PayKitLifecycleObserverImpl
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.utils.UserAgentProvider
 
 interface CashAppPayKit {
   /**
@@ -85,6 +87,10 @@ object CashAppPayKitFactory {
 
   private val payKitLifecycleObserver: PayKitLifecycleObserver = PayKitLifecycleObserverImpl()
 
+  private fun getUserAgentValue(): String {
+    return UserAgentProvider.provideUserAgent(ApplicationContextHolder.applicationContext)
+  }
+
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.
    */
@@ -93,7 +99,10 @@ object CashAppPayKitFactory {
   ): CashAppPayKit {
     return CashAppPayKitImpl(
       clientId = clientId,
-      networkManager = NetworkManagerImpl(BASE_URL_PRODUCTION),
+      networkManager = NetworkManagerImpl(
+        BASE_URL_PRODUCTION,
+        userAgentValue = getUserAgentValue(),
+      ),
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = false,
     )
@@ -107,7 +116,7 @@ object CashAppPayKitFactory {
   ): CashAppPayKit {
     return CashAppPayKitImpl(
       clientId = clientId,
-      networkManager = NetworkManagerImpl(BASE_URL_SANDBOX),
+      networkManager = NetworkManagerImpl(BASE_URL_SANDBOX, userAgentValue = getUserAgentValue()),
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = true,
     )
