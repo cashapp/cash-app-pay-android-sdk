@@ -1,7 +1,7 @@
 package app.cash.paykit.analytics
 
-import app.cash.paykit.analytics.Utils.getAllSyncPackages
-import app.cash.paykit.analytics.Utils.insertSyncPackage
+import app.cash.paykit.analytics.Utils.getAllSyncEntries
+import app.cash.paykit.analytics.Utils.insertSyncEntry
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSQLiteDataSource
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSqLiteHelper
@@ -31,7 +31,7 @@ class SQLiteDataSourceTest {
       AnalyticsOptions.build {
         delay = 0.seconds
         interval = 10.seconds
-        maxPackageCountPerProcess = 30
+        maxEntryCountPerProcess = 30
         batchSize = 10
         databaseName = "TEST"
       }
@@ -41,23 +41,23 @@ class SQLiteDataSourceTest {
 
   @After
   fun tearDown() {
-    Utils.deleteAllPackages(helper)
+    Utils.deleteAllEntries(helper)
   }
 
   @Test
-  fun testInsertPackage() {
+  fun testInsertEntries() {
     val dataSource = AnalyticsSQLiteDataSource(helper, options)
-    val pkgId: Long =
-      dataSource.insertPackage("TYPE_1", "load.testInsertPackage", "metadata.testInsertPackage")
-    assertTrue(pkgId > 0)
-    val packages: List<AnalyticEntry> = getAllSyncPackages(helper)
-    Assert.assertNotNull(packages)
-    assertTrue(packages.size == 1)
-    Assert.assertNotNull(packages.first())
-    with(packages.first()) {
+    val entryId: Long =
+      dataSource.insertEntry("TYPE_1", "load.testInsertEntry", "metadata.testInsertEntry")
+    assertTrue(entryId > 0)
+    val entries: List<AnalyticEntry> = getAllSyncEntries(helper)
+    Assert.assertNotNull(entries)
+    assertTrue(entries.size == 1)
+    Assert.assertNotNull(entries.first())
+    with(entries.first()) {
       assertTrue("TYPE_1".equals(type, ignoreCase = true))
-      assertTrue("load.testInsertPackage".equals(content, ignoreCase = true))
-      assertTrue("metadata.testInsertPackage".equals(metaData, ignoreCase = true))
+      assertTrue("load.testInsertEntry".equals(content, ignoreCase = true))
+      assertTrue("metadata.testInsertEntry".equals(metaData, ignoreCase = true))
       assertEquals(state, AnalyticEntry.STATE_NEW)
       assertTrue(
         options.applicationVersionCode.toString().equals(version, ignoreCase = true),
@@ -66,116 +66,310 @@ class SQLiteDataSourceTest {
   }
 
   @Test
-  fun testDeletePackages() {
+  fun testDeleteEntries() {
     val dataSource = AnalyticsSQLiteDataSource(helper, options)
     val pkgId1: Long =
-      dataSource.insertPackage("TYPE_1", "load.testInsertPackage.1", "metadata.testInsertPackage.1")
+      dataSource.insertEntry("TYPE_1", "load.testInsertEntry.1", "metadata.testInsertEntry.1")
     val pkgId2: Long =
-      dataSource.insertPackage("TYPE_2", "load.testInsertPackage.2", "metadata.testInsertPackage.2")
+      dataSource.insertEntry("TYPE_2", "load.testInsertEntry.2", "metadata.testInsertEntry.2")
     val p1 = AnalyticEntry(id = pkgId1)
     val p2 = AnalyticEntry(id = pkgId2)
-    val packages = listOf(p1, p2)
+    val entries = listOf(p1, p2)
 
-    dataSource.deletePackages(packages)
+    dataSource.deleteEntry(entries)
 
-    val allAnalyticPackages = getAllSyncPackages(helper)
-    Assert.assertNotNull(allAnalyticPackages)
-    assertTrue(allAnalyticPackages.isEmpty())
+    val allEntries = getAllSyncEntries(helper)
+    Assert.assertNotNull(allEntries)
+    assertTrue(allEntries.isEmpty())
   }
 
   @Test
-  fun testGetPackagesByProcessIdAndState() {
+  fun testGetEntriesByProcessIdAndState() {
     val dataSource = AnalyticsSQLiteDataSource(helper, options)
     // @formatter:off
-    val p1 = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p2 = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p3 = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p4 = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p5: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p6: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p7: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p8: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p9: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p10: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
-    val p11: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p12: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p13: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p14: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p15: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p16: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p17: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p18: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p19: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p20 = insertSyncPackage(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p21 = insertSyncPackage(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p22 = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
-    val p23 = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p24 = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
+    val p1 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p2 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p3 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p4 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p5: Long =
+      insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p6: Long =
+      insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p7: Long =
+      insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p8: Long =
+      insertSyncEntry(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
+    val p9: Long =
+      insertSyncEntry(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
+    val p10: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
+    val p11: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p12: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
+    val p13: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p14: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p15: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p16: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p17: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p18: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p19: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p20 =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
+    val p21 =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
+    val p22 = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
+    val p23 = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p24 = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
     // @formatter:on
 
-    var packages = dataSource.getPackagesByProcessIdAndState(
+    var entries = dataSource.getEntriesByProcessIdAndState(
       "PROCESS_1",
       "TYPE_1",
       AnalyticEntry.STATE_NEW,
       0,
       3,
     )
-    Assert.assertNotNull(packages)
-    assertEquals(packages.size, 3)
-    assertEquals(packages[0].id, p1)
-    assertEquals(packages[1].id, p2)
-    assertEquals(packages[2].id, p3)
-    packages =
-      dataSource.getPackagesByProcessIdAndState(
+    Assert.assertNotNull(entries)
+    assertEquals(entries.size, 3)
+    assertEquals(entries[0].id, p1)
+    assertEquals(entries[1].id, p2)
+    assertEquals(entries[2].id, p3)
+    entries =
+      dataSource.getEntriesByProcessIdAndState(
         "PROCESS_2",
         "TYPE_2",
         AnalyticEntry.STATE_NEW,
         0,
         10,
       )
-    Assert.assertNotNull(packages)
-    assertTrue(packages.size == 2)
-    assertEquals(packages[0].id, p20)
-    assertEquals(packages[1].id, p21)
+    Assert.assertNotNull(entries)
+    assertTrue(entries.size == 2)
+    assertEquals(entries[0].id, p20)
+    assertEquals(entries[1].id, p21)
   }
 
   @Test
-  fun testMarkPackagesForSynchronization() {
+  fun testMarkEntriesForSynchronization() {
     val dataSource = AnalyticsSQLiteDataSource(helper, options)
     // @formatter:off
-    // packages that are unassigned to sync process (2 types of packages, one package for every possible state)
-    val p1: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p2: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p3: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p4: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
-    val p5: Long = insertSyncPackage(helper, null, "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p6: Long = insertSyncPackage(helper, null, "TYPE_2", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p7: Long = insertSyncPackage(helper, null, "TYPE_2", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p8: Long = insertSyncPackage(helper, null, "TYPE_2", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
+    // entries that are unassigned to sync process (2 types of entries, one entry for every possible state)
+    val p1: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p2: Long =
+      insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
+    val p3: Long = insertSyncEntry(
+      helper,
+      null,
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p4: Long = insertSyncEntry(
+      helper,
+      null,
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
+    val p5: Long = insertSyncEntry(helper, null, "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
+    val p6: Long =
+      insertSyncEntry(helper, null, "TYPE_2", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
+    val p7: Long = insertSyncEntry(
+      helper,
+      null,
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p8: Long = insertSyncEntry(
+      helper,
+      null,
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
 
-    // packages assigned to PROCESS_1 sync process (2 types of packages, one package for every possible state)
-    val p9: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p10: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p11: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p12: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
-    val p13: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p14: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p15: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p16: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
+    // entries assigned to PROCESS_1 sync process (2 types of entries, one entry for every possible state)
+    val p9: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p10: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
+    val p11: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p12: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
+    val p13: Long =
+      insertSyncEntry(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
+    val p14: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
+    val p15: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p16: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
 
-    // packages assigned to PROCESS_2 sync process (2 types of packages, one package for every possible state)
-    val p17: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p18: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p19: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p20: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
-    val p21: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p22: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p23: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p24: Long = insertSyncPackage(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
+    // entries assigned to PROCESS_2 sync process (2 types of entries, one entry for every possible state)
+    val p17: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p18: Long = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
+    val p19: Long = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p20: Long = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
+    val p21: Long =
+      insertSyncEntry(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
+    val p22: Long = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
+    val p23: Long = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p24: Long = insertSyncEntry(
+      helper,
+      "PROCESS_2",
+      "TYPE_2",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
     // @formatter:on
 
-    dataSource.markPackagesForDelivery("PROCESS_1", "TYPE_1")
-    val packages = dataSource.getPackagesByProcessIdAndState(
+    dataSource.markEntriesForDelivery("PROCESS_1", "TYPE_1")
+    val entries = dataSource.getEntriesByProcessIdAndState(
       "PROCESS_1",
       "TYPE_1",
       AnalyticEntry.STATE_DELIVERY_PENDING,
@@ -183,26 +377,50 @@ class SQLiteDataSourceTest {
       10,
     )
 
-    Assert.assertNotNull(packages)
-    assertTrue(packages.size == 8)
-    assertEquals(packages[0].id, p1)
-    assertEquals(packages[1].id, p2)
-    assertEquals(packages[2].id, p4)
-    assertEquals(packages[3].id, p9)
-    assertEquals(packages[4].id, p10)
-    assertEquals(packages[5].id, p12)
-    assertEquals(packages[6].id, p17)
-    assertEquals(packages[7].id, p18)
+    Assert.assertNotNull(entries)
+    assertTrue(entries.size == 8)
+    assertEquals(entries[0].id, p1)
+    assertEquals(entries[1].id, p2)
+    assertEquals(entries[2].id, p4)
+    assertEquals(entries[3].id, p9)
+    assertEquals(entries[4].id, p10)
+    assertEquals(entries[5].id, p12)
+    assertEquals(entries[6].id, p17)
+    assertEquals(entries[7].id, p18)
   }
 
   @Test
   fun testUpdateStatuses() {
     val dataSource = AnalyticsSQLiteDataSource(helper, options)
     // @formatter:off
-    val p1: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p2: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p3: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p4: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
+    val p1: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p2: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
+    val p3: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p4: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
     // @formatter:on
 
     val pkg1 = AnalyticEntry(id = p1)
@@ -210,33 +428,57 @@ class SQLiteDataSourceTest {
     val pkg3 = AnalyticEntry(id = p3)
     val pkg4 = AnalyticEntry(id = p4)
 
-    val packagesToUpdate = listOf(pkg1, pkg2, pkg3, pkg4)
-    dataSource.updateStatuses(packagesToUpdate, AnalyticEntry.STATE_NEW)
+    val entriesToUpdate = listOf(pkg1, pkg2, pkg3, pkg4)
+    dataSource.updateStatuses(entriesToUpdate, AnalyticEntry.STATE_NEW)
 
-    val packages = getAllSyncPackages(helper)
-    Assert.assertNotNull(packages)
-    assertTrue(packages.size == 4)
-    packages.forEach {
+    val entries = getAllSyncEntries(helper)
+    Assert.assertNotNull(entries)
+    assertTrue(entries.size == 4)
+    entries.forEach {
       assertEquals(it.state, AnalyticEntry.STATE_NEW)
     }
   }
 
   @Test
-  fun testResetPackages() {
+  fun testResetEntries() {
     val dataSource = AnalyticsSQLiteDataSource(helper, options)
     // @formatter:off
-    val p1: Long = insertSyncPackage(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p2: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p3: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_IN_PROGRESS, "", "", "")
-    val p4: Long = insertSyncPackage(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_DELIVERY_PENDING, "", "", "")
+    val p1: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    val p2: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_FAILED,
+      "",
+      "",
+      "",
+    )
+    val p3: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
+      "",
+      "",
+      "",
+    )
+    val p4: Long = insertSyncEntry(
+      helper,
+      "PROCESS_1",
+      "TYPE_1",
+      AnalyticEntry.STATE_DELIVERY_PENDING,
+      "",
+      "",
+      "",
+    )
     // @formatter:on
 
-    dataSource.resetPackages()
+    dataSource.resetEntries()
 
-    val packages = getAllSyncPackages(helper)
-    Assert.assertNotNull(packages)
-    assertTrue(packages.size == 4)
-    packages.forEach {
+    val entries = getAllSyncEntries(helper)
+    Assert.assertNotNull(entries)
+    assertTrue(entries.size == 4)
+    entries.forEach {
       assertEquals(it.state, AnalyticEntry.STATE_NEW)
       assertTrue(it.processId == null)
     }
