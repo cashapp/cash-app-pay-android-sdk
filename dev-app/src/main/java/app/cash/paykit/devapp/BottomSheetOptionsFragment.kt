@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import app.cash.paykit.core.R
 import app.cash.paykit.devapp.SDKEnvironments.SANDBOX
 import app.cash.paykit.devapp.SDKEnvironments.STAGING
 import app.cash.paykit.devapp.databinding.FragmentBottomSheetBinding
@@ -66,6 +67,8 @@ class BottomSheetOptionsFragment : BottomSheetDialogFragment() {
       .append("Brand ID: ${activityViewModel.brandId}")
       .append("\n")
       .append("Request ID: ${activityViewModel.currentRequestId}")
+      .append("\n")
+      .append("SDK Version: ${getString(R.string.cashpaykit_version)}")
       .toString()
     binding.currentInfo.text = currentInfo
   }
