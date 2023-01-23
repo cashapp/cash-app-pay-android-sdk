@@ -11,9 +11,6 @@ import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 
-/**
- * Robolectric is used for the Lifecycle observer
- */
 class CashAppPayKitAuthorizeTests {
 
   @MockK(relaxed = true)

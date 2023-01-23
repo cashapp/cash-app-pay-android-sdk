@@ -29,7 +29,7 @@ class NetworkErrorTests {
 
     val baseUrl = server.url("")
 
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString())
+    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -71,7 +71,7 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString())
+    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -105,7 +105,11 @@ class NetworkErrorTests {
     val baseUrl = server.url("")
 
     val networkManager =
-      NetworkManagerImpl(baseUrl = baseUrl.toString(), networkTimeoutMilliseconds = 1)
+      NetworkManagerImpl(
+        baseUrl = baseUrl.toString(),
+        networkTimeoutMilliseconds = 1,
+        userAgentValue = "",
+      )
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -164,7 +168,7 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString())
+    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
