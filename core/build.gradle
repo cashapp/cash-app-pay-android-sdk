@@ -37,6 +37,10 @@ android {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      resValue("string", "cashpaykit_version", "$version")
+    }
+    debug {
+      resValue("string", "cashpaykit_version", "$version")
     }
   }
   compileOptions {
