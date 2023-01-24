@@ -18,27 +18,27 @@ class AnalyticsSample : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_analytics_sample)
 
-        val analyticsOptions = AnalyticsOptions.build {
-            logLevel = Log.VERBOSE
+        val analyticsOptions = AnalyticsOptions(
+            logLevel = Log.VERBOSE,
             interval = 5.seconds
-        }
+        )
+
         val analytics = PayKitAnalytics(applicationContext, analyticsOptions)
         analytics.registerDeliveryHandler(AnalyticEventsHandler())
 
-        val scheduleBtn: Button = findViewById(R.id.scheduleBtn)
-        scheduleBtn.setOnClickListener {
-            val ae = AnalyticEvent("data to sync @" + Date().toString())
-            analytics.scheduleForDelivery(ae)
+        findViewById<Button>(R.id.scheduleBtn).setOnClickListener {
+            analytics.scheduleForDelivery(
+                AnalyticEvent("scheduled data to sync @" + Date().toString())
+            )
         }
 
-        val dispatchBtn: Button = findViewById<Button>(R.id.dispatchBtn)
-        dispatchBtn.setOnClickListener {
-            val ae = AnalyticEvent("data to sync @" + Date().toString())
-            analytics.dispatch(ae)
+        findViewById<Button>(R.id.dispatchBtn).setOnClickListener {
+            analytics.dispatch(
+                AnalyticEvent("dispatched data to sync @" + Date().toString())
+            )
         }
 
-        val shutdownBtn: Button = findViewById<Button>(R.id.shutdownBtn)
-        shutdownBtn.setOnClickListener {
+        findViewById<Button>(R.id.shutdownBtn).setOnClickListener {
             analytics.scheduleShutdown()
         }
     }

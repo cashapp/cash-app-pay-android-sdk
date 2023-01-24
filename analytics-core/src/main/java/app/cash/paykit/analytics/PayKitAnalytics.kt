@@ -199,8 +199,8 @@ class PayKitAnalytics constructor(
       deliveryHandlers.add(handler)
       logger.i(
         TAG,
-        java.lang.String.format(
-          "Registering %s as delivery handler for %s",
+        "Registering %s as delivery handler for %s".format(
+          Locale.US,
           handler.javaClass.simpleName,
           handler.deliverableType,
         ),
@@ -208,8 +208,8 @@ class PayKitAnalytics constructor(
     } else {
       logger.w(
         TAG,
-        java.lang.String.format(
-          "Handler for %s deliverable is already registered: %s",
+        "Handler for %s deliverable is already registered: %s".format(
+          Locale.US,
           handler.deliverableType,
           existingHandler.javaClass,
         ),

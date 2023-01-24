@@ -13,6 +13,8 @@ import io.mockk.verify
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -25,14 +27,13 @@ import kotlin.time.Duration.Companion.seconds
 @RunWith(RobolectricTestRunner::class)
 class SQLiteTest {
 
-  private var options: AnalyticsOptions =
-    AnalyticsOptions.build {
-      delay = 5.seconds // initial delay which will not schedule delivery right away
-      interval = 10.seconds
-      maxEntryCountPerProcess = 30
-      batchSize = 10
-      databaseName = "test.db"
-    }
+  private var options = AnalyticsOptions(
+    delay = 5.seconds, // initial delay which will not schedule delivery right away
+    interval = 10.seconds,
+    maxEntryCountPerProcess = 30,
+    batchSize = 10,
+    databaseName = "test.db",
+  )
 
   private val analyticsSqLiteHelper: AnalyticsSqLiteHelper = mockk(relaxed = true)
   private val entriesDataSource: EntriesDataSource = mockk(relaxed = true)
@@ -79,13 +80,13 @@ class SQLiteTest {
 
   @Test
   fun `test no delay initialization`() {
-    val noDelayOptions = AnalyticsOptions.build {
-      delay = 0.seconds
-      interval = 10.seconds
-      maxEntryCountPerProcess = 30
-      batchSize = 10
-      databaseName = "test.db"
-    }
+    val noDelayOptions = AnalyticsOptions(
+      delay = 0.seconds,
+      interval = 10.seconds,
+      maxEntryCountPerProcess = 30,
+      batchSize = 10,
+      databaseName = "test.db",
+    )
     val payKitAnalytics = createPayKitAnalytics(noDelayOptions)
 
     // sleep for a few ticks to let the scheduler start up

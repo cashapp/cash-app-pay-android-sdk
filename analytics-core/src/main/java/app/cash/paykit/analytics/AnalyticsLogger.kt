@@ -2,8 +2,9 @@ package app.cash.paykit.analytics
 
 import android.util.Log
 
-class AnalyticsLogger(private val options: AnalyticsOptions = AnalyticsOptions()) {
-
+class AnalyticsLogger(
+  private val options: AnalyticsOptions = AnalyticsOptions(),
+) {
   fun v(tag: String, msg: String) {
     if (options.logLevel <= Log.VERBOSE) {
       log(Log.VERBOSE, tag, msg)
