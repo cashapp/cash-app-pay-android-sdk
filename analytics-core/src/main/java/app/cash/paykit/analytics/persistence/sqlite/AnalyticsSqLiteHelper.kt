@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
 import app.cash.paykit.analytics.AnalyticsOptions
 
-internal class AnalyticsSqLiteHelper(context: Context, options: AnalyticsOptions) :
+class AnalyticsSqLiteHelper(context: Context, options: AnalyticsOptions) :
   SQLiteOpenHelper(context, options.databaseName, null, DATABASE_VERSION) {
 
   private var _database: SQLiteDatabase? = null

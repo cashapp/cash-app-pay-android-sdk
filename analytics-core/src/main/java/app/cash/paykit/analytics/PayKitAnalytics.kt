@@ -1,0 +1,319 @@
+package app.cash.paykit.analytics
+
+import android.content.Context
+import app.cash.paykit.analytics.core.Deliverable
+import app.cash.paykit.analytics.core.DeliveryHandler
+import app.cash.paykit.analytics.core.DeliveryWorker
+import app.cash.paykit.analytics.persistence.EntriesDataSource
+import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSQLiteDataSource
+import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSqLiteHelper
+import java.util.Locale
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.FutureTask
+import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+
+class PayKitAnalytics constructor(
+  private val context: Context,
+  private val options: AnalyticsOptions = AnalyticsOptions(),
+  private val sqLiteHelper: AnalyticsSqLiteHelper = AnalyticsSqLiteHelper(
+    context = context,
+    options = options,
+  ),
+  val entriesDataSource: EntriesDataSource = AnalyticsSQLiteDataSource(
+    sqLiteHelper = sqLiteHelper,
+    options = options,
+  ),
+  private val logger: AnalyticsLogger = AnalyticsLogger(options = options),
+  vararg deliveryHandlers: DeliveryHandler,
+) {
+  private val TAG = "PayKitAnalytics"
+
+  private var deliveryTasks = mutableListOf<FutureTask<Void>>()
+
+  private var deliveryHandlers = mutableListOf<DeliveryHandler>().apply {
+    deliveryHandlers.map { add(it) }
+  }
+
+  private var executor: ExecutorService? = null
+
+  private var mScheduler: ScheduledExecutorService? = null
+
+  private var mShouldShutdown = AtomicBoolean(false)
+
+  init {
+    entriesDataSource.resetEntries()
+    ensureExecutorIsUpAndRunning()
+    ensureSchedulerIsUpAndRunning()
+    if (deliveryHandlers.isNotEmpty()) {
+      for (deliveryHandler in deliveryHandlers) {
+        registerDeliveryHandler(deliveryHandler)
+      }
+    }
+    logger.i(TAG, "Initialization completed.")
+  }
+
+  /**
+   * Ensures that scheduler service is up and running and starts it if it is not.
+   */
+  private fun ensureSchedulerIsUpAndRunning() {
+    if (mScheduler != null) {
+      if (mScheduler!!.isShutdown) {
+        logger.w(
+          TAG,
+          "Recreating scheduler service after previous one was found to be shutdown.",
+        )
+        initializeScheduledExecutorService()
+      }
+    } else {
+      logger.d(TAG, "Creating scheduler service.")
+      initializeScheduledExecutorService()
+    }
+  }
+
+  /**
+   * Ensures that executor service is up and running and starts it if it is not.
+   */
+  private fun ensureExecutorIsUpAndRunning() {
+    if (executor != null) {
+      if (executor!!.isShutdown || executor!!.isTerminated) {
+        logger.w(
+          TAG,
+          "Recreating executor service after previous one was found to be shutdown.",
+        )
+        executor = Executors.newSingleThreadExecutor()
+      }
+    } else {
+      logger.d(TAG, "Creating executor service.")
+      executor = Executors.newSingleThreadExecutor()
+    }
+  }
+
+  /**
+   * Starts the scheduler that will initiate synchronization task in regular intervals. Interval is defined in Options
+   * .mPeriod and synchronization start will be delayed for number of seconds defined in Options.mDelay.
+   */
+  private fun initializeScheduledExecutorService() {
+    mShouldShutdown.getAndSet(false)
+    mScheduler = Executors.newSingleThreadScheduledExecutor().also {
+      logger.d(
+        TAG,
+        java.lang.String.format(
+          Locale.US,
+          "Initializing scheduled executor service | delay:%ds, interval:%ds",
+          options.delay.inWholeSeconds,
+          options.interval.inWholeSeconds,
+        ),
+      )
+      it.scheduleAtFixedRate({
+        startDelivery(false)
+        if (mShouldShutdown.compareAndSet(true, false)) {
+          shutdown()
+        }
+      }, options.delay.inWholeSeconds, options.interval.inWholeSeconds, TimeUnit.SECONDS)
+    }
+  }
+
+  /**
+   * Removes tasks that are canceled or done from the queue.
+   */
+  private fun cleanupTaskQueue() {
+    val itr: MutableIterator<FutureTask<Void>> = deliveryTasks.iterator()
+    while (itr.hasNext()) {
+      val task: FutureTask<Void> = itr.next()
+      if (task.isCancelled || task.isDone) {
+        logger.d(
+          TAG,
+          (
+            "Removing task from queue: " + task.toString() + " (canceled=" + task.isCancelled + ", done=" +
+              task.isDone
+            ) + ")",
+        )
+        itr.remove()
+      }
+    }
+  }
+
+  /**
+   * Creates a task for package synchronization and schedules it for execution. Tasks created by
+   * this method will run in sequence and will not overlap with each other.
+   *
+   * @param blocking If true the method will execute synchronously.
+   */
+  @Synchronized
+  private fun startDelivery(blocking: Boolean) {
+    logger.v(TAG, "startDelivery($blocking)")
+    ensureExecutorIsUpAndRunning()
+    cleanupTaskQueue()
+    val deliveryTask = DeliveryTask(entriesDataSource, deliveryHandlers, logger)
+    deliveryTasks.add(deliveryTask)
+    executor!!.execute(deliveryTask)
+    if (blocking) {
+      try {
+        deliveryTask.get()
+      } catch (e: InterruptedException) {
+        e.printStackTrace()
+      } catch (e: ExecutionException) {
+        e.printStackTrace()
+      }
+    }
+  }
+
+  private class DeliveryTask(
+    dataSource: EntriesDataSource,
+    handlers: List<DeliveryHandler>,
+    logger: AnalyticsLogger,
+  ) : FutureTask<Void>(DeliveryWorker(dataSource, handlers, logger))
+
+  fun scheduleShutdown() {
+    mShouldShutdown.getAndSet(true)
+    logger.i(TAG, "Scheduled shutdown.")
+  }
+
+  private fun shutdown() {
+    if (executor != null) {
+      executor!!.shutdown()
+      logger.i(TAG, "Executor service shutdown.")
+    }
+    if (mScheduler != null) {
+      mScheduler!!.shutdown()
+      logger.i(TAG, "Scheduled executor service shutdown.")
+    }
+    if (deliveryTasks.isNotEmpty()) {
+      deliveryTasks.clear()
+      logger.i(TAG, "FutureTask list cleared.")
+    }
+
+    // TODO shutdown the database?
+    logger.i(TAG, "Shutdown completed.")
+  }
+
+  @Synchronized
+  fun registerDeliveryHandler(handler: DeliveryHandler) {
+    val existingHandler: DeliveryHandler? = getDeliveryHandler(handler.deliverableType)
+    if (existingHandler == null) {
+      handler.setDependencies(entriesDataSource, logger)
+      deliveryHandlers.add(handler)
+      logger.i(
+        TAG,
+        java.lang.String.format(
+          "Registering %s as delivery handler for %s",
+          handler.javaClass.simpleName,
+          handler.deliverableType,
+        ),
+      )
+    } else {
+      logger.w(
+        TAG,
+        java.lang.String.format(
+          "Handler for %s deliverable is already registered: %s",
+          handler.deliverableType,
+          existingHandler.javaClass,
+        ),
+      )
+    }
+  }
+
+  /**
+   * Returns synchronization handler for given package type.
+   *
+   * @param deliverableType AnalyticEntry type
+   * @return Synchronization handler
+   */
+  /*package*/
+  fun getDeliveryHandler(deliverableType: String?): DeliveryHandler? {
+    if (deliverableType == null) {
+      return null
+    }
+    for (handler in deliveryHandlers) {
+      if (deliverableType.equals(handler.deliverableType, ignoreCase = true)) {
+        return handler
+      }
+    }
+    return null
+  }
+
+  @Synchronized
+  fun scheduleForDelivery(
+    type: String,
+    content: String?,
+    metaData: String?,
+  ): ScheduleDeliverableTask {
+    ensureSchedulerIsUpAndRunning()
+    ensureExecutorIsUpAndRunning()
+    val handler: DeliveryHandler? = getDeliveryHandler(type)
+    return if (handler != null && handler.deliverableType.equals(type, ignoreCase = true)) {
+      ScheduleDeliverableTask(type, content, metaData).apply {
+        executor!!.execute(this)
+      }
+    } else {
+      val msg = "No registered handler for deliverable of type: $type"
+      logger.e(TAG, msg)
+      throw IllegalArgumentException(msg)
+    }
+  }
+
+  @Synchronized
+  fun scheduleForDelivery(deliverable: Deliverable?): ScheduleDeliverableTask? {
+    return if (deliverable != null) {
+      scheduleForDelivery(deliverable.type, deliverable.content, deliverable.metaData)
+    } else {
+      null
+    }
+  }
+
+  inner class ScheduleDeliverableTask(type: String?, content: String?, metaData: String?) :
+    FutureTask<Long>({
+      if (type != null && content != null) {
+        val packageId: Long = entriesDataSource.insertEntry(type, content, metaData)
+        if (packageId > 0) {
+          logger.d(
+            TAG,
+            String.format("%s scheduled for delivery. id: %d", type, packageId),
+          )
+          packageId
+        } else {
+          logger.e(TAG, String.format("%s NOT scheduled for delivery!", type))
+          null
+        }
+      } else {
+        logger.e(
+          TAG,
+          "All deliverable must provide not null values for type and content.",
+        )
+        null
+      }
+    })
+
+  /**
+   * It will immediately try to send the deliverable.
+   *
+   * @param deliverable deliverable to send
+   */
+  @Synchronized
+  fun dispatch(deliverable: Deliverable?): ScheduleDeliverableTask? {
+    return if (deliverable == null) {
+      null
+    } else {
+      dispatch(deliverable.type, deliverable.content, deliverable.metaData)
+    }
+  }
+
+  /**
+   * It will immediately try to send the deliverable.
+   *
+   * @param type deliverable type
+   * @param content deliverable content
+   * @param metaData deliverable meta data
+   * @return
+   */
+  @Synchronized
+  fun dispatch(type: String, content: String?, metaData: String?): ScheduleDeliverableTask? {
+    val task = scheduleForDelivery(type, content, metaData)
+    startDelivery(false)
+    return task
+  }
+}

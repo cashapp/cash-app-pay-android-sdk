@@ -9,14 +9,14 @@ import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
 
-internal class AnalyticsSQLiteDataSource(
+class AnalyticsSQLiteDataSource(
   private val sqLiteHelper: AnalyticsSqLiteHelper,
   options: AnalyticsOptions,
 ) :
   EntriesDataSource(options) {
 
   @Synchronized
-  override fun insertEntry(type: String, content: String, metaData: String): Long {
+  override fun insertEntry(type: String, content: String, metaData: String?): Long {
     var insertId: Long = -1
     try {
       val database: SQLiteDatabase = sqLiteHelper.database
@@ -24,7 +24,9 @@ internal class AnalyticsSQLiteDataSource(
       values.put(COLUMN_TYPE, type)
       values.put(COLUMN_CONTENT, content)
       values.put(COLUMN_STATE, AnalyticEntry.STATE_NEW)
-      values.put(COLUMN_META_DATA, metaData)
+      metaData?.let {
+        values.put(COLUMN_META_DATA, metaData)
+      }
       values.put(COLUMN_VERSION, java.lang.String.valueOf(options.applicationVersionCode))
       insertId = database.insert(TABLE_SYNC_ENTRIES, null, values)
       if (insertId < 0) {

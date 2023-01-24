@@ -38,6 +38,10 @@
       </intent-filter>
 
     </activity>
+    <activity
+        android:name=".analytics.AnalyticsSample"
+        android:exported="true"
+        android:label="@string/title_activity_analytics_sample"/>
   </application>
 
 </manifest>

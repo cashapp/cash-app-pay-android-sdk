@@ -30,7 +30,7 @@ class AnalyticsOptions(
   val applicationVersionCode: Int = 0,
 ) {
 
-  internal constructor(builder: Builder) : this(
+  private constructor(builder: Builder) : this(
     builder.delay,
     builder.interval,
     builder.maxEntryCountPerProcess,

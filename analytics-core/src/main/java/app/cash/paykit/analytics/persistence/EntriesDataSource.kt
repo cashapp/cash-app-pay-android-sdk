@@ -3,9 +3,9 @@ package app.cash.paykit.analytics.persistence
 import android.os.SystemClock
 import app.cash.paykit.analytics.AnalyticsOptions
 
-internal abstract class EntriesDataSource(val options: AnalyticsOptions) {
+abstract class EntriesDataSource(val options: AnalyticsOptions) {
 
-  abstract fun insertEntry(type: String, content: String, metaData: String): Long
+  abstract fun insertEntry(type: String, content: String, metaData: String?): Long
 
   /**
    * Deletes the entries from the database.

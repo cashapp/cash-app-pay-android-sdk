@@ -4,7 +4,7 @@ import app.cash.paykit.analytics.AnalyticsLogger
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
 
-internal abstract class DeliveryHandler {
+abstract class DeliveryHandler {
   abstract val deliverableType: String
 
   var logger: AnalyticsLogger? = null
@@ -39,9 +39,9 @@ internal abstract class DeliveryHandler {
     this.logger = logger
   }
 
-  internal abstract fun deliver(
+  abstract fun deliver(
     entries: List<AnalyticEntry>,
-    deliveryListener: DeliveryListener? = null,
+    deliveryListener: DeliveryListener,
   )
 
   companion object {
