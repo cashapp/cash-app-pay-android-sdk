@@ -10,13 +10,13 @@ internal class DeliveryWorker(
   private val dataSource: EntriesDataSource,
   private val handlers: List<DeliveryHandler> = emptyList(),
   private val logger: AnalyticsLogger = AnalyticsLogger(AnalyticsOptions()),
-) : Callable<Void> {
+) : Callable<Unit> {
   init {
     logger.d(TAG, "Worker initialized.")
   }
 
   @Throws(Exception::class)
-  override fun call(): Void? {
+  override fun call() {
     logger.d(TAG, "Starting delivery [$this]")
     for (deliveryHandler in handlers) {
       val entryType = deliveryHandler.deliverableType
@@ -60,7 +60,6 @@ internal class DeliveryWorker(
       }
     }
     logger.d(TAG, "Delivery finished. [$this]")
-    return null
   }
 
   companion object {

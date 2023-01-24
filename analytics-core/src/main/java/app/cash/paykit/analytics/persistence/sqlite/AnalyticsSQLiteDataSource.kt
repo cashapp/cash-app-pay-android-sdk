@@ -31,7 +31,6 @@ internal class AnalyticsSQLiteDataSource(
         Log.e(TAG, "Unable to insert record into the $TABLE_SYNC_ENTRIES, values: $content")
       }
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
     return insertId
@@ -45,7 +44,6 @@ internal class AnalyticsSQLiteDataSource(
         COLUMN_ID + " IN (" + entryList2CommaSeparatedIds(entries) + ")"
       database.delete(TABLE_SYNC_ENTRIES, whereClauseForDelete, null)
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }
@@ -98,7 +96,6 @@ internal class AnalyticsSQLiteDataSource(
         }
       }
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }
@@ -135,7 +132,6 @@ internal class AnalyticsSQLiteDataSource(
         cursor.moveToNext()
       }
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     } finally {
       cursor?.close()
@@ -154,7 +150,6 @@ internal class AnalyticsSQLiteDataSource(
           )
       database.execSQL(query)
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }
@@ -170,7 +165,6 @@ internal class AnalyticsSQLiteDataSource(
           )
       database.execSQL(query)
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }

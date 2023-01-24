@@ -1,5 +1,6 @@
 package app.cash.paykit.analytics.persistence
 
+import android.os.SystemClock
 import app.cash.paykit.analytics.AnalyticsOptions
 
 internal abstract class EntriesDataSource(val options: AnalyticsOptions) {
@@ -36,7 +37,7 @@ internal abstract class EntriesDataSource(val options: AnalyticsOptions) {
    */
   @Synchronized
   fun generateProcessId(entryType: String): String {
-    val procId = "proc-" + System.currentTimeMillis()
+    val procId = "proc-" + SystemClock.elapsedRealtime()
     markEntriesForDelivery(procId, entryType)
     return procId
   }
