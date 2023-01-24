@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="Schedule deliverables" />
+        android:text="@string/schedule_deliverable" />
 
     <Button
         android:id="@+id/dispatchBtn"
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/scheduleBtn"
         android:layout_alignParentStart="true"
-        android:text="Dispatch deliverable" />
+        android:text="@string/dispatch_deliverable" />
 
     <Button
         android:id="@+id/shutdownBtn"
@@ -29,6 +29,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/dispatchBtn"
         android:layout_alignParentStart="true"
-        android:text="Shutdown" />
+        android:text="@string/shutdown" />
 
 </RelativeLayout>

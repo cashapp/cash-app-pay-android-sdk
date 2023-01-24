@@ -32,7 +32,7 @@ class PayKitAnalytics constructor(
 ) {
   private val TAG = "PayKitAnalytics"
 
-  private var deliveryTasks = mutableListOf<FutureTask<Void>>()
+  private var deliveryTasks = mutableListOf<FutureTask<Unit>>()
 
   private var deliveryHandlers = mutableListOf<DeliveryHandler>().apply {
     deliveryHandlers.map { add(it) }
@@ -121,18 +121,16 @@ class PayKitAnalytics constructor(
    * Removes tasks that are canceled or done from the queue.
    */
   private fun cleanupTaskQueue() {
-    val itr: MutableIterator<FutureTask<Void>> = deliveryTasks.iterator()
+    val itr: MutableIterator<FutureTask<Unit>> = deliveryTasks.iterator()
     while (itr.hasNext()) {
-      val task: FutureTask<Void> = itr.next()
-      if (task.isCancelled || task.isDone) {
-        logger.d(
-          TAG,
-          (
-            "Removing task from queue: " + task.toString() + " (canceled=" + task.isCancelled + ", done=" +
-              task.isDone
-            ) + ")",
-        )
-        itr.remove()
+      itr.next().run {
+        if (isCancelled || isDone) {
+          logger.d(
+            TAG,
+            """Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)""",
+          )
+          itr.remove()
+        }
       }
     }
   }
@@ -166,7 +164,7 @@ class PayKitAnalytics constructor(
     dataSource: EntriesDataSource,
     handlers: List<DeliveryHandler>,
     logger: AnalyticsLogger,
-  ) : FutureTask<Void>(DeliveryWorker(dataSource, handlers, logger))
+  ) : FutureTask<Unit>(DeliveryWorker(dataSource, handlers, logger))
 
   fun scheduleShutdown() {
     shouldShutdown.getAndSet(true)

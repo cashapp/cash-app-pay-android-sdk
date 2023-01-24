@@ -13,6 +13,9 @@
   <string name="reset_sdk_btn">Reset SDK</string>
   <string name="authorize_customer_btn">Authorize Customer</string>
   <string name="results_hint">Results will display here</string>
-    <string name="title_activity_analytics_sample">AnalyticsSample</string>
+  <string name="title_activity_analytics_sample">AnalyticsSample</string>
+  <string name="schedule_deliverable">Schedule deliverable</string>
+  <string name="dispatch_deliverable">Dispatch deliverable</string>
+  <string name="shutdown">Shutdown</string>
 
 </resources>
