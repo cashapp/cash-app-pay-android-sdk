@@ -33,7 +33,7 @@ class AnalyticsSqLiteHelper(context: Context, options: AnalyticsOptions) :
   private fun ensureDatabaseIsInitialized() {
     if (!isDatabaseOpened) {
       _database = writableDatabase
-      Log.d(TAG, "mDatabase opened.")
+      Log.d(TAG, "database opened.")
     }
   }
 

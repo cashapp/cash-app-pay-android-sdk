@@ -9,7 +9,6 @@ import app.cash.paykit.analytics.core.DeliveryListener
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import kotlin.random.Random
 
-
 class AnalyticEventsHandler : DeliveryHandler() {
     private val handler: Handler
 
@@ -35,7 +34,7 @@ class AnalyticEventsHandler : DeliveryHandler() {
                 "AnalyticEventsHandler",
                 "Simulated async call was a " + (if (success) "success" else "failure") + "."
             )
-            if (Random.Default.nextBoolean()) {
+            if (success) {
                 deliveryListener.onSuccess(packages)
                 Log.d("AnalyticEventsHandler", "sent entries:")
                 for (p in packages) {

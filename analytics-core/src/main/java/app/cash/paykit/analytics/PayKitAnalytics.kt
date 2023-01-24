@@ -40,9 +40,9 @@ class PayKitAnalytics constructor(
 
   private var executor: ExecutorService? = null
 
-  private var mScheduler: ScheduledExecutorService? = null
+  private var scheduler: ScheduledExecutorService? = null
 
-  private var mShouldShutdown = AtomicBoolean(false)
+  private var shouldShutdown = AtomicBoolean(false)
 
   init {
     entriesDataSource.resetEntries()
@@ -60,8 +60,8 @@ class PayKitAnalytics constructor(
    * Ensures that scheduler service is up and running and starts it if it is not.
    */
   private fun ensureSchedulerIsUpAndRunning() {
-    if (mScheduler != null) {
-      if (mScheduler!!.isShutdown) {
+    if (scheduler != null) {
+      if (scheduler!!.isShutdown) {
         logger.w(
           TAG,
           "Recreating scheduler service after previous one was found to be shutdown.",
@@ -97,8 +97,8 @@ class PayKitAnalytics constructor(
    * .mPeriod and synchronization start will be delayed for number of seconds defined in Options.mDelay.
    */
   private fun initializeScheduledExecutorService() {
-    mShouldShutdown.getAndSet(false)
-    mScheduler = Executors.newSingleThreadScheduledExecutor().also {
+    shouldShutdown.getAndSet(false)
+    scheduler = Executors.newSingleThreadScheduledExecutor().also {
       logger.d(
         TAG,
         java.lang.String.format(
@@ -110,7 +110,7 @@ class PayKitAnalytics constructor(
       )
       it.scheduleAtFixedRate({
         startDelivery(false)
-        if (mShouldShutdown.compareAndSet(true, false)) {
+        if (shouldShutdown.compareAndSet(true, false)) {
           shutdown()
         }
       }, options.delay.inWholeSeconds, options.interval.inWholeSeconds, TimeUnit.SECONDS)
@@ -169,7 +169,7 @@ class PayKitAnalytics constructor(
   ) : FutureTask<Void>(DeliveryWorker(dataSource, handlers, logger))
 
   fun scheduleShutdown() {
-    mShouldShutdown.getAndSet(true)
+    shouldShutdown.getAndSet(true)
     logger.i(TAG, "Scheduled shutdown.")
   }
 
@@ -178,8 +178,8 @@ class PayKitAnalytics constructor(
       executor!!.shutdown()
       logger.i(TAG, "Executor service shutdown.")
     }
-    if (mScheduler != null) {
-      mScheduler!!.shutdown()
+    if (scheduler != null) {
+      scheduler!!.shutdown()
       logger.i(TAG, "Scheduled executor service shutdown.")
     }
     if (deliveryTasks.isNotEmpty()) {
@@ -225,15 +225,12 @@ class PayKitAnalytics constructor(
    */
   /*package*/
   fun getDeliveryHandler(deliverableType: String?): DeliveryHandler? {
-    if (deliverableType == null) {
-      return null
+    return deliveryHandlers.find {
+      it.deliverableType.equals(
+        deliverableType,
+        ignoreCase = true,
+      )
     }
-    for (handler in deliveryHandlers) {
-      if (deliverableType.equals(handler.deliverableType, ignoreCase = true)) {
-        return handler
-      }
-    }
-    return null
   }
 
   @Synchronized
@@ -257,12 +254,8 @@ class PayKitAnalytics constructor(
   }
 
   @Synchronized
-  fun scheduleForDelivery(deliverable: Deliverable?): ScheduleDeliverableTask? {
-    return if (deliverable != null) {
-      scheduleForDelivery(deliverable.type, deliverable.content, deliverable.metaData)
-    } else {
-      null
-    }
+  fun scheduleForDelivery(deliverable: Deliverable): ScheduleDeliverableTask {
+    return scheduleForDelivery(deliverable.type, deliverable.content, deliverable.metaData)
   }
 
   inner class ScheduleDeliverableTask(type: String?, content: String?, metaData: String?) :
