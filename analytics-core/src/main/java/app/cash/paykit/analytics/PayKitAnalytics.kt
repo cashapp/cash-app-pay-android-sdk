@@ -35,7 +35,10 @@ class PayKitAnalytics constructor(
   private var deliveryTasks = mutableListOf<FutureTask<Unit>>()
 
   private var deliveryHandlers = mutableListOf<DeliveryHandler>().apply {
-    deliveryHandlers.map { add(it) }
+    deliveryHandlers.map {
+      add(it)
+      registerDeliveryHandler(it)
+    }
   }
 
   private var executor: ExecutorService? = null
@@ -48,11 +51,6 @@ class PayKitAnalytics constructor(
     entriesDataSource.resetEntries()
     ensureExecutorIsUpAndRunning()
     ensureSchedulerIsUpAndRunning()
-    if (deliveryHandlers.isNotEmpty()) {
-      for (deliveryHandler in deliveryHandlers) {
-        registerDeliveryHandler(deliveryHandler)
-      }
-    }
     logger.i(TAG, "Initialization completed.")
   }
 
@@ -60,15 +58,12 @@ class PayKitAnalytics constructor(
    * Ensures that scheduler service is up and running and starts it if it is not.
    */
   private fun ensureSchedulerIsUpAndRunning() {
-    if (scheduler != null) {
-      if (scheduler!!.isShutdown) {
-        logger.w(
-          TAG,
-          "Recreating scheduler service after previous one was found to be shutdown.",
-        )
+    scheduler?.run {
+      if (isShutdown or isTerminated) {
+        logger.w(TAG, "Recreating scheduler service after previous one was found to be shutdown.")
         initializeScheduledExecutorService()
       }
-    } else {
+    } ?: run {
       logger.d(TAG, "Creating scheduler service.")
       initializeScheduledExecutorService()
     }
@@ -78,15 +73,12 @@ class PayKitAnalytics constructor(
    * Ensures that executor service is up and running and starts it if it is not.
    */
   private fun ensureExecutorIsUpAndRunning() {
-    if (executor != null) {
-      if (executor!!.isShutdown || executor!!.isTerminated) {
-        logger.w(
-          TAG,
-          "Recreating executor service after previous one was found to be shutdown.",
-        )
+    executor?.run {
+      if (isShutdown or isTerminated) {
+        logger.w(TAG, "Recreating executor service after previous one was found to be shutdown.")
         executor = Executors.newSingleThreadExecutor()
       }
-    } else {
+    } ?: run {
       logger.d(TAG, "Creating executor service.")
       executor = Executors.newSingleThreadExecutor()
     }
@@ -109,10 +101,11 @@ class PayKitAnalytics constructor(
         ),
       )
       it.scheduleAtFixedRate({
-        startDelivery(false)
         if (shouldShutdown.compareAndSet(true, false)) {
           shutdown()
+          return@scheduleAtFixedRate
         }
+        startDelivery(false)
       }, options.delay.inWholeSeconds, options.interval.inWholeSeconds, TimeUnit.SECONDS)
     }
   }
@@ -146,16 +139,17 @@ class PayKitAnalytics constructor(
     logger.v(TAG, "startDelivery($blocking)")
     ensureExecutorIsUpAndRunning()
     cleanupTaskQueue()
-    val deliveryTask = DeliveryTask(entriesDataSource, deliveryHandlers, logger)
-    deliveryTasks.add(deliveryTask)
-    executor!!.execute(deliveryTask)
-    if (blocking) {
-      try {
-        deliveryTask.get()
-      } catch (e: InterruptedException) {
-        e.printStackTrace()
-      } catch (e: ExecutionException) {
-        e.printStackTrace()
+    DeliveryTask(entriesDataSource, deliveryHandlers, logger).also {
+      deliveryTasks.add(it)
+      executor!!.execute(it)
+      if (blocking) {
+        try {
+          it.get()
+        } catch (e: InterruptedException) {
+          logger.w(TAG, "Blocking Delivery task interrupted")
+        } catch (e: ExecutionException) {
+          logger.w(TAG, "Could not execute blocking delivery task")
+        }
       }
     }
   }
@@ -172,12 +166,12 @@ class PayKitAnalytics constructor(
   }
 
   private fun shutdown() {
-    if (executor != null) {
-      executor!!.shutdown()
+    executor?.run {
+      shutdown()
       logger.i(TAG, "Executor service shutdown.")
     }
-    if (scheduler != null) {
-      scheduler!!.shutdown()
+    scheduler?.run {
+      shutdown()
       logger.i(TAG, "Scheduled executor service shutdown.")
     }
     if (deliveryTasks.isNotEmpty()) {
@@ -241,8 +235,8 @@ class PayKitAnalytics constructor(
     ensureExecutorIsUpAndRunning()
     val handler: DeliveryHandler? = getDeliveryHandler(type)
     return if (handler != null && handler.deliverableType.equals(type, ignoreCase = true)) {
-      ScheduleDeliverableTask(type, content, metaData).apply {
-        executor!!.execute(this)
+      ScheduleDeliverableTask(type, content, metaData).also {
+        executor!!.execute(it)
       }
     } else {
       val msg = "No registered handler for deliverable of type: $type"
@@ -259,13 +253,13 @@ class PayKitAnalytics constructor(
   inner class ScheduleDeliverableTask(type: String?, content: String?, metaData: String?) :
     FutureTask<Long>({
       if (type != null && content != null) {
-        val packageId: Long = entriesDataSource.insertEntry(type, content, metaData)
-        if (packageId > 0) {
+        val entryId: Long = entriesDataSource.insertEntry(type, content, metaData)
+        if (entryId > 0) {
           logger.d(
             TAG,
-            String.format("%s scheduled for delivery. id: %d", type, packageId),
+            String.format("%s scheduled for delivery. id: %d", type, entryId),
           )
-          packageId
+          entryId
         } else {
           logger.e(TAG, String.format("%s NOT scheduled for delivery!", type))
           null
@@ -285,12 +279,8 @@ class PayKitAnalytics constructor(
    * @param deliverable deliverable to send
    */
   @Synchronized
-  fun dispatch(deliverable: Deliverable?): ScheduleDeliverableTask? {
-    return if (deliverable == null) {
-      null
-    } else {
-      dispatch(deliverable.type, deliverable.content, deliverable.metaData)
-    }
+  fun dispatch(deliverable: Deliverable): ScheduleDeliverableTask {
+    return dispatch(deliverable.type, deliverable.content, deliverable.metaData)
   }
 
   /**
@@ -302,7 +292,7 @@ class PayKitAnalytics constructor(
    * @return
    */
   @Synchronized
-  fun dispatch(type: String, content: String?, metaData: String?): ScheduleDeliverableTask? {
+  fun dispatch(type: String, content: String?, metaData: String?): PayKitAnalytics.ScheduleDeliverableTask {
     val task = scheduleForDelivery(type, content, metaData)
     startDelivery(false)
     return task

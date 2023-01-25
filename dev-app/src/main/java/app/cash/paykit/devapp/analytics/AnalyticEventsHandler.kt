@@ -21,7 +21,7 @@ class AnalyticEventsHandler : DeliveryHandler() {
 
   override val deliverableType = AnalyticEvent.TYPE
 
-  override fun deliver(packages: List<AnalyticEntry>, deliveryListener: DeliveryListener) {
+  override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) {
     val asyncDelay = 1000L * Random.Default.nextInt(1, 3)
     log(
       "Simulate async call by delaying response for $asyncDelay ms",
@@ -32,15 +32,15 @@ class AnalyticEventsHandler : DeliveryHandler() {
         "Simulated async call was a " + (if (success) "success" else "failure") + ".",
       )
       if (success) {
-        deliveryListener.onSuccess(packages)
+        deliveryListener.onSuccess(entries)
         log("sent entries:")
-        for (p in packages) {
+        for (p in entries) {
           log("sent:" + p.content)
         }
       } else {
-        deliveryListener.onError(packages)
+        deliveryListener.onError(entries)
         log("failed entries:")
-        for (p in packages) {
+        for (p in entries) {
           log("failed:" + p.content)
         }
       }

@@ -8,27 +8,34 @@ import app.cash.paykit.analytics.core.DeliveryListener
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSqLiteHelper
+import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import io.mockk.verify
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
-class SQLiteTest {
+class AnalyticsTest {
 
   private var options = AnalyticsOptions(
-    delay = 5.seconds, // initial delay which will not schedule delivery right away
+    delay = 0.seconds,
     interval = 10.seconds,
     maxEntryCountPerProcess = 30,
     batchSize = 10,
@@ -38,6 +45,25 @@ class SQLiteTest {
   private val analyticsSqLiteHelper: AnalyticsSqLiteHelper = mockk(relaxed = true)
   private val entriesDataSource: EntriesDataSource = mockk(relaxed = true)
   private val app = RuntimeEnvironment.getApplication()
+
+  @Before
+  fun setup() {
+    mockkStatic(Executors::class)
+    val mockScheduledFuture = mockk<ScheduledFuture<Unit>>(relaxed = true)
+    val mockExecutor: ScheduledExecutorService = mockk(relaxed = true)
+    every { Executors.newSingleThreadScheduledExecutor() } returns mockExecutor
+
+    every { mockExecutor.scheduleAtFixedRate(any(), any(), any(), any()) } answers {
+      val task = this.args.first() as Runnable
+      task.run()
+      mockScheduledFuture
+    }
+  }
+
+  @After
+  fun tearDown() {
+    unmockkStatic(Executors::class)
+  }
 
   @Test
   fun `test initialization`() {
@@ -57,7 +83,7 @@ class SQLiteTest {
 
     val synchronizationTasks = getPrivateField(payKitAnalytics, "deliveryTasks") as List<*>
     assertNotNull(synchronizationTasks)
-    assertEquals(0, synchronizationTasks.size)
+    assertEquals(1, synchronizationTasks.size) // the initial delivery task
 
     val deliveryHandlers =
       getPrivateField(payKitAnalytics, "deliveryHandlers") as ArrayList<*>
@@ -79,9 +105,12 @@ class SQLiteTest {
   }
 
   @Test
-  fun `test no delay initialization`() {
+  fun `test initialization with delay`() {
+    // uses the default scheduler so the delay is taken into acccount
+    unmockkStatic(Executors::class)
+
     val noDelayOptions = AnalyticsOptions(
-      delay = 0.seconds,
+      delay = 5.seconds,
       interval = 10.seconds,
       maxEntryCountPerProcess = 30,
       batchSize = 10,
@@ -89,12 +118,9 @@ class SQLiteTest {
     )
     val payKitAnalytics = createPayKitAnalytics(noDelayOptions)
 
-    // sleep for a few ticks to let the scheduler start up
-    Thread.sleep(5)
-
     val synchronizationTasks = getPrivateField(payKitAnalytics, "deliveryTasks") as List<*>
     assertNotNull(synchronizationTasks)
-    assertEquals(1, synchronizationTasks.size)
+    assertEquals(0, synchronizationTasks.size)
   }
 
   @Test
