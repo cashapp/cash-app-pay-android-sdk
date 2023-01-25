@@ -14,6 +14,7 @@ import app.cash.paykit.core.impl.PayKitLifecycleListener
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
+import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -21,7 +22,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
-import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 
@@ -127,7 +127,7 @@ class CashAppPayKitStateTests {
     }
 
     // Verify we got the expected result.
-    Assert.assertTrue("Expected Approved state", payKitListener.state is Approved)
+    assertThat(payKitListener.state).isInstanceOf(Approved::class.java)
   }
 
   @Test
@@ -156,7 +156,7 @@ class CashAppPayKitStateTests {
     }
 
     // Verify we got the expected result.
-    Assert.assertTrue("Expected Approved state", payKitListener.state is Declined)
+    assertThat(payKitListener.state).isInstanceOf(Declined::class.java)
   }
 
   @Test

@@ -41,6 +41,7 @@ enum class RequestType {
 internal class NetworkManagerImpl(
   private val baseUrl: String,
   private val networkTimeoutMilliseconds: Int = DEFAULT_NETWORK_TIMEOUT_MILLISECONDS,
+  private val userAgentValue: String,
 ) : NetworkManager {
 
   // TODO: Generic network calls retry logic. ( https://www.notion.so/cashappcash/Generic-Retry-logic-for-all-network-requests-2fce583bb4154476835af908c8688995 )
@@ -143,6 +144,7 @@ internal class NetworkManagerImpl(
     urlConnection.setRequestProperty("Content-Type", "application/json")
     urlConnection.setRequestProperty("Accept", "application/json")
     urlConnection.setRequestProperty("Authorization", "Client $clientId")
+    urlConnection.setRequestProperty("User-Agent", userAgentValue)
 
     if (requestType == POST || requestType == PATCH) {
       urlConnection.doOutput = true

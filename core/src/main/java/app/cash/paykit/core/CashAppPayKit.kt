@@ -3,12 +3,14 @@ package app.cash.paykit.core
 import android.content.Context
 import androidx.annotation.WorkerThread
 import app.cash.paykit.core.analytics.AnalyticsService
+import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.impl.PayKitLifecycleObserverImpl
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.utils.UserAgentProvider
 
 interface CashAppPayKit {
   /**
@@ -86,13 +88,20 @@ object CashAppPayKitFactory {
 
   private val payKitLifecycleObserver: PayKitLifecycleObserver = PayKitLifecycleObserverImpl()
 
+  private fun getUserAgentValue(): String {
+    return UserAgentProvider.provideUserAgent(ApplicationContextHolder.applicationContext)
+  }
+
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.
    */
   fun create(
     clientId: String,
   ): CashAppPayKit {
-    val networkManager = NetworkManagerImpl(BASE_URL_PRODUCTION)
+    val networkManager = NetworkManagerImpl(
+      BASE_URL_PRODUCTION,
+      userAgentValue = getUserAgentValue(),
+    )
     val analyticsService = buildAnalyticsService(clientId, networkManager)
 
     return CashAppPayKitImpl(
@@ -110,7 +119,7 @@ object CashAppPayKitFactory {
   fun createSandbox(
     clientId: String,
   ): CashAppPayKit {
-    val networkManager = NetworkManagerImpl(BASE_URL_SANDBOX)
+    val networkManager = NetworkManagerImpl(BASE_URL_SANDBOX, userAgentValue = getUserAgentValue())
     val analyticsService = buildAnalyticsService(clientId, networkManager)
 
     return CashAppPayKitImpl(
@@ -126,7 +135,9 @@ object CashAppPayKitFactory {
     clientId: String,
     networkManager: NetworkManager,
   ): AnalyticsService {
-    return AnalyticsService("0.0.6", clientId, "agent", networkManager)
+    val sdkVersion =
+      ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
+    return AnalyticsService(sdkVersion, clientId, getUserAgentValue(), networkManager)
   }
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
