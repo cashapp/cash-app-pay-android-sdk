@@ -1,11 +1,15 @@
 package app.cash.paykit.core.impl
 
+import AnalyticsEvent
+import AnalyticsRequest
+import android.util.Log
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
 import app.cash.paykit.core.impl.RequestType.GET
 import app.cash.paykit.core.impl.RequestType.PATCH
 import app.cash.paykit.core.impl.RequestType.POST
+import app.cash.paykit.core.models.analytics.AnalyticsResponse
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
@@ -100,6 +104,23 @@ internal class NetworkManagerImpl(
     )
   }
 
+  override fun uploadAnalyticsEvents(clientId: String, analyticEvents: List<AnalyticsEvent>) {
+    // TODO: ClientId is not strictly necessary, remove it!
+    val analyticsRequest = AnalyticsRequest(analyticEvents)
+    val response: NetworkResult<AnalyticsResponse> = executeNetworkRequest(
+      POST,
+      ANALYTICS_PROD_ENDPOINT,
+      clientId,
+      analyticsRequest,
+    )
+
+    // TODO: Temporary log, will be removed.
+    when (response) {
+      is Failure -> Log.e("ANALYTICS", "Failed upload, got: ${response.exception}")
+      is Success -> Log.v("ANALYTICS", "Success! Got: ${response.data}")
+    }
+  }
+
   @OptIn(ExperimentalStdlibApi::class)
   /**
    * POST Request.
@@ -160,6 +181,7 @@ internal class NetworkManagerImpl(
           is Failure -> NetworkResult.failure(
             PayKitConnectivityNetworkException(apiErrorResponse.exception),
           )
+
           is Success -> {
             val apiError = apiErrorResponse.data.apiErrors.first()
             val apiException = PayKitApiNetworkException(
@@ -226,5 +248,10 @@ internal class NetworkManagerImpl(
 
   companion object {
     const val DEFAULT_NETWORK_TIMEOUT_MILLISECONDS = 60_000
+
+    private const val ANALYTICS_SERVICE_SUFFIX = "2.0/log/eventstream"
+    const val ANALYTICS_STAGING_ENDPOINT =
+      "https://api.squareupstaging.com/$ANALYTICS_SERVICE_SUFFIX"
+    const val ANALYTICS_PROD_ENDPOINT = "https://api.squareup.com/$ANALYTICS_SERVICE_SUFFIX"
   }
 }

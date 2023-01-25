@@ -2,6 +2,7 @@ package app.cash.paykit.core
 
 import android.content.Context
 import androidx.annotation.WorkerThread
+import app.cash.paykit.core.analytics.AnalyticsService
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
@@ -91,9 +92,13 @@ object CashAppPayKitFactory {
   fun create(
     clientId: String,
   ): CashAppPayKit {
+    val networkManager = NetworkManagerImpl(BASE_URL_PRODUCTION)
+    val analyticsService = buildAnalyticsService(clientId, networkManager)
+
     return CashAppPayKitImpl(
       clientId = clientId,
-      networkManager = NetworkManagerImpl(BASE_URL_PRODUCTION),
+      networkManager = networkManager,
+      analyticsService = analyticsService,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = false,
     )
@@ -105,12 +110,23 @@ object CashAppPayKitFactory {
   fun createSandbox(
     clientId: String,
   ): CashAppPayKit {
+    val networkManager = NetworkManagerImpl(BASE_URL_SANDBOX)
+    val analyticsService = buildAnalyticsService(clientId, networkManager)
+
     return CashAppPayKitImpl(
       clientId = clientId,
-      networkManager = NetworkManagerImpl(BASE_URL_SANDBOX),
+      networkManager = networkManager,
+      analyticsService = analyticsService,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = true,
     )
+  }
+
+  private fun buildAnalyticsService(
+    clientId: String,
+    networkManager: NetworkManager,
+  ): AnalyticsService {
+    return AnalyticsService("0.0.6", clientId, "agent", networkManager)
   }
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
