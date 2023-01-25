@@ -7,16 +7,23 @@ import app.cash.paykit.core.impl.CashAppPayKitImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.JsonDataException
+import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit.SECONDS
 
 class NetworkErrorTests {
+
+  @Before
+  fun setup() {
+    MockKAnnotations.init(this)
+  }
 
   @Test
   fun `HTTP code without payload should be wrapped with correct SDK defined exception`() {
@@ -195,5 +202,6 @@ class NetworkErrorTests {
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
+      analyticsService = mockk(relaxed = true),
     )
 }
