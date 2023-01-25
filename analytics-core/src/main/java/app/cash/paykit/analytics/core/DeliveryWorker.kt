@@ -4,6 +4,7 @@ import app.cash.paykit.analytics.AnalyticsLogger
 import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
+import app.cash.paykit.analytics.persistence.toCommaSeparatedList
 import java.util.Locale
 import java.util.concurrent.Callable
 
@@ -28,12 +29,7 @@ internal class DeliveryWorker(
         logger.d(TAG, "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId))
       }
       while (entries.isNotEmpty()) {
-        logger.d(
-          TAG,
-          "DELIVERY_IN_PROGRESS for ids[" + dataSource.entryList2CommaSeparatedIds(
-            entries,
-          ) + "]",
-        )
+        logger.d(TAG, "DELIVERY_IN_PROGRESS for ids[" + entries.toCommaSeparatedList() + "]")
         dataSource.updateStatuses(entries, AnalyticEntry.STATE_DELIVERY_IN_PROGRESS)
         deliveryHandler.deliver(entries, deliveryHandler.deliveryListener)
 

@@ -6,6 +6,7 @@ import android.util.Log
 import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
+import app.cash.paykit.analytics.persistence.toCommaSeparatedList
 
 class AnalyticsSQLiteDataSource(
   private val sqLiteHelper: AnalyticsSqLiteHelper,
@@ -39,8 +40,7 @@ class AnalyticsSQLiteDataSource(
   override fun deleteEntry(entries: List<AnalyticEntry>) {
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
-      val whereClauseForDelete =
-        """$COLUMN_ID IN (${entryList2CommaSeparatedIds(entries)})"""
+      val whereClauseForDelete = "$COLUMN_ID IN (${entries.toCommaSeparatedList()})"
       database.delete(TABLE_SYNC_ENTRIES, whereClauseForDelete, null)
     } catch (e: Exception) {
       Log.e("", "", e)
@@ -54,7 +54,7 @@ class AnalyticsSQLiteDataSource(
         true, // distinct
         TABLE_SYNC_ENTRIES,
         arrayOf(COLUMN_ID), // columns
-        """($COLUMN_STATE=? OR $COLUMN_STATE=? OR ($COLUMN_STATE=? AND $COLUMN_PROCESS_ID IS NULL)) AND $COLUMN_TYPE=?""",
+        "($COLUMN_STATE=? OR $COLUMN_STATE=? OR ($COLUMN_STATE=? AND $COLUMN_PROCESS_ID IS NULL)) AND $COLUMN_TYPE=?",
         arrayOf(
           AnalyticEntry.STATE_NEW.toString(),
           AnalyticEntry.STATE_DELIVERY_FAILED.toString(),
@@ -67,7 +67,7 @@ class AnalyticsSQLiteDataSource(
         options.maxEntryCountPerProcess.toString(), // limit
       )?.use { cursor ->
         val query =
-          """UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=${AnalyticEntry.STATE_DELIVERY_PENDING}, $COLUMN_PROCESS_ID='$processId' WHERE $COLUMN_ID=?;"""
+          "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=${AnalyticEntry.STATE_DELIVERY_PENDING}, $COLUMN_PROCESS_ID='$processId' WHERE $COLUMN_ID=?;"
 
         with(sqLiteHelper.database.compileStatement(query)) {
           cursor.moveToFirst()
@@ -122,9 +122,7 @@ class AnalyticsSQLiteDataSource(
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
       val query =
-        "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=$status WHERE id IN (" + entryList2CommaSeparatedIds(
-          entries,
-        ) + ");"
+        "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=$status WHERE id IN (" + entries.toCommaSeparatedList() + ");"
       database.execSQL(query)
     } catch (e: Exception) {
       Log.e("", "", e)

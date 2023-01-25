@@ -60,7 +60,10 @@ class PayKitAnalytics constructor(
   private fun ensureSchedulerIsUpAndRunning() {
     scheduler?.run {
       if (isShutdown or isTerminated) {
-        logger.w(TAG, "Recreating scheduler service after previous one was found to be shutdown.")
+        logger.w(
+          TAG,
+          "Recreating scheduler service after previous one was found to be shutdown.",
+        )
         initializeScheduledExecutorService()
       }
     } ?: run {
@@ -75,7 +78,10 @@ class PayKitAnalytics constructor(
   private fun ensureExecutorIsUpAndRunning() {
     executor?.run {
       if (isShutdown or isTerminated) {
-        logger.w(TAG, "Recreating executor service after previous one was found to be shutdown.")
+        logger.w(
+          TAG,
+          "Recreating executor service after previous one was found to be shutdown.",
+        )
         executor = Executors.newSingleThreadExecutor()
       }
     } ?: run {
@@ -93,9 +99,8 @@ class PayKitAnalytics constructor(
     scheduler = Executors.newSingleThreadScheduledExecutor().also {
       logger.d(
         TAG,
-        java.lang.String.format(
+        "Initializing scheduled executor service | delay:%ds, interval:%ds".format(
           Locale.US,
-          "Initializing scheduled executor service | delay:%ds, interval:%ds",
           options.delay.inWholeSeconds,
           options.interval.inWholeSeconds,
         ),
@@ -118,10 +123,7 @@ class PayKitAnalytics constructor(
     while (itr.hasNext()) {
       itr.next().run {
         if (isCancelled || isDone) {
-          logger.d(
-            TAG,
-            """Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)""",
-          )
+          logger.d(TAG, "Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)")
           itr.remove()
         }
       }
@@ -292,7 +294,11 @@ class PayKitAnalytics constructor(
    * @return
    */
   @Synchronized
-  fun dispatch(type: String, content: String?, metaData: String?): PayKitAnalytics.ScheduleDeliverableTask {
+  fun dispatch(
+    type: String,
+    content: String?,
+    metaData: String?,
+  ): PayKitAnalytics.ScheduleDeliverableTask {
     val task = scheduleForDelivery(type, content, metaData)
     startDelivery(false)
     return task

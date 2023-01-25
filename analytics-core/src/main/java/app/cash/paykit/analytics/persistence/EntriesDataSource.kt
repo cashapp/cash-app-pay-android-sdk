@@ -118,19 +118,7 @@ abstract class EntriesDataSource(val options: AnalyticsOptions) {
    * @param status    new status for the sync entry
    */
   abstract fun updateStatuses(entries: List<AnalyticEntry>, status: Int)
-
-  fun entryList2CommaSeparatedIds(entries: List<AnalyticEntry>?): String {
-    if (entries == null) {
-      return ""
-    }
-    if (entries.isEmpty()) {
-      return ""
-    }
-    val result = StringBuilder()
-    for (pkg in entries) {
-      result.append(pkg.id)
-      result.append(",")
-    }
-    return if (result.isNotEmpty()) result.substring(0, result.length - 1) else ""
-  }
 }
+fun List<AnalyticEntry>.toCommaSeparatedList() = joinToString(transform = {
+  it.id.toString()
+})
