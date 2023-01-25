@@ -83,6 +83,8 @@ dependencies {
   // AndroidX Startup.
   implementation "androidx.startup:startup-runtime:$startup_version"
 
+  implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
   // TEST RELATED.
 
   testImplementation "junit:junit:$junit_version"
