@@ -12,10 +12,16 @@ class AnalyticsCustomerRequestPayload(
   /*
   * Common fields.
   */
-
+  @Json(name = "mobile_cap_pk_initialization_sdk_version")
   sdkVersion: String,
+
+  @Json(name = "mobile_cap_pk_initialization_client_ua")
   clientUserAgent: String,
+
+  @Json(name = "mobile_cap_pk_initialization_platform")
   requestPlatform: String,
+
+  @Json(name = "mobile_cap_pk_initialization_client_id")
   clientId: String,
 
   /*
