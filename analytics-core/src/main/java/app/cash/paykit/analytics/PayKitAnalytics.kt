@@ -28,23 +28,28 @@ class PayKitAnalytics constructor(
     options = options,
   ),
   private val logger: AnalyticsLogger = AnalyticsLogger(options = options),
-  vararg deliveryHandlers: DeliveryHandler,
+  vararg initialDeliveryHandlers: DeliveryHandler,
 ) {
   private val TAG = "PayKitAnalytics"
 
+  /** Collection of FutureTasks that perform the delivery work. */
   private var deliveryTasks = mutableListOf<FutureTask<Unit>>()
 
+  /** A collection of delivery handlers that will process the events. */
   private var deliveryHandlers = mutableListOf<DeliveryHandler>().apply {
-    deliveryHandlers.map {
+    initialDeliveryHandlers.map {
       add(it)
       registerDeliveryHandler(it)
     }
   }
 
+  /** The executor that will process the delivery tasks. */
   private var executor: ExecutorService? = null
 
+  /** In charge of scheduling our delivery tasks. */
   private var scheduler: ScheduledExecutorService? = null
 
+  /** Governs the lifecycle of the executor and scheduler. */
   private var shouldShutdown = AtomicBoolean(false)
 
   init {
