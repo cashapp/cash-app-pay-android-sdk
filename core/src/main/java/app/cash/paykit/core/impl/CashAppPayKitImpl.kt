@@ -22,6 +22,7 @@ import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
+import app.cash.paykit.core.analytics.AnalyticsService
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
@@ -38,6 +39,7 @@ import app.cash.paykit.core.utils.orElse
 internal class CashAppPayKitImpl(
   private val clientId: String,
   private val networkManager: NetworkManager,
+  private val analyticsService: AnalyticsService,
   private val payKitLifecycleListener: PayKitLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
   initialState: PayKitState = NotStarted,
@@ -65,6 +67,7 @@ internal class CashAppPayKitImpl(
   init {
     // Register for process lifecycle updates.
     payKitLifecycleListener.register(this)
+    analyticsService.sendSdkInitializationAnalytics()
   }
 
   /**
@@ -83,6 +86,7 @@ internal class CashAppPayKitImpl(
       is Failure -> {
         currentState = PayKitException(networkResult.exception)
       }
+
       is Success -> {
         customerResponseData = networkResult.data.customerResponseData
         currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
@@ -110,6 +114,7 @@ internal class CashAppPayKitImpl(
       is Failure -> {
         currentState = PayKitException(networkResult.exception)
       }
+
       is Success -> {
         customerResponseData = networkResult.data.customerResponseData
         currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
@@ -126,6 +131,7 @@ internal class CashAppPayKitImpl(
       is Failure -> {
         currentState = PayKitException(networkResult.exception)
       }
+
       is Success -> {
         customerResponseData = networkResult.data.customerResponseData
 
@@ -134,9 +140,11 @@ internal class CashAppPayKitImpl(
           STATUS_PENDING -> {
             ReadyToAuthorize(networkResult.data.customerResponseData)
           }
+
           STATUS_APPROVED -> {
             Approved(networkResult.data.customerResponseData)
           }
+
           else -> {
             Declined
           }

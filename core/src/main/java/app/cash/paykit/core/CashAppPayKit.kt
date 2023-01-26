@@ -2,6 +2,7 @@ package app.cash.paykit.core
 
 import android.content.Context
 import androidx.annotation.WorkerThread
+import app.cash.paykit.core.analytics.AnalyticsService
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
@@ -97,12 +98,16 @@ object CashAppPayKitFactory {
   fun create(
     clientId: String,
   ): CashAppPayKit {
+    val networkManager = NetworkManagerImpl(
+      BASE_URL_PRODUCTION,
+      userAgentValue = getUserAgentValue(),
+    )
+    val analyticsService = buildAnalyticsService(clientId, networkManager)
+
     return CashAppPayKitImpl(
       clientId = clientId,
-      networkManager = NetworkManagerImpl(
-        BASE_URL_PRODUCTION,
-        userAgentValue = getUserAgentValue(),
-      ),
+      networkManager = networkManager,
+      analyticsService = analyticsService,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = false,
     )
@@ -114,12 +119,25 @@ object CashAppPayKitFactory {
   fun createSandbox(
     clientId: String,
   ): CashAppPayKit {
+    val networkManager = NetworkManagerImpl(BASE_URL_SANDBOX, userAgentValue = getUserAgentValue())
+    val analyticsService = buildAnalyticsService(clientId, networkManager)
+
     return CashAppPayKitImpl(
       clientId = clientId,
-      networkManager = NetworkManagerImpl(BASE_URL_SANDBOX, userAgentValue = getUserAgentValue()),
+      networkManager = networkManager,
+      analyticsService = analyticsService,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = true,
     )
+  }
+
+  private fun buildAnalyticsService(
+    clientId: String,
+    networkManager: NetworkManager,
+  ): AnalyticsService {
+    val sdkVersion =
+      ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
+    return AnalyticsService(sdkVersion, clientId, getUserAgentValue(), networkManager)
   }
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.

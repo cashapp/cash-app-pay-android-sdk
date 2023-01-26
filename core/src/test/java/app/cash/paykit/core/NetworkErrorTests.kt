@@ -195,5 +195,6 @@ class NetworkErrorTests {
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
+      analyticsService = mockk(relaxed = true),
     )
 }
