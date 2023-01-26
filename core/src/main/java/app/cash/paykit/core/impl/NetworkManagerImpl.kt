@@ -22,14 +22,13 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import java.io.BufferedOutputStream
-import java.io.BufferedWriter
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.io.OutputStream
-import java.io.OutputStreamWriter
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
-import java.net.URL
 import java.util.UUID
 
 enum class RequestType {
@@ -40,8 +39,8 @@ enum class RequestType {
 
 internal class NetworkManagerImpl(
   private val baseUrl: String,
-  private val networkTimeoutMilliseconds: Int = DEFAULT_NETWORK_TIMEOUT_MILLISECONDS,
   private val userAgentValue: String,
+  private val okHttpClient: OkHttpClient,
 ) : NetworkManager {
 
   // TODO: Generic network calls retry logic. ( https://www.notion.so/cashappcash/Generic-Retry-logic-for-all-network-requests-2fce583bb4154476835af908c8688995 )
@@ -136,109 +135,82 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestPayload: In?,
   ): NetworkResult<Out> {
-    val url = URL(endpointUrl)
-    val urlConnection: HttpURLConnection = url.openConnection() as HttpURLConnection
-    urlConnection.requestMethod = requestType.name
-    urlConnection.connectTimeout = networkTimeoutMilliseconds
-    urlConnection.readTimeout = networkTimeoutMilliseconds
-    urlConnection.setRequestProperty("Content-Type", "application/json")
-    urlConnection.setRequestProperty("Accept", "application/json")
-    urlConnection.setRequestProperty("Authorization", "Client $clientId")
-    urlConnection.setRequestProperty("User-Agent", userAgentValue)
+    val requestBuilder = Request.Builder()
+      .url(endpointUrl)
+      .addHeader("Content-Type", "application/json")
+      .addHeader("Accept", "application/json")
+      .addHeader("Authorization", "Client $clientId")
+      .addHeader("User-Agent", userAgentValue)
 
-    if (requestType == POST || requestType == PATCH) {
-      urlConnection.doOutput = true
-      urlConnection.setChunkedStreamingMode(0)
-    }
+    val moshi: Moshi = Moshi.Builder().build()
+    val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
+    val jsonData: String = requestJsonAdapter.toJson(requestPayload)
 
-    try {
-      val moshi: Moshi = Moshi.Builder().build()
-
-      if (requestPayload != null) {
-        val outStream: OutputStream = BufferedOutputStream(urlConnection.outputStream)
-        val writer = BufferedWriter(
-          OutputStreamWriter(
-            outStream,
-            "UTF-8",
-          ),
-        )
-
-        val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
-        val jsonData: String = requestJsonAdapter.toJson(requestPayload)
-        writer.write(jsonData)
-        writer.flush()
+    when (requestType) {
+      POST -> {
+        val requestBody = jsonData.toRequestBody("application/json; charset=utf-8".toMediaType())
+        requestBuilder.post(requestBody)
       }
 
-      val responseCode = urlConnection.responseCode
-      if (responseCode != HttpURLConnection.HTTP_CREATED && responseCode != HttpURLConnection.HTTP_OK) {
-        // Under normal circumstances:
-        //  - 3xx errors won’t have a payload.
-        //  - 4xx are guaranteed to have a payload.
-        //  - 5xx should have a payload, but there might be situations where they do not.
-        //
-        // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
-        val apiErrorResponse: NetworkResult<ApiErrorResponse> =
-          deserializeResponse(urlConnection, moshi)
-        return when (apiErrorResponse) {
-          is Failure -> NetworkResult.failure(
-            PayKitConnectivityNetworkException(apiErrorResponse.exception),
-          )
+      PATCH -> {
+        val requestBody = jsonData.toRequestBody("application/json; charset=utf-8".toMediaType())
+        requestBuilder.patch(requestBody)
+      }
 
-          is Success -> {
-            val apiError = apiErrorResponse.data.apiErrors.first()
-            val apiException = PayKitApiNetworkException(
-              apiError.category,
-              apiError.code,
-              apiError.detail,
-              apiError.field_value,
+      GET -> {
+        requestBuilder.get()
+      }
+    }
+
+    okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
+      if (!response.isSuccessful) {
+        // Unsuccessfully response is handled here.
+        if (response.code != HttpURLConnection.HTTP_CREATED && response.code != HttpURLConnection.HTTP_OK) {
+          // Under normal circumstances:
+          //  - 3xx errors won’t have a payload.
+          //  - 4xx are guaranteed to have a payload.
+          //  - 5xx should have a payload, but there might be situations where they do not.
+          //
+          // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
+          val apiErrorResponse: NetworkResult<ApiErrorResponse> =
+            deserializeResponse(response.body?.toString() ?: "", moshi)
+          return when (apiErrorResponse) {
+            is Failure -> NetworkResult.failure(
+              PayKitConnectivityNetworkException(apiErrorResponse.exception),
             )
-            NetworkResult.failure(apiException)
+
+            is Success -> {
+              val apiError = apiErrorResponse.data.apiErrors.first()
+              val apiException = PayKitApiNetworkException(
+                apiError.category,
+                apiError.code,
+                apiError.detail,
+                apiError.field_value,
+              )
+              NetworkResult.failure(apiException)
+            }
           }
         }
       }
 
-      return deserializeResponse(urlConnection, moshi)
-    } catch (e: SocketTimeoutException) {
-      return NetworkResult.failure(PayKitConnectivityNetworkException(e))
-    } finally {
-      urlConnection.disconnect()
+      // Success continues here.
+      return deserializeResponse(response.body!!.string(), moshi)
     }
   }
 
   @OptIn(ExperimentalStdlibApi::class)
   private inline fun <reified Out : Any> deserializeResponse(
-    urlConnection: HttpURLConnection,
+    responseString: String,
     moshi: Moshi,
   ): NetworkResult<Out> {
-    // TODO: Could probably leverage OKIO to improve this code. ( https://www.notion.so/cashappcash/Would-okio-benefit-the-low-level-network-handling-b8f55044c1e249a995f544f1f9de3c4a )
     try {
-      val streamToUse = try {
-        urlConnection.inputStream
-      } catch (e: Exception) {
-        // In the case HTTP status is an error, the output will belong to `errorStream`.
-        if (urlConnection.errorStream == null) {
-          // If both inputStream and errorStream are missing, there is no response payload. Therefore return an exception with the appropriate HTTP code.
-          return NetworkResult.failure(IOException("Got server code ${urlConnection.responseCode}"))
-        }
-        urlConnection.errorStream
+      val jsonAdapterResponse: JsonAdapter<Out> = moshi.adapter()
+
+      val responseModel = jsonAdapterResponse.fromJson(responseString)
+      if (responseModel != null) {
+        return NetworkResult.success(responseModel)
       }
-
-      streamToUse.use { inputStream ->
-        inputStream.bufferedReader().use { buffered ->
-          val responseLines = buffered.readLines()
-          val sb = StringBuilder()
-          responseLines.forEach { sb.append(it) }
-          val responseJson = sb.toString()
-
-          val jsonAdapterResponse: JsonAdapter<Out> = moshi.adapter()
-
-          val responseModel = jsonAdapterResponse.fromJson(responseJson)
-          if (responseModel != null) {
-            return NetworkResult.success(responseModel)
-          }
-          return NetworkResult.failure(IOException("Failed to deserialize response data."))
-        }
-      }
+      return NetworkResult.failure(IOException("Failed to deserialize response data."))
     } catch (e: SocketTimeoutException) {
       return NetworkResult.failure(PayKitConnectivityNetworkException(e))
     } catch (e: JsonEncodingException) {
@@ -249,8 +221,6 @@ internal class NetworkManagerImpl(
   }
 
   companion object {
-    const val DEFAULT_NETWORK_TIMEOUT_MILLISECONDS = 60_000
-
     private const val ANALYTICS_SERVICE_SUFFIX = "2.0/log/eventstream"
     const val ANALYTICS_STAGING_ENDPOINT =
       "https://api.squareupstaging.com/$ANALYTICS_SERVICE_SUFFIX"

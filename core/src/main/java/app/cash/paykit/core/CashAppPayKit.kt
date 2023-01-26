@@ -10,7 +10,9 @@ import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.impl.PayKitLifecycleObserverImpl
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
+import okhttp3.OkHttpClient
 
 interface CashAppPayKit {
   /**
@@ -101,6 +103,7 @@ object CashAppPayKitFactory {
     val networkManager = NetworkManagerImpl(
       BASE_URL_PRODUCTION,
       userAgentValue = getUserAgentValue(),
+      okHttpClient = defaultOkHttpClient(),
     )
     val analyticsService = buildAnalyticsService(clientId, networkManager)
 
@@ -119,7 +122,11 @@ object CashAppPayKitFactory {
   fun createSandbox(
     clientId: String,
   ): CashAppPayKit {
-    val networkManager = NetworkManagerImpl(BASE_URL_SANDBOX, userAgentValue = getUserAgentValue())
+    val networkManager = NetworkManagerImpl(
+      BASE_URL_SANDBOX,
+      userAgentValue = getUserAgentValue(),
+      okHttpClient = defaultOkHttpClient(),
+    )
     val analyticsService = buildAnalyticsService(clientId, networkManager)
 
     return CashAppPayKitImpl(
@@ -138,6 +145,10 @@ object CashAppPayKitFactory {
     val sdkVersion =
       ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
     return AnalyticsService(sdkVersion, clientId, getUserAgentValue(), networkManager)
+  }
+
+  private fun defaultOkHttpClient(): OkHttpClient {
+    return OkHttpProvider.provideOkHttpClient()
   }
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
