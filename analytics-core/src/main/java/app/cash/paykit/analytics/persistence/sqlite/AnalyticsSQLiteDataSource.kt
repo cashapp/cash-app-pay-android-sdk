@@ -7,16 +7,16 @@ import android.database.sqlite.SQLiteStatement
 import android.util.Log
 import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
-import app.cash.paykit.analytics.persistence.PackagesDataSource
+import app.cash.paykit.analytics.persistence.EntriesDataSource
 
 internal class AnalyticsSQLiteDataSource(
   private val sqLiteHelper: AnalyticsSqLiteHelper,
   options: AnalyticsOptions,
 ) :
-  PackagesDataSource(options) {
+  EntriesDataSource(options) {
 
   @Synchronized
-  override fun insertPackage(type: String, content: String, metaData: String): Long {
+  override fun insertEntry(type: String, content: String, metaData: String): Long {
     var insertId: Long = -1
     try {
       val database: SQLiteDatabase = sqLiteHelper.database
@@ -26,38 +26,36 @@ internal class AnalyticsSQLiteDataSource(
       values.put(COLUMN_STATE, AnalyticEntry.STATE_NEW)
       values.put(COLUMN_META_DATA, metaData)
       values.put(COLUMN_VERSION, java.lang.String.valueOf(options.applicationVersionCode))
-      insertId = database.insert(TABLE_SYNC_PACKAGES, null, values)
+      insertId = database.insert(TABLE_SYNC_ENTRIES, null, values)
       if (insertId < 0) {
-        Log.e(TAG, "Unable to insert record into the $TABLE_SYNC_PACKAGES, values: $content")
+        Log.e(TAG, "Unable to insert record into the $TABLE_SYNC_ENTRIES, values: $content")
       }
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
     return insertId
   }
 
   @Synchronized
-  override fun deletePackages(packages: List<AnalyticEntry>) {
+  override fun deleteEntry(entries: List<AnalyticEntry>) {
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
       val whereClauseForDelete =
-        COLUMN_ID + " IN (" + packagesList2CommaSeparatedIds(packages) + ")"
-      database.delete(TABLE_SYNC_PACKAGES, whereClauseForDelete, null)
+        COLUMN_ID + " IN (" + entryList2CommaSeparatedIds(entries) + ")"
+      database.delete(TABLE_SYNC_ENTRIES, whereClauseForDelete, null)
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }
 
   @Synchronized
-  override fun markPackagesForDelivery(processId: String, packageType: String) {
+  override fun markEntriesForDelivery(processId: String, entryType: String) {
     try {
       sqLiteHelper.database.use { database ->
         // @formatter:off
         database.query(
           true, // distinct
-          TABLE_SYNC_PACKAGES,
+          TABLE_SYNC_ENTRIES,
           arrayOf(COLUMN_ID), // columns
           "(" +
             COLUMN_STATE + "=? OR " +
@@ -69,17 +67,17 @@ internal class AnalyticsSQLiteDataSource(
             java.lang.String.valueOf(AnalyticEntry.STATE_NEW),
             java.lang.String.valueOf(AnalyticEntry.STATE_DELIVERY_FAILED),
             java.lang.String.valueOf(AnalyticEntry.STATE_DELIVERY_PENDING),
-            packageType,
+            entryType,
           ), //
           // selection args
           null, // group by
           null, // having
           "id ASC", // order by
-          java.lang.String.valueOf(options.maxPackageCountPerProcess), // limit
+          java.lang.String.valueOf(options.maxEntryCountPerProcess), // limit
         )?.use { cursor ->
           val query = (
             (
-              "UPDATE " + TABLE_SYNC_PACKAGES +
+              "UPDATE " + TABLE_SYNC_ENTRIES +
                 " SET " +
                 COLUMN_STATE + "=" + AnalyticEntry.STATE_DELIVERY_PENDING
               ) + ", " +
@@ -98,19 +96,19 @@ internal class AnalyticsSQLiteDataSource(
         }
       }
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }
 
-  @Synchronized override fun getPackagesByProcessIdAndState(
+  @Synchronized
+  override fun getEntriesByProcessIdAndState(
     processId: String,
-    packageType: String,
+    entryType: String,
     state: Int,
     offset: Int,
     limit: Int,
   ): List<AnalyticEntry> {
-    val packages = mutableListOf<AnalyticEntry>()
+    val entries = mutableListOf<AnalyticEntry>()
     var cursor: Cursor? = null
     try {
       val database: SQLiteDatabase = sqLiteHelper.database
@@ -118,10 +116,10 @@ internal class AnalyticsSQLiteDataSource(
       // @formatter:off
       cursor = database.query(
         true,
-        TABLE_SYNC_PACKAGES,
+        TABLE_SYNC_ENTRIES,
         null,
         "$COLUMN_STATE=? AND $COLUMN_PROCESS_ID=? AND $COLUMN_TYPE=?",
-        arrayOf(state.toString(), processId, packageType),
+        arrayOf(state.toString(), processId, entryType),
         null,
         null,
         "id ASC",
@@ -130,53 +128,50 @@ internal class AnalyticsSQLiteDataSource(
       // @formatter:on
       cursor.moveToFirst()
       while (!cursor.isAfterLast) {
-        packages.add(AnalyticEntry.from(cursor))
+        entries.add(AnalyticEntry.from(cursor))
         cursor.moveToNext()
       }
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     } finally {
       cursor?.close()
     }
-    return packages
+    return entries
   }
 
   @Synchronized
-  override fun updateStatuses(packages: List<AnalyticEntry>, status: Int) {
+  override fun updateStatuses(entries: List<AnalyticEntry>, status: Int) {
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
       val query =
         (
-          "UPDATE " + TABLE_SYNC_PACKAGES + " SET " + COLUMN_STATE + "=" + status + " WHERE id IN (" +
-            packagesList2CommaSeparatedIds(packages) + ");"
+          "UPDATE " + TABLE_SYNC_ENTRIES + " SET " + COLUMN_STATE + "=" + status + " WHERE id IN (" +
+            entryList2CommaSeparatedIds(entries) + ");"
           )
       database.execSQL(query)
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }
 
-  @Synchronized override fun resetPackages() {
+  @Synchronized override fun resetEntries() {
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
       val query =
         (
-          ("UPDATE " + TABLE_SYNC_PACKAGES + " SET " + COLUMN_STATE + "=" + AnalyticEntry.STATE_NEW) + ", " +
+          ("UPDATE " + TABLE_SYNC_ENTRIES + " SET " + COLUMN_STATE + "=" + AnalyticEntry.STATE_NEW) + ", " +
             COLUMN_PROCESS_ID +
             "=NULL;"
           )
       database.execSQL(query)
     } catch (e: Exception) {
-      e.printStackTrace()
       Log.e("", "", e)
     }
   }
 
   companion object {
-    private const val TAG = "PackagesDataSource"
-    const val TABLE_SYNC_PACKAGES = "packages"
+    private const val TAG = "EntriesDataSource"
+    const val TABLE_SYNC_ENTRIES = "entries"
     const val COLUMN_ID = "id"
     const val COLUMN_TYPE = "type"
     const val COLUMN_CONTENT = "content"
@@ -187,7 +182,7 @@ internal class AnalyticsSQLiteDataSource(
 
     // @formatter:off
     const val SQL_CREATE_TABLE = (
-      "CREATE TABLE '" + TABLE_SYNC_PACKAGES + "' (" +
+      "CREATE TABLE '" + TABLE_SYNC_ENTRIES + "' (" +
         "'" + COLUMN_ID + "' INTEGER NOT NULL," +
         "'" + COLUMN_TYPE + "' TEXT," +
         "'" + COLUMN_CONTENT + "' TEXT," +
@@ -202,16 +197,16 @@ internal class AnalyticsSQLiteDataSource(
     const val SQL_CREATE_INDEX_FOR_COLUMN_STATE = (
       "CREATE INDEX '" + COLUMN_STATE +
         "_index' ON " +
-        TABLE_SYNC_PACKAGES + " ('" + COLUMN_STATE + "');"
+        TABLE_SYNC_ENTRIES + " ('" + COLUMN_STATE + "');"
       )
     const val SQL_CREATE_INDEX_FOR_COLUMN_TYPE = (
       "CREATE INDEX '" + COLUMN_TYPE +
-        "_index' ON " + TABLE_SYNC_PACKAGES + " ('" + COLUMN_TYPE + "');"
+        "_index' ON " + TABLE_SYNC_ENTRIES + " ('" + COLUMN_TYPE + "');"
       )
     const val SQL_CREATE_INDEX_FOR_COLUMN_PROCESS_ID =
       (
         "CREATE INDEX '" + COLUMN_PROCESS_ID + "_index' ON " +
-          TABLE_SYNC_PACKAGES + " ('" + COLUMN_PROCESS_ID + "');"
+          TABLE_SYNC_ENTRIES + " ('" + COLUMN_PROCESS_ID + "');"
         )
   }
 }

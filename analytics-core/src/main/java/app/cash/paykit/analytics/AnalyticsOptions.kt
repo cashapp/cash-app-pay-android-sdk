@@ -11,14 +11,14 @@ class AnalyticsOptions(
   /** Interval of time between uploading batches. */
   val interval: Duration = 30.seconds,
 
-  /** Number of packages to include per process. */
-  val maxPackageCountPerProcess: Int = 30,
+  /** Number of entries to include per process. */
+  val maxEntryCountPerProcess: Int = 30,
 
   /** Number of events to include in a given batch process. */
   val batchSize: Int = 10,
 
   /** The name of the database file on disk. */
-  val databaseName: String = "analytic-packages.db",
+  val databaseName: String = "analytic-entries.db",
 
   /** The log level. */
   val logLevel: Int = Log.ERROR,
@@ -33,7 +33,7 @@ class AnalyticsOptions(
   internal constructor(builder: Builder) : this(
     builder.delay,
     builder.interval,
-    builder.maxPackageCountPerProcess,
+    builder.maxEntryCountPerProcess,
     builder.batchSize,
     builder.databaseName,
     builder.logLevel,
@@ -48,7 +48,7 @@ class AnalyticsOptions(
   class Builder {
     var delay: Duration = 0.seconds
     var interval: Duration = 30.seconds
-    var maxPackageCountPerProcess: Int = 30
+    var maxEntryCountPerProcess: Int = 30
     var batchSize: Int = 10
     var databaseName: String = "analytic-events.db"
     var logLevel: Int = Log.ERROR
