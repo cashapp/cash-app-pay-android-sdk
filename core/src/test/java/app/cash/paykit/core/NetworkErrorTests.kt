@@ -9,9 +9,9 @@ import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.JsonDataException
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
+import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
@@ -36,7 +36,8 @@ class NetworkErrorTests {
 
     val baseUrl = server.url("")
 
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
+    val networkManager =
+      NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "", OkHttpClient())
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -76,7 +77,8 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
+    val networkManager =
+      NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "", OkHttpClient())
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -84,10 +86,9 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
-    assertTrue("Expected PayKitException end state", mockListener.state is PayKitException)
-    assertTrue(
-      "Expected exception abstraction to be PayKit",
-      (mockListener.state as PayKitException).exception is PayKitApiNetworkException,
+    assertThat(mockListener.state).isInstanceOf(PayKitException::class.java)
+    assertThat((mockListener.state as PayKitException).exception).isInstanceOf(
+      PayKitApiNetworkException::class.java
     )
 
     // Verify that all the API error details have been deserialized correctly.
@@ -109,11 +110,13 @@ class NetworkErrorTests {
     server.start()
     val baseUrl = server.url("")
 
+    // TODO: set OkHttpClient with 1s timeout
+
     val networkManager =
       NetworkManagerImpl(
         baseUrl = baseUrl.toString(),
-        networkTimeoutMilliseconds = 1,
         userAgentValue = "",
+        OkHttpClient()
       )
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
@@ -173,7 +176,8 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
+    val networkManager =
+      NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "", OkHttpClient())
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
