@@ -12,7 +12,6 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
-import okhttp3.OkHttpClient
 
 interface CashAppPayKit {
   /**
@@ -103,7 +102,7 @@ object CashAppPayKitFactory {
     val networkManager = NetworkManagerImpl(
       BASE_URL_PRODUCTION,
       userAgentValue = getUserAgentValue(),
-      okHttpClient = defaultOkHttpClient(),
+      okHttpClient = defaultOkHttpClient,
     )
     val analyticsService = buildAnalyticsService(clientId, networkManager)
 
@@ -125,7 +124,7 @@ object CashAppPayKitFactory {
     val networkManager = NetworkManagerImpl(
       BASE_URL_SANDBOX,
       userAgentValue = getUserAgentValue(),
-      okHttpClient = defaultOkHttpClient(),
+      okHttpClient = defaultOkHttpClient,
     )
     val analyticsService = buildAnalyticsService(clientId, networkManager)
 
@@ -147,9 +146,7 @@ object CashAppPayKitFactory {
     return AnalyticsService(sdkVersion, clientId, getUserAgentValue(), networkManager)
   }
 
-  private fun defaultOkHttpClient(): OkHttpClient {
-    return OkHttpProvider.provideOkHttpClient()
-  }
+  private val defaultOkHttpClient = OkHttpProvider.provideOkHttpClient()
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
   private val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"

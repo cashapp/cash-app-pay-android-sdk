@@ -53,6 +53,10 @@ dependencies {
   implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.22"
   implementation 'androidx.fragment:fragment-ktx:1.5.5'
 
+  // Easier Network event inspection.
+  debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
+  releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
+  
   implementation project(':core')
 
   testImplementation "junit:junit:$junit_version"
