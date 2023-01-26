@@ -146,7 +146,7 @@ object CashAppPayKitFactory {
       ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
     return AnalyticsService(sdkVersion, clientId, getUserAgentValue(), networkManager)
   }
-  
+
   private val defaultOkHttpClient = OkHttpProvider.provideOkHttpClient()
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
