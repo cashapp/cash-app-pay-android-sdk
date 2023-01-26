@@ -1,7 +1,7 @@
 package app.cash.paykit.core.impl
 
-import AnalyticsEvent
-import AnalyticsRequest
+import EventStream2AnalyticsRequest
+import EventStream2Event
 import android.util.Log
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
@@ -9,7 +9,7 @@ import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
 import app.cash.paykit.core.impl.RequestType.GET
 import app.cash.paykit.core.impl.RequestType.PATCH
 import app.cash.paykit.core.impl.RequestType.POST
-import app.cash.paykit.core.models.analytics.AnalyticsResponse
+import app.cash.paykit.core.models.analytics.EventStream2Response
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
@@ -105,10 +105,10 @@ internal class NetworkManagerImpl(
     )
   }
 
-  override fun uploadAnalyticsEvents(clientId: String, analyticEvents: List<AnalyticsEvent>) {
+  override fun uploadAnalyticsEvents(clientId: String, analyticEvents: List<EventStream2Event>) {
     // TODO: ClientId is not strictly necessary, remove it!
-    val analyticsRequest = AnalyticsRequest(analyticEvents)
-    val response: NetworkResult<AnalyticsResponse> = executeNetworkRequest(
+    val analyticsRequest = EventStream2AnalyticsRequest(analyticEvents)
+    val response: NetworkResult<EventStream2Response> = executeNetworkRequest(
       POST,
       ANALYTICS_PROD_ENDPOINT,
       clientId,
