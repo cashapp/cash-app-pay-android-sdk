@@ -11,11 +11,13 @@ import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 import app.cash.paykit.devapp.SDKEnvironments.SANDBOX
 import app.cash.paykit.devapp.SDKEnvironments.STAGING
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
 
 private const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
 private const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
@@ -91,6 +93,15 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
   }
 
   private fun setupNewSdk() {
+    // Override SDK's OkHttpClient to inject Chucker Interceptor.
+    val chuckerInterceptor = ChuckerInterceptor.Builder(DevApplication.instance).build()
+    val okHttpClient = OkHttpClient.Builder()
+      .addInterceptor(chuckerInterceptor)
+    val defaultOkHttpClientField =
+      CashAppPayKitFactory::class.java.getDeclaredField("defaultOkHttpClient")
+    defaultOkHttpClientField.isAccessible = true
+    defaultOkHttpClientField.set(CashAppPayKitFactory, okHttpClient.build())
+
     if (::payKitSdk.isInitialized) {
       payKitSdk.unregisterFromStateUpdates()
     }

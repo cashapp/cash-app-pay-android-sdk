@@ -2,6 +2,7 @@ package app.cash.paykit.devapp
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -10,8 +11,10 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -46,9 +49,28 @@ class MainActivity : AppCompatActivity() {
     val view = binding.root
     setContentView(view)
 
+    requestNotificationsPermission()
     setupTopbar()
     registerButtons()
     handlePayKitStateChanges()
+  }
+
+  private fun requestNotificationsPermission() {
+    val requestPermissionLauncher =
+      registerForActivityResult(
+        RequestPermission(),
+      ) { _: Boolean ->
+        // No further action needed, this permission is simply needed for Chucker.
+      }
+
+    if (
+      ContextCompat.checkSelfPermission(
+        this,
+        "android.permission.POST_NOTIFICATIONS",
+      ) != PackageManager.PERMISSION_GRANTED
+    ) {
+      requestPermissionLauncher.launch("android.permission.POST_NOTIFICATIONS")
+    }
   }
 
   private fun setupTopbar() {

@@ -7,16 +7,24 @@ import app.cash.paykit.core.impl.CashAppPayKitImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.JsonDataException
+import io.mockk.MockKAnnotations
 import io.mockk.mockk
+import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import java.io.IOException
-import java.net.SocketTimeoutException
+import java.io.InterruptedIOException
+import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 
 class NetworkErrorTests {
+
+  @Before
+  fun setup() {
+    MockKAnnotations.init(this)
+  }
 
   @Test
   fun `HTTP code without payload should be wrapped with correct SDK defined exception`() {
@@ -29,7 +37,8 @@ class NetworkErrorTests {
 
     val baseUrl = server.url("")
 
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
+    val networkManager =
+      NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "", OkHttpClient())
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -69,7 +78,8 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
+    val networkManager =
+      NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "", OkHttpClient())
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -77,10 +87,9 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
-    assertTrue("Expected PayKitException end state", mockListener.state is PayKitException)
-    assertTrue(
-      "Expected exception abstraction to be PayKit",
-      (mockListener.state as PayKitException).exception is PayKitApiNetworkException,
+    assertThat(mockListener.state).isInstanceOf(PayKitException::class.java)
+    assertThat((mockListener.state as PayKitException).exception).isInstanceOf(
+      PayKitApiNetworkException::class.java,
     )
 
     // Verify that all the API error details have been deserialized correctly.
@@ -102,11 +111,18 @@ class NetworkErrorTests {
     server.start()
     val baseUrl = server.url("")
 
+    val okHttpClient = OkHttpClient.Builder()
+      .connectTimeout(1, MILLISECONDS)
+      .callTimeout(1, MILLISECONDS)
+      .readTimeout(1, MILLISECONDS)
+      .writeTimeout(1, MILLISECONDS)
+      .build()
+
     val networkManager =
       NetworkManagerImpl(
         baseUrl = baseUrl.toString(),
-        networkTimeoutMilliseconds = 1,
         userAgentValue = "",
+        okHttpClient,
       )
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
@@ -116,7 +132,7 @@ class NetworkErrorTests {
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
     assertThat(((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
-      SocketTimeoutException::class.java,
+      InterruptedIOException::class.java,
     )
   }
 
@@ -166,7 +182,8 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager = NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "")
+    val networkManager =
+      NetworkManagerImpl(baseUrl = baseUrl.toString(), userAgentValue = "", OkHttpClient())
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
