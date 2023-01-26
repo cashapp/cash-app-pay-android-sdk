@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class CreateCustomerRequest(
-  @Json(name = "idempotency_key_")
+  @Json(name = "idempotency_key")
   val idempotencyKey: String? = null,
   @Json(name = "request")
   val customerRequestData: CustomerRequestData,
