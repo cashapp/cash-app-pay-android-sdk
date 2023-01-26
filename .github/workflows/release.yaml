@@ -10,24 +10,20 @@ on:
     - 'v[0-9]+.[0-9]+.[0-9]+-[a-zA-Z]*'
 
 jobs:
-  only-deploy-from-main:
-    runs-on: ubuntu-latest
-    if: github.repository != 'cashapp/android-cash-paykit-sdk' || github.ref != 'refs/heads/main'
-    steps:
-      - name: Fail
-        run: echo "Publishing only allowed from the main branch..." && exit 1
-
   call-build-workflow:
     uses: ./.github/workflows/build.yml
 
   publish:
     runs-on: ubuntu-latest
-    if: github.repository == 'cashapp/android-cash-paykit-sdk'
     needs: call-build-workflow
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Validate tag on main
+        run: |
+          git branch -a -r --contains $GITHUB_SHA | grep -q origin/main 
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1

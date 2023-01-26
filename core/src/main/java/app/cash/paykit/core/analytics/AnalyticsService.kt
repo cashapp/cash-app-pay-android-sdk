@@ -1,6 +1,6 @@
 package app.cash.paykit.core.analytics
 
-import AnalyticsEvent
+import EventStream2Event
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsInitializationPayload
 import com.squareup.moshi.JsonAdapter
@@ -25,8 +25,8 @@ internal class AnalyticsService(
       val moshiAdapter: JsonAdapter<AnalyticsInitializationPayload> = moshi.adapter()
       val jsonData: String = moshiAdapter.toJson(initializationPayload)
 
-      val analyticsEvent =
-        AnalyticsEvent(
+      val eventStream2Event =
+        EventStream2Event(
           appName = APP_NAME,
           catalogName = AnalyticsInitializationPayload.CATALOG,
           uuid = UUID.randomUUID().toString(),
@@ -34,7 +34,7 @@ internal class AnalyticsService(
           recordedAt = System.nanoTime() * 10,
         )
 
-      networkManager.uploadAnalyticsEvents(cliendId, listOf(analyticsEvent))
+      networkManager.uploadAnalyticsEvents(cliendId, listOf(eventStream2Event))
     }.start()
   }
 }
