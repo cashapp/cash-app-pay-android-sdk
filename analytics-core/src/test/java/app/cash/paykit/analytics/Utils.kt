@@ -22,6 +22,7 @@ internal object Utils {
     method.isAccessible = true
     return method.invoke(targetObject, args)
   }
+
   fun setPrivateStaticField(clazz: Class<*>, fieldName: String?, value: Any?) {
     try {
       val field: Field = clazz.getDeclaredField(fieldName)
@@ -59,68 +60,67 @@ internal object Utils {
     return null
   }
 
-  fun createPackage(packageType: String?, packageState: Int): AnalyticEntry {
-    return createPackage(
-      "package.process.id",
-      packageType,
-      packageState,
-      "package.load",
-      "package.metdata",
+  fun createEntry(entryType: String?, entryState: Int): AnalyticEntry {
+    return createEntry(
+      "entry.process.id",
+      entryType,
+      entryState,
+      "entry.load",
+      "entry.metadata",
       "v1",
     )
   }
 
-  fun createPackage(processId: String?, packageType: String?, packageState: Int): AnalyticEntry {
-    return createPackage(
+  fun createEntry(processId: String?, entryType: String?, entryState: Int): AnalyticEntry {
+    return createEntry(
       processId,
-      packageType,
-      packageState,
-      "package.load",
-      "package.metdata",
+      entryType,
+      entryState,
+      "entry.load",
+      "entry.metadata",
       "v1",
     )
   }
 
-  fun createPackage(
+  fun createEntry(
     processId: String?,
-    packageType: String?,
-    packageState: Int,
+    entryType: String?,
+    entryState: Int,
     load: String?,
     metaData: String?,
     version: String?,
   ) = AnalyticEntry(
     id = System.currentTimeMillis(),
     processId = processId,
-    type = packageType,
-    state = packageState,
+    type = entryType,
+    state = entryState,
     content = load,
     metaData = metaData,
     version = version,
   )
 
-  fun getPackagesToSync(count: Int): List<AnalyticEntry> {
-    val packages = mutableListOf<AnalyticEntry>()
-    for (i in 0 until count) {
-      val p: AnalyticEntry = createPackage("TYPE_1", AnalyticEntry.STATE_NEW)
-      packages.add(p)
+  fun getEntriesToSync(count: Int): List<AnalyticEntry> {
+    return mutableListOf<AnalyticEntry>().apply {
+      for (i in 0 until count) {
+        add(createEntry("TYPE_1", AnalyticEntry.STATE_NEW))
+      }
     }
-    return packages
   }
 
   /**
-   * Returns all sync packages from the database.
+   * Returns all sync entries from the database.
    *
-   * @return list of sync packages
+   * @return list of sync entries
    */
-  fun getAllSyncPackages(sqLiteHelper: AnalyticsSqLiteHelper): List<AnalyticEntry> {
-    val packages = mutableListOf<AnalyticEntry>()
+  fun getAllSyncEntries(sqLiteHelper: AnalyticsSqLiteHelper): List<AnalyticEntry> {
+    val entries = mutableListOf<AnalyticEntry>()
     val database: SQLiteDatabase = sqLiteHelper.database
     var cursor: Cursor? = null
     try {
       // @formatter:off
       cursor = database.query(
         true,
-        AnalyticsSQLiteDataSource.TABLE_SYNC_PACKAGES,
+        AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES,
         null,
         null,
         null,
@@ -132,7 +132,7 @@ internal object Utils {
       // @formatter:on
       cursor.moveToFirst()
       while (!cursor.isAfterLast) {
-        packages.add(AnalyticEntry.from(cursor))
+        entries.add(AnalyticEntry.from(cursor))
         cursor.moveToNext()
       }
     } catch (e: Exception) {
@@ -141,27 +141,28 @@ internal object Utils {
     } finally {
       cursor?.close()
     }
-    return packages
+    return entries
   }
 
   /**
-   * Deletes all packages from the database.
+   * Deletes all entries from the database.
    */
-  @Synchronized fun deleteAllPackages(sqLiteHelper: AnalyticsSqLiteHelper) {
+  @Synchronized
+  fun deleteAllEntries(sqLiteHelper: AnalyticsSqLiteHelper) {
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
-      database.delete(AnalyticsSQLiteDataSource.TABLE_SYNC_PACKAGES, null, null)
+      database.delete(AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES, null, null)
     } catch (e: Exception) {
       e.printStackTrace()
       Log.e("", "", e)
     }
   }
 
-  fun insertSyncPackage(
+  fun insertSyncEntry(
     sqLiteHelper: AnalyticsSqLiteHelper,
     processId: String?,
-    packageType: String?,
-    packageState: Int,
+    entryType: String?,
+    entryState: Int,
     load: String?,
     metaData: String?,
     version: String?,
@@ -170,17 +171,17 @@ internal object Utils {
     try {
       val database: SQLiteDatabase = sqLiteHelper.database
       val values = ContentValues()
-      values.put(AnalyticsSQLiteDataSource.COLUMN_TYPE, packageType)
+      values.put(AnalyticsSQLiteDataSource.COLUMN_TYPE, entryType)
       values.put(AnalyticsSQLiteDataSource.COLUMN_PROCESS_ID, processId)
       values.put(AnalyticsSQLiteDataSource.COLUMN_CONTENT, load)
-      values.put(AnalyticsSQLiteDataSource.COLUMN_STATE, packageState)
+      values.put(AnalyticsSQLiteDataSource.COLUMN_STATE, entryState)
       values.put(AnalyticsSQLiteDataSource.COLUMN_META_DATA, metaData)
       values.put(AnalyticsSQLiteDataSource.COLUMN_VERSION, version)
-      insertId = database.insert(AnalyticsSQLiteDataSource.TABLE_SYNC_PACKAGES, null, values)
+      insertId = database.insert(AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES, null, values)
       if (insertId < 0) {
         Log.e(
           "Utils",
-          "Unable to insert record into the " + AnalyticsSQLiteDataSource.TABLE_SYNC_PACKAGES + ", values: " +
+          "Unable to insert record into the " + AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES + ", values: " +
             values,
         )
       }
