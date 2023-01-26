@@ -27,14 +27,13 @@ class SQLiteDataSourceTest {
 
   @Before
   fun setup() {
-    options =
-      AnalyticsOptions.build {
-        delay = 0.seconds
-        interval = 10.seconds
-        maxEntryCountPerProcess = 30
-        batchSize = 10
-        databaseName = "TEST"
-      }
+    options = AnalyticsOptions(
+      delay = 0.seconds,
+      interval = 10.seconds,
+      maxEntryCountPerProcess = 30,
+      batchSize = 10,
+      databaseName = "TEST",
+    )
     app.deleteDatabase(options.databaseName)
     helper = AnalyticsSqLiteHelper(app, options)
   }

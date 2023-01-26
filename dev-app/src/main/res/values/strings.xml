@@ -17,4 +17,8 @@
   <string name="environment_staging">Staging</string>
   <string name="environment_sandbox">Sandbox</string>
   <string name="buttons_title">PayKit Buttons</string>
+  <string name="title_activity_analytics_sample">AnalyticsSample</string>
+  <string name="schedule_deliverable">Schedule deliverable</string>
+  <string name="dispatch_deliverable">Dispatch deliverable</string>
+  <string name="shutdown">Shutdown</string>
 </resources>

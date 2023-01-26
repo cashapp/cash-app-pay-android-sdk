@@ -4,6 +4,8 @@ import app.cash.paykit.analytics.AnalyticsLogger
 import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
+import app.cash.paykit.analytics.persistence.toCommaSeparatedList
+import java.util.Locale
 import java.util.concurrent.Callable
 
 internal class DeliveryWorker(
@@ -12,7 +14,7 @@ internal class DeliveryWorker(
   private val logger: AnalyticsLogger = AnalyticsLogger(AnalyticsOptions()),
 ) : Callable<Unit> {
   init {
-    logger.d(TAG, "Worker initialized.")
+    logger.d(TAG, "DeliveryWorker initialized.")
   }
 
   @Throws(Exception::class)
@@ -24,38 +26,17 @@ internal class DeliveryWorker(
       var entries: List<AnalyticEntry> =
         dataSource.getEntriesForDelivery(processId, entryType)
       if (entries.isNotEmpty()) {
-        logger.d(
-          TAG,
-          String.format(
-            "processing %s[%d] | processId=%s",
-            entryType,
-            entries.size,
-            processId,
-          ),
-        )
+        logger.d(TAG, "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId))
       }
       while (entries.isNotEmpty()) {
-        logger.d(
-          TAG,
-          "DELIVERY_IN_PROGRESS for ids[" + dataSource.entryList2CommaSeparatedIds(
-            entries,
-          ) + "]",
-        )
+        logger.d(TAG, "DELIVERY_IN_PROGRESS for ids[" + entries.toCommaSeparatedList() + "]")
         dataSource.updateStatuses(entries, AnalyticEntry.STATE_DELIVERY_IN_PROGRESS)
         deliveryHandler.deliver(entries, deliveryHandler.deliveryListener)
 
         // get the next batch of events to send
         entries = dataSource.getEntriesForDelivery(processId, entryType)
         if (entries.isNotEmpty()) {
-          logger.d(
-            TAG,
-            String.format(
-              "Processing %s[%d] | processId=%s",
-              entryType,
-              entries.size,
-              processId,
-            ),
-          )
+          logger.d(TAG, "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId))
         }
       }
     }

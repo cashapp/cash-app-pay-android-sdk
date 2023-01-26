@@ -5,7 +5,7 @@ import android.database.Cursor
 /**
  * Object model of the sync_entries database table.
  */
-internal data class AnalyticEntry constructor(
+data class AnalyticEntry constructor(
   val id: Long = 0,
   val type: String? = null,
   val content: String? = null,
