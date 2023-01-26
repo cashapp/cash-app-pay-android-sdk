@@ -15,7 +15,8 @@ import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
-import java.net.SocketTimeoutException
+import java.io.InterruptedIOException
+import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 
 class NetworkErrorTests {
@@ -88,7 +89,7 @@ class NetworkErrorTests {
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
     assertThat(mockListener.state).isInstanceOf(PayKitException::class.java)
     assertThat((mockListener.state as PayKitException).exception).isInstanceOf(
-      PayKitApiNetworkException::class.java
+      PayKitApiNetworkException::class.java,
     )
 
     // Verify that all the API error details have been deserialized correctly.
@@ -110,13 +111,18 @@ class NetworkErrorTests {
     server.start()
     val baseUrl = server.url("")
 
-    // TODO: set OkHttpClient with 1s timeout
+    val okHttpClient = OkHttpClient.Builder()
+      .connectTimeout(1, MILLISECONDS)
+      .callTimeout(1, MILLISECONDS)
+      .readTimeout(1, MILLISECONDS)
+      .writeTimeout(1, MILLISECONDS)
+      .build()
 
     val networkManager =
       NetworkManagerImpl(
         baseUrl = baseUrl.toString(),
         userAgentValue = "",
-        OkHttpClient()
+        okHttpClient,
       )
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
@@ -126,7 +132,7 @@ class NetworkErrorTests {
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
     assertThat(((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
-      SocketTimeoutException::class.java,
+      InterruptedIOException::class.java,
     )
   }
 

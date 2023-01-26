@@ -27,6 +27,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.io.InterruptedIOException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.util.UUID
@@ -162,39 +163,43 @@ internal class NetworkManagerImpl(
       }
     }
 
-    okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
-      if (!response.isSuccessful) {
-        // Unsuccessfully response is handled here.
-        if (response.code != HttpURLConnection.HTTP_CREATED && response.code != HttpURLConnection.HTTP_OK) {
-          // Under normal circumstances:
-          //  - 3xx errors won’t have a payload.
-          //  - 4xx are guaranteed to have a payload.
-          //  - 5xx should have a payload, but there might be situations where they do not.
-          //
-          // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
-          val apiErrorResponse: NetworkResult<ApiErrorResponse> =
-            deserializeResponse(response.body?.toString() ?: "", moshi)
-          return when (apiErrorResponse) {
-            is Failure -> NetworkResult.failure(
-              PayKitConnectivityNetworkException(apiErrorResponse.exception),
-            )
-
-            is Success -> {
-              val apiError = apiErrorResponse.data.apiErrors.first()
-              val apiException = PayKitApiNetworkException(
-                apiError.category,
-                apiError.code,
-                apiError.detail,
-                apiError.field_value,
+    try {
+      okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
+        if (!response.isSuccessful) {
+          // Unsuccessfully response is handled here.
+          if (response.code != HttpURLConnection.HTTP_CREATED && response.code != HttpURLConnection.HTTP_OK) {
+            // Under normal circumstances:
+            //  - 3xx errors won’t have a payload.
+            //  - 4xx are guaranteed to have a payload.
+            //  - 5xx should have a payload, but there might be situations where they do not.
+            //
+            // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
+            val apiErrorResponse: NetworkResult<ApiErrorResponse> =
+              deserializeResponse(response.body?.string() ?: "", moshi)
+            return when (apiErrorResponse) {
+              is Failure -> NetworkResult.failure(
+                PayKitConnectivityNetworkException(apiErrorResponse.exception),
               )
-              NetworkResult.failure(apiException)
+
+              is Success -> {
+                val apiError = apiErrorResponse.data.apiErrors.first()
+                val apiException = PayKitApiNetworkException(
+                  apiError.category,
+                  apiError.code,
+                  apiError.detail,
+                  apiError.field_value,
+                )
+                NetworkResult.failure(apiException)
+              }
             }
           }
         }
-      }
 
-      // Success continues here.
-      return deserializeResponse(response.body!!.string(), moshi)
+        // Success continues here.
+        return deserializeResponse(response.body!!.string(), moshi)
+      }
+    } catch (e: InterruptedIOException) {
+      return NetworkResult.failure(PayKitConnectivityNetworkException(e))
     }
   }
 
