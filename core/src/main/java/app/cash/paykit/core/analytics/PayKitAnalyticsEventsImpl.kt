@@ -103,6 +103,36 @@ internal class PayKitAnalyticsEventsImpl(
     sendAnalyticsEvent(es2EventAsJsonString)
   }
 
+  override fun updatedCustomerRequest(
+    requestId: String,
+    action: PayKitPaymentAction,
+    customerResponseData: CustomerResponseData?,
+  ) {
+    val baseEvent = eventFromCustomerResponseData(customerResponseData)
+
+    // Inner payload of the ES2 event.
+    val eventPayload = when (action) {
+      is OnFileAction -> {
+        baseEvent.copy(
+          action = PayKitState.UpdatingCustomerRequest.toString(),
+          updateActions = action.toString(),
+          updateReferenceId = action.accountReferenceId,
+        )
+      }
+
+      is OneTimeAction -> {
+        baseEvent.copy(
+          action = PayKitState.UpdatingCustomerRequest.toString(),
+          updateActions = action.toString(),
+        )
+      }
+    }
+
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    sendAnalyticsEvent(es2EventAsJsonString)
+  }
+
   override fun genericStateChanged(
     payKitState: PayKitState,
     customerResponseData: CustomerResponseData,
@@ -134,6 +164,26 @@ internal class PayKitAnalyticsEventsImpl(
     // Transform ES2 event into a JSON String.
     val es2EventAdapter: JsonAdapter<EventStream2Event> = moshi.adapter()
     return es2EventAdapter.toJson(eventStream2Event)
+  }
+
+  private fun eventFromCustomerResponseData(customerResponseData: CustomerResponseData?): AnalyticsCustomerRequestPayload {
+    return AnalyticsCustomerRequestPayload(
+      sdkVersion,
+      userAgent,
+      PLATFORM,
+      clientId,
+      status = customerResponseData?.status,
+      authMobileUrl = customerResponseData?.authFlowTriggers?.mobileUrl,
+      updatedAt = customerResponseData?.updatedAt?.toLongOrNull(),
+      createdAt = customerResponseData?.createdAt?.toLongOrNull(),
+      originType = customerResponseData?.origin?.type,
+      originId = customerResponseData?.origin?.id,
+      requestChannel = CHANNEL_IN_APP,
+      approvedGrants = customerResponseData?.grants?.joinToString(),
+      referenceId = customerResponseData?.id,
+      customerId = customerResponseData?.customerProfile?.id,
+      customerCashTag = customerResponseData?.customerProfile?.cashTag,
+    )
   }
 
   /**

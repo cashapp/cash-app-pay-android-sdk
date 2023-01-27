@@ -7,22 +7,22 @@ import com.squareup.moshi.JsonClass
  * This payload corresponds to the (mobile_cap_pk_customer_request)[https://es-manager.stage.sqprod.co/schema-manager/catalogs/1341] Catalog.
  */
 @JsonClass(generateAdapter = true)
-class AnalyticsCustomerRequestPayload(
+data class AnalyticsCustomerRequestPayload(
 
   /*
   * Common fields.
   */
   @Json(name = "mobile_cap_pk_customer_request_sdk_version")
-  sdkVersion: String,
+  override val sdkVersion: String,
 
   @Json(name = "mobile_cap_pk_customer_request_client_ua")
-  clientUserAgent: String,
+  override val clientUserAgent: String,
 
   @Json(name = "mobile_cap_pk_customer_request_platform")
-  requestPlatform: String,
+  override val requestPlatform: String,
 
   @Json(name = "mobile_cap_pk_customer_request_client_id")
-  clientId: String,
+  override val clientId: String,
 
   /*
   * Create Request.
@@ -52,9 +52,17 @@ class AnalyticsCustomerRequestPayload(
   @Json(name = "mobile_cap_pk_customer_request_create_metadata")
   val createMetadata: String? = null,
 
+  /*
+  * Generic Event properties.
+   */
+
   // The status of the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_status")
   val status: String? = null,
+
+  // The channel when creating a Customer Request.
+  @Json(name = "mobile_cap_pk_customer_request_channel")
+  val requestChannel: String? = null,
 
   // The ID of the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_request_id")

@@ -114,6 +114,11 @@ internal class CashAppPayKitImpl(
   ) {
     enforceRegisteredStateUpdatesListener()
     currentState = UpdatingCustomerRequest
+
+    // Record analytics.
+    analytics.updatedCustomerRequest(requestId, paymentAction, customerResponseData)
+
+    // Network request.
     val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentAction)
     when (networkResult) {
       is Failure -> {
