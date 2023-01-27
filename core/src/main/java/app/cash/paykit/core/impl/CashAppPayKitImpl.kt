@@ -81,6 +81,11 @@ internal class CashAppPayKitImpl(
   override fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
     currentState = CreatingCustomerRequest
+
+    // Record analytics.
+    analytics.createdCustomerRequest(paymentAction)
+
+    // Network call.
     val networkResult = networkManager.createCustomerRequest(clientId, paymentAction)
     when (networkResult) {
       is Failure -> {

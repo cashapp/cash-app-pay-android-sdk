@@ -5,10 +5,14 @@ import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.PayKitState
 import app.cash.paykit.core.PayKitState.PayKitException
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
+import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsInitializationPayload
+import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN_APP
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OnFileAction
+import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OneTimeAction
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
@@ -60,11 +64,43 @@ internal class PayKitAnalyticsEventsImpl(
 
   override fun createdCustomerRequest(
     action: PayKitPaymentAction,
-    channel: String,
-    redirectUrl: String,
-    referenceId: String?,
   ) {
-    TODO("Not yet implemented")
+    // TODO: How easy would it be to convert `PayKitPaymentAction` to JSON ?
+
+    // Inner payload of the ES2 event.
+    val eventPayload = when (action) {
+      is OnFileAction -> {
+        AnalyticsCustomerRequestPayload(
+          sdkVersion,
+          userAgent,
+          PLATFORM,
+          clientId,
+          action = PayKitState.CreatingCustomerRequest.toString(),
+          createActions = action.toString(),
+          createChannel = CHANNEL_IN_APP,
+          createRedirectUrl = action.redirectUri,
+          createReferenceId = action.accountReferenceId,
+        )
+      }
+
+      is OneTimeAction -> {
+        AnalyticsCustomerRequestPayload(
+          sdkVersion,
+          userAgent,
+          PLATFORM,
+          clientId,
+          action = PayKitState.CreatingCustomerRequest.toString(),
+          createActions = action.toString(),
+          createChannel = CHANNEL_IN_APP,
+          createRedirectUrl = action.redirectUri,
+          createReferenceId = null,
+        )
+      }
+    }
+
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    sendAnalyticsEvent(es2EventAsJsonString)
   }
 
   override fun genericStateChanged(
@@ -82,7 +118,6 @@ internal class PayKitAnalyticsEventsImpl(
     payload: In,
     catalog: String,
   ): String {
-    val moshi: Moshi = Moshi.Builder().build()
     val moshiAdapter: JsonAdapter<In> = moshi.adapter()
     val jsonData: String = moshiAdapter.toJson(payload)
 

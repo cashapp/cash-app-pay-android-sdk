@@ -10,7 +10,7 @@ import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OneTimeAction
  */
 object CustomerRequestDataFactory {
 
-  private const val CHANNEL_IN_APP = "IN_APP"
+  internal const val CHANNEL_IN_APP = "IN_APP"
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
   private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
 

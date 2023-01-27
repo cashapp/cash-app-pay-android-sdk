@@ -18,9 +18,6 @@ internal interface PayKitAnalyticsEvents {
 
   fun createdCustomerRequest(
     action: PayKitPaymentAction,
-    channel: String,
-    redirectUrl: String,
-    referenceId: String?,
   )
 
   fun genericStateChanged(payKitState: PayKitState, customerResponseData: CustomerResponseData)
