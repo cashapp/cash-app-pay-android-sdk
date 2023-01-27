@@ -26,7 +26,12 @@ internal interface PayKitAnalyticsEvents {
     customerResponseData: CustomerResponseData?,
   )
 
-  fun genericStateChanged(payKitState: PayKitState, customerResponseData: CustomerResponseData)
+  fun genericStateChanged(payKitState: PayKitState, customerResponseData: CustomerResponseData?)
 
-  fun exceptionOccurred(payKitException: PayKitException)
+  fun stateApproved(customerResponseData: CustomerResponseData)
+
+  fun exceptionOccurred(
+    payKitException: PayKitException,
+    customerResponseData: CustomerResponseData?,
+  )
 }

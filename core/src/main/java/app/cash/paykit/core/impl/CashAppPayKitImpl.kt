@@ -55,6 +55,14 @@ internal class CashAppPayKitImpl(
   private var currentState: PayKitState = initialState
     set(value) {
       field = value
+      // Analytics.
+      when (value) {
+        is Approved -> customerResponseData?.let { analytics.stateApproved(it) }
+        is PayKitException -> analytics.exceptionOccurred(value, customerResponseData)
+        else -> analytics.genericStateChanged(value, customerResponseData)
+      }
+
+      // Notify listener of State change.
       callbackListener?.payKitStateDidChange(value)
         .orElse {
           logError(

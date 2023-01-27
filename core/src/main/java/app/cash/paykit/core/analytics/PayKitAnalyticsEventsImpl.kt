@@ -4,6 +4,7 @@ import EventStream2Event
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.PayKitState
 import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
@@ -75,7 +76,7 @@ internal class PayKitAnalyticsEventsImpl(
           userAgent,
           PLATFORM,
           clientId,
-          action = PayKitState.CreatingCustomerRequest.toString(),
+          action = PayKitState.CreatingCustomerRequest.javaClass.simpleName,
           createActions = action.toString(),
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = action.redirectUri,
@@ -89,7 +90,7 @@ internal class PayKitAnalyticsEventsImpl(
           userAgent,
           PLATFORM,
           clientId,
-          action = PayKitState.CreatingCustomerRequest.toString(),
+          action = PayKitState.CreatingCustomerRequest.javaClass.simpleName,
           createActions = action.toString(),
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = action.redirectUri,
@@ -114,7 +115,7 @@ internal class PayKitAnalyticsEventsImpl(
     val eventPayload = when (action) {
       is OnFileAction -> {
         baseEvent.copy(
-          action = PayKitState.UpdatingCustomerRequest.toString(),
+          action = PayKitState.UpdatingCustomerRequest.javaClass.simpleName,
           updateActions = action.toString(),
           updateReferenceId = action.accountReferenceId,
         )
@@ -122,7 +123,7 @@ internal class PayKitAnalyticsEventsImpl(
 
       is OneTimeAction -> {
         baseEvent.copy(
-          action = PayKitState.UpdatingCustomerRequest.toString(),
+          action = PayKitState.UpdatingCustomerRequest.javaClass.simpleName,
           updateActions = action.toString(),
         )
       }
@@ -135,13 +136,50 @@ internal class PayKitAnalyticsEventsImpl(
 
   override fun genericStateChanged(
     payKitState: PayKitState,
-    customerResponseData: CustomerResponseData,
+    customerResponseData: CustomerResponseData?,
   ) {
-    TODO("Not yet implemented")
+    val eventPayload =
+      eventFromCustomerResponseData(customerResponseData).copy(action = payKitState.javaClass.simpleName)
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    sendAnalyticsEvent(es2EventAsJsonString)
   }
 
-  override fun exceptionOccurred(payKitException: PayKitException) {
-    TODO("Not yet implemented")
+  override fun stateApproved(
+    customerResponseData: CustomerResponseData,
+  ) {
+    val eventPayload =
+      eventFromCustomerResponseData(customerResponseData).copy(action = PayKitState.Approved::class.java.simpleName)
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    sendAnalyticsEvent(es2EventAsJsonString)
+  }
+
+  override fun exceptionOccurred(
+    payKitException: PayKitException,
+    customerResponseData: CustomerResponseData?,
+  ) {
+    var eventPayload =
+      eventFromCustomerResponseData(customerResponseData).copy(action = PayKitException::class.java.simpleName)
+
+    eventPayload = if (payKitException.exception is PayKitApiNetworkException) {
+      val apiError = payKitException.exception
+      eventPayload.copy(
+        errorCode = apiError.code,
+        errorCategory = apiError.category,
+        errorField = apiError.field_value,
+        errorDetail = apiError.detail,
+      )
+    } else {
+      eventPayload.copy(
+        errorCode = payKitException.exception.cause?.toString(),
+        errorDetail = payKitException.exception.message,
+      )
+    }
+
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    sendAnalyticsEvent(es2EventAsJsonString)
   }
 
   private inline fun <reified In : AnalyticsBasePayload> encodeToJsonString(
