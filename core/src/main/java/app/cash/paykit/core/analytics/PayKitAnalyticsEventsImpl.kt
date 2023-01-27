@@ -4,6 +4,8 @@ import EventStream2Event
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.PayKitState
 import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
+import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsInitializationPayload
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
@@ -21,6 +23,7 @@ internal class PayKitAnalyticsEventsImpl(
   private val clientId: String,
   private val userAgent: String,
   private val networkManager: NetworkManager, // TODO : to be removed.
+  private val moshi: Moshi = Moshi.Builder().build(),
 ) : PayKitAnalyticsEvents {
 
   override fun sdkInitialized() {
@@ -28,34 +31,31 @@ internal class PayKitAnalyticsEventsImpl(
     val initializationPayload =
       AnalyticsInitializationPayload(sdkVersion, userAgent, PLATFORM, clientId)
 
-    val moshi: Moshi = Moshi.Builder().build()
-    val moshiAdapter: JsonAdapter<AnalyticsInitializationPayload> = moshi.adapter()
-    val jsonData: String = moshiAdapter.toJson(initializationPayload)
-
-    // ES2 event data class.
-    val eventStream2Event =
-      EventStream2Event(
-        appName = APP_NAME,
-        catalogName = AnalyticsInitializationPayload.CATALOG,
-        uuid = UUID.randomUUID().toString(),
-        jsonData = jsonData,
-        recordedAt = System.nanoTime() * 10,
-      )
-
-    // Transform ES2 event into a JSON String.
-    val es2EventAdapter: JsonAdapter<EventStream2Event> = moshi.adapter()
-    val es2EventAsJsonString: String = es2EventAdapter.toJson(eventStream2Event)
+    val es2EventAsJsonString =
+      encodeToJsonString(initializationPayload, AnalyticsInitializationPayload.CATALOG)
 
     // Schedule event to be sent.
     sendAnalyticsEvent(es2EventAsJsonString)
   }
 
   override fun eventListenerAdded() {
-    TODO("Not yet implemented")
+    // Inner payload of the ES2 event.
+    val eventPayload =
+      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true)
+
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
+    sendAnalyticsEvent(es2EventAsJsonString)
   }
 
   override fun eventListenerRemoved() {
-    TODO("Not yet implemented")
+    // Inner payload of the ES2 event.
+    val eventPayload =
+      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false)
+
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
+    sendAnalyticsEvent(es2EventAsJsonString)
   }
 
   override fun createdCustomerRequest(
@@ -76,6 +76,29 @@ internal class PayKitAnalyticsEventsImpl(
 
   override fun exceptionOccurred(payKitException: PayKitException) {
     TODO("Not yet implemented")
+  }
+
+  private inline fun <reified In : AnalyticsBasePayload> encodeToJsonString(
+    payload: In,
+    catalog: String,
+  ): String {
+    val moshi: Moshi = Moshi.Builder().build()
+    val moshiAdapter: JsonAdapter<In> = moshi.adapter()
+    val jsonData: String = moshiAdapter.toJson(payload)
+
+    // ES2 event data class.
+    val eventStream2Event =
+      EventStream2Event(
+        appName = APP_NAME,
+        catalogName = catalog,
+        uuid = UUID.randomUUID().toString(),
+        jsonData = jsonData,
+        recordedAt = System.nanoTime() * 10,
+      )
+
+    // Transform ES2 event into a JSON String.
+    val es2EventAdapter: JsonAdapter<EventStream2Event> = moshi.adapter()
+    return es2EventAdapter.toJson(eventStream2Event)
   }
 
   /**

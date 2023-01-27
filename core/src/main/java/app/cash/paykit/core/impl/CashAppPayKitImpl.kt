@@ -214,6 +214,7 @@ internal class CashAppPayKitImpl(
    */
   override fun registerForStateUpdates(listener: CashAppPayKitListener) {
     callbackListener = listener
+    analytics.eventListenerAdded()
   }
 
   /**
@@ -222,6 +223,7 @@ internal class CashAppPayKitImpl(
   override fun unregisterFromStateUpdates() {
     callbackListener = null
     payKitLifecycleListener.unregister(this)
+    analytics.eventListenerRemoved()
   }
 
   private fun enforceRegisteredStateUpdatesListener() {
