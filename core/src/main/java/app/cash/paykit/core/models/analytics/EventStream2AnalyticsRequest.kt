@@ -4,5 +4,5 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class EventStream2AnalyticsRequest(
   @Json(name = "events")
-  val events: List<EventStream2Event>,
+  val events: List<String>,
 )

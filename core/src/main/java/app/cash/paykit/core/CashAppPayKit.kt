@@ -2,7 +2,8 @@ package app.cash.paykit.core
 
 import android.content.Context
 import androidx.annotation.WorkerThread
-import app.cash.paykit.core.analytics.AnalyticsService
+import app.cash.paykit.core.analytics.PayKitAnalyticsEvents
+import app.cash.paykit.core.analytics.PayKitAnalyticsEventsImpl
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
@@ -104,12 +105,12 @@ object CashAppPayKitFactory {
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
-    val analyticsService = buildAnalyticsService(clientId, networkManager)
+    val paykitAnalytics = buildPayKitAnalytics(clientId, networkManager)
 
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = networkManager,
-      analyticsService = analyticsService,
+      analytics = paykitAnalytics,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = false,
     )
@@ -127,24 +128,24 @@ object CashAppPayKitFactory {
       okHttpClient = defaultOkHttpClient,
     )
 
-    val analyticsService = buildAnalyticsService(clientId, networkManager)
+    val payKitAnalytics = buildPayKitAnalytics(clientId, networkManager)
 
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = networkManager,
-      analyticsService = analyticsService,
+      analytics = payKitAnalytics,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = true,
     )
   }
 
-  private fun buildAnalyticsService(
+  private fun buildPayKitAnalytics(
     clientId: String,
     networkManager: NetworkManager,
-  ): AnalyticsService {
+  ): PayKitAnalyticsEvents {
     val sdkVersion =
       ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
-    return AnalyticsService(sdkVersion, clientId, getUserAgentValue(), networkManager)
+    return PayKitAnalyticsEventsImpl(sdkVersion, clientId, getUserAgentValue(), networkManager)
   }
 
   private val defaultOkHttpClient = OkHttpProvider.provideOkHttpClient()

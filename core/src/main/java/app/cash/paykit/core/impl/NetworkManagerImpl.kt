@@ -1,7 +1,5 @@
 package app.cash.paykit.core.impl
 
-import EventStream2AnalyticsRequest
-import EventStream2Event
 import android.util.Log
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
@@ -104,13 +102,12 @@ internal class NetworkManagerImpl(
     )
   }
 
-  override fun uploadAnalyticsEvents(clientId: String, analyticEvents: List<EventStream2Event>) {
-    // TODO: ClientId is not strictly necessary, remove it!
-    val analyticsRequest = EventStream2AnalyticsRequest(analyticEvents)
-    val response: NetworkResult<EventStream2Response> = executeNetworkRequest(
+  override fun uploadAnalyticsEvents(eventsAsJson: List<String>) {
+    val analyticsRequest = "{\"events\": [${eventsAsJson.joinToString()}]}"
+    val response: NetworkResult<EventStream2Response> = executePlainNetworkRequest(
       POST,
       ANALYTICS_PROD_ENDPOINT,
-      clientId,
+      "YOLO",
       analyticsRequest,
     )
 
@@ -151,6 +148,71 @@ internal class NetworkManagerImpl(
         GET -> get()
         POST -> post(jsonData.toRequestBody(JSON_MEDIA_TYPE))
         PATCH -> patch(jsonData.toRequestBody(JSON_MEDIA_TYPE))
+      }
+    }
+
+    try {
+      okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
+        if (!response.isSuccessful) {
+          // Unsuccessfully response is handled here.
+          // Under normal circumstances:
+          //  - 3xx errors won’t have a payload.
+          //  - 4xx are guaranteed to have a payload.
+          //  - 5xx should have a payload, but there might be situations where they do not.
+          //
+          // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
+          val apiErrorResponse: NetworkResult<ApiErrorResponse> =
+            deserializeResponse(response.body?.string() ?: "", moshi)
+          return when (apiErrorResponse) {
+            is Failure -> NetworkResult.failure(
+              PayKitConnectivityNetworkException(apiErrorResponse.exception),
+            )
+
+            is Success -> {
+              val apiError = apiErrorResponse.data.apiErrors.first()
+              val apiException = PayKitApiNetworkException(
+                apiError.category,
+                apiError.code,
+                apiError.detail,
+                apiError.field_value,
+              )
+              NetworkResult.failure(apiException)
+            }
+          }
+        }
+
+        // Success continues here.
+        return deserializeResponse(response.body!!.string(), moshi)
+      }
+    } catch (e: InterruptedIOException) {
+      return NetworkResult.failure(PayKitConnectivityNetworkException(e))
+    }
+  }
+
+  /**
+   * Similar to [executeNetworkRequest], but receives a pre-built string for the request body.
+   * TODO: Consolidate this is above function.
+   */
+  private inline fun <reified Out : Any> executePlainNetworkRequest(
+    requestType: RequestType,
+    endpointUrl: String,
+    clientId: String,
+    requestJsonPayload: String,
+  ): NetworkResult<Out> {
+    val requestBuilder = Request.Builder()
+      .url(endpointUrl)
+      .addHeader("Content-Type", "application/json")
+      .addHeader("Accept", "application/json")
+      .addHeader("Authorization", "Client $clientId")
+      .addHeader("User-Agent", userAgentValue)
+
+    val moshi: Moshi = Moshi.Builder().build()
+
+    with(requestBuilder) {
+      when (requestType) {
+        GET -> get()
+        POST -> post(requestJsonPayload.toRequestBody(JSON_MEDIA_TYPE))
+        PATCH -> patch(requestJsonPayload.toRequestBody(JSON_MEDIA_TYPE))
       }
     }
 
