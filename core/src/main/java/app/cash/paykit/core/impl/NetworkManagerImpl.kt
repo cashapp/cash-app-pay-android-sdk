@@ -15,6 +15,8 @@ import app.cash.paykit.core.models.request.CustomerRequestDataFactory
 import app.cash.paykit.core.models.response.ApiErrorResponse
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.network.RetryManager
+import app.cash.paykit.core.network.RetryManagerImpl
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
@@ -24,7 +26,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.io.InterruptedIOException
 import java.net.SocketTimeoutException
 import java.util.UUID
 
@@ -107,6 +108,7 @@ internal class NetworkManagerImpl(
       POST,
       ANALYTICS_PROD_ENDPOINT,
       null,
+      RetryManagerImpl(),
       analyticsRequest,
     )
   }
@@ -129,7 +131,13 @@ internal class NetworkManagerImpl(
     val moshi: Moshi = Moshi.Builder().build()
     val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
     val jsonData: String = requestJsonAdapter.toJson(requestPayload)
-    return executePlainNetworkRequest(requestType, endpointUrl, clientId, jsonData)
+    return executePlainNetworkRequest(
+      requestType,
+      endpointUrl,
+      clientId,
+      RetryManagerImpl(),
+      jsonData
+    )
   }
 
   /**
@@ -144,6 +152,7 @@ internal class NetworkManagerImpl(
     requestType: RequestType,
     endpointUrl: String,
     clientId: String?,
+    retryManager: RetryManager,
     requestJsonPayload: String,
   ): NetworkResult<Out> {
     val requestBuilder = Request.Builder()
@@ -166,42 +175,60 @@ internal class NetworkManagerImpl(
       }
     }
 
-    try {
-      okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
-        if (!response.isSuccessful) {
-          // Unsuccessfully response is handled here.
-          // Under normal circumstances:
-          //  - 3xx errors won’t have a payload.
-          //  - 4xx are guaranteed to have a payload.
-          //  - 5xx should have a payload, but there might be situations where they do not.
-          //
-          // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
-          val apiErrorResponse: NetworkResult<ApiErrorResponse> =
-            deserializeResponse(response.body?.string() ?: "", moshi)
-          return when (apiErrorResponse) {
-            is Failure -> NetworkResult.failure(
-              PayKitConnectivityNetworkException(apiErrorResponse.exception),
-            )
-
-            is Success -> {
-              val apiError = apiErrorResponse.data.apiErrors.first()
-              val apiException = PayKitApiNetworkException(
-                apiError.category,
-                apiError.code,
-                apiError.detail,
-                apiError.field_value,
-              )
-              NetworkResult.failure(apiException)
-            }
-          }
+    var retryException: Exception = IOException("Network retries failed!")
+    while (retryManager.shouldRetry()) {
+      try {
+        // Add number of HTTP retries to header, so we can easily track this in the future if we have too.
+        if (retryManager.getRetryCount() > 0) {
+          requestBuilder.removeHeader("paykit-retries-count")
+          requestBuilder.addHeader("paykit-retries-count", retryManager.getRetryCount().toString())
         }
 
-        // Success continues here.
-        return deserializeResponse(response.body!!.string(), moshi)
+        okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
+          if (!response.isSuccessful) {
+            // TODO: We should retry on 5XX errors as well.
+
+            // Unsuccessfully response is handled here.
+            // Under normal circumstances:
+            //  - 3xx errors won’t have a payload.
+            //  - 4xx are guaranteed to have a payload.
+            //  - 5xx should have a payload, but there might be situations where they do not.
+            //
+            // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
+            val apiErrorResponse: NetworkResult<ApiErrorResponse> =
+              deserializeResponse(response.body?.string() ?: "", moshi)
+            return when (apiErrorResponse) {
+              is Failure -> NetworkResult.failure(
+                PayKitConnectivityNetworkException(apiErrorResponse.exception),
+              )
+
+              is Success -> {
+                val apiError = apiErrorResponse.data.apiErrors.first()
+                val apiException = PayKitApiNetworkException(
+                  apiError.category,
+                  apiError.code,
+                  apiError.detail,
+                  apiError.field_value,
+                )
+                NetworkResult.failure(apiException)
+              }
+            }
+          }
+
+          // Success continues here.
+          return deserializeResponse(response.body!!.string(), moshi)
+        }
+      } catch (e: Exception) {
+        retryManager.networkAttemptFailed()
+
+        // Wait until the next retry.
+        if (retryManager.shouldRetry()) {
+          Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+        }
+        retryException = e
       }
-    } catch (e: InterruptedIOException) {
-      return NetworkResult.failure(PayKitConnectivityNetworkException(e))
     }
+    return NetworkResult.failure(PayKitConnectivityNetworkException(retryException))
   }
 
   @OptIn(ExperimentalStdlibApi::class)
