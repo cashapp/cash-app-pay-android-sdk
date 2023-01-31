@@ -101,9 +101,9 @@ internal class NetworkManagerImpl(
     )
   }
 
-  override fun uploadAnalyticsEvents(eventsAsJson: List<String>) {
+  override fun uploadAnalyticsEvents(eventsAsJson: List<String>): NetworkResult<EventStream2Response> {
     val analyticsRequest = "{\"events\": [${eventsAsJson.joinToString()}]}"
-    val response: NetworkResult<EventStream2Response> = executePlainNetworkRequest(
+    return executePlainNetworkRequest(
       POST,
       ANALYTICS_PROD_ENDPOINT,
       null,

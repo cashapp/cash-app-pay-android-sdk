@@ -8,7 +8,7 @@ import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 /**
  * Definition of analytics events that we want to capture.
  */
-internal interface PayKitAnalyticsEvents {
+internal interface PayKitAnalyticsEventDispatcher {
 
   fun sdkInitialized()
 

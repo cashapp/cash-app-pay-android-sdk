@@ -28,7 +28,7 @@ internal class DeliveryWorker(
       if (entries.isNotEmpty()) {
         logger.d(
           TAG,
-          "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId)
+          "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId),
         )
       }
       while (entries.isNotEmpty()) {
@@ -41,7 +41,7 @@ internal class DeliveryWorker(
         if (entries.isNotEmpty()) {
           logger.d(
             TAG,
-            "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId)
+            "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId),
           )
         }
       }

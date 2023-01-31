@@ -82,7 +82,10 @@ dependencies {
   // AndroidX Startup.
   implementation "androidx.startup:startup-runtime:$startup_version"
 
+  //noinspection GradleDependency
   implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+
+  implementation project(':analytics-core')
 
   // TEST RELATED.
 

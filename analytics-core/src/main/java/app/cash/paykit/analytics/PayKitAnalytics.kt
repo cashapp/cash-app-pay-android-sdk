@@ -128,7 +128,10 @@ class PayKitAnalytics constructor(
     while (itr.hasNext()) {
       itr.next().run {
         if (isCancelled || isDone) {
-          logger.d(TAG, "Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)")
+          logger.d(
+            TAG,
+            "Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)",
+          )
           itr.remove()
         }
       }

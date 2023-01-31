@@ -1,14 +1,21 @@
 package app.cash.paykit.core.analytics
 
 import EventStream2Event
+import app.cash.paykit.analytics.PayKitAnalytics
+import app.cash.paykit.analytics.core.DeliveryHandler
+import app.cash.paykit.analytics.core.DeliveryListener
+import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.PayKitState
 import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.analytics.EventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsInitializationPayload
+import app.cash.paykit.core.models.common.NetworkResult.Failure
+import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN_APP
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
@@ -23,13 +30,31 @@ private const val APP_NAME = "paykitsdk-android"
 private const val PLATFORM = "android"
 
 @OptIn(ExperimentalStdlibApi::class)
-internal class PayKitAnalyticsEventsImpl(
+internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkVersion: String,
   private val clientId: String,
   private val userAgent: String,
-  private val networkManager: NetworkManager, // TODO : to be removed.
+  private val payKitAnalytics: PayKitAnalytics,
+  private val networkManager: NetworkManager,
   private val moshi: Moshi = Moshi.Builder().build(),
-) : PayKitAnalyticsEvents {
+) : PayKitAnalyticsEventDispatcher {
+
+  init {
+    val eventStreamDeliverHandler = object : DeliveryHandler() {
+
+      override val deliverableType = ESEventType
+
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) {
+        val eventsAsJson = entries.map { it.content!! }
+        when (networkManager.uploadAnalyticsEvents(eventsAsJson)) {
+          is Failure -> deliveryListener.onError(entries)
+          is Success -> deliveryListener.onSuccess(entries)
+        }
+      }
+    }
+
+    payKitAnalytics.registerDeliveryHandler(eventStreamDeliverHandler)
+  }
 
   override fun sdkInitialized() {
     // Inner payload of the ES2 event.
@@ -40,7 +65,7 @@ internal class PayKitAnalyticsEventsImpl(
       encodeToJsonString(initializationPayload, AnalyticsInitializationPayload.CATALOG)
 
     // Schedule event to be sent.
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun eventListenerAdded() {
@@ -50,7 +75,7 @@ internal class PayKitAnalyticsEventsImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun eventListenerRemoved() {
@@ -60,14 +85,12 @@ internal class PayKitAnalyticsEventsImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun createdCustomerRequest(
     action: PayKitPaymentAction,
   ) {
-    // TODO: How easy would it be to convert `PayKitPaymentAction` to JSON ?
-
     // Inner payload of the ES2 event.
     val eventPayload = when (action) {
       is OnFileAction -> {
@@ -101,7 +124,7 @@ internal class PayKitAnalyticsEventsImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun updatedCustomerRequest(
@@ -131,7 +154,7 @@ internal class PayKitAnalyticsEventsImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun genericStateChanged(
@@ -142,7 +165,7 @@ internal class PayKitAnalyticsEventsImpl(
       eventFromCustomerResponseData(customerResponseData).copy(action = payKitState.javaClass.simpleName)
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun stateApproved(
@@ -152,7 +175,7 @@ internal class PayKitAnalyticsEventsImpl(
       eventFromCustomerResponseData(customerResponseData).copy(action = PayKitState.Approved::class.java.simpleName)
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun exceptionOccurred(
@@ -179,7 +202,7 @@ internal class PayKitAnalyticsEventsImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    sendAnalyticsEvent(es2EventAsJsonString)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   private inline fun <reified In : AnalyticsBasePayload> encodeToJsonString(
@@ -222,14 +245,5 @@ internal class PayKitAnalyticsEventsImpl(
       customerId = customerResponseData?.customerProfile?.id,
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
     )
-  }
-
-  /**
-   * TODO: This entire function should be replaced with a call to the analytics scheduler instead. Here for demonstration purposes.
-   */
-  private fun sendAnalyticsEvent(jsonPayload: String) {
-    Thread {
-      networkManager.uploadAnalyticsEvents(listOf(jsonPayload))
-    }.start()
   }
 }

@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference
 internal object ApplicationContextHolder {
   private var isInitialized: Boolean = false
 
-  lateinit var applicationContextReference: WeakReference<Context>
+  private lateinit var applicationContextReference: WeakReference<Context>
 
   fun init(applicationContext: Context) {
     if (isInitialized) {
