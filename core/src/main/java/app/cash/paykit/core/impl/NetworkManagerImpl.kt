@@ -1,8 +1,5 @@
 package app.cash.paykit.core.impl
 
-import EventStream2AnalyticsRequest
-import EventStream2Event
-import android.util.Log
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
@@ -104,26 +101,20 @@ internal class NetworkManagerImpl(
     )
   }
 
-  override fun uploadAnalyticsEvents(clientId: String, analyticEvents: List<EventStream2Event>) {
-    // TODO: ClientId is not strictly necessary, remove it!
-    val analyticsRequest = EventStream2AnalyticsRequest(analyticEvents)
-    val response: NetworkResult<EventStream2Response> = executeNetworkRequest(
+  override fun uploadAnalyticsEvents(eventsAsJson: List<String>) {
+    val analyticsRequest = "{\"events\": [${eventsAsJson.joinToString()}]}"
+    val response: NetworkResult<EventStream2Response> = executePlainNetworkRequest(
       POST,
       ANALYTICS_PROD_ENDPOINT,
-      clientId,
+      null,
       analyticsRequest,
     )
-
-    // TODO: Temporary log, will be removed.
-    when (response) {
-      is Failure -> Log.e("ANALYTICS", "Failed upload, got: ${response.exception}")
-      is Success -> Log.v("ANALYTICS", "Success! Got: ${response.data}")
-    }
   }
 
   @OptIn(ExperimentalStdlibApi::class)
   /**
-   * POST Request.
+   * Execute the actual network request, and return a result wrapped in a [NetworkResult].
+   *
    * @param In Class for serializing the request
    * @param Out Class for deserializing the response
    * @param clientId Client ID for authenticating the request
@@ -135,22 +126,43 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestPayload: In?,
   ): NetworkResult<Out> {
+    val moshi: Moshi = Moshi.Builder().build()
+    val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
+    val jsonData: String = requestJsonAdapter.toJson(requestPayload)
+    return executePlainNetworkRequest(requestType, endpointUrl, clientId, jsonData)
+  }
+
+  /**
+   * Similar to [executeNetworkRequest], but receives a pre-built string for the request body.
+   * Execute the actual network request, and return a result wrapped in a [NetworkResult].
+   *
+   * @param Out Class for deserializing the response
+   * @param clientId Client ID for authenticating the request
+   * @param requestJsonPayload String representing the body of the request
+   */
+  private inline fun <reified Out : Any> executePlainNetworkRequest(
+    requestType: RequestType,
+    endpointUrl: String,
+    clientId: String?,
+    requestJsonPayload: String,
+  ): NetworkResult<Out> {
     val requestBuilder = Request.Builder()
       .url(endpointUrl)
       .addHeader("Content-Type", "application/json")
       .addHeader("Accept", "application/json")
-      .addHeader("Authorization", "Client $clientId")
       .addHeader("User-Agent", userAgentValue)
 
+    if (clientId != null) {
+      requestBuilder.addHeader("Authorization", "Client $clientId")
+    }
+
     val moshi: Moshi = Moshi.Builder().build()
-    val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
-    val jsonData: String = requestJsonAdapter.toJson(requestPayload)
 
     with(requestBuilder) {
       when (requestType) {
         GET -> get()
-        POST -> post(jsonData.toRequestBody(JSON_MEDIA_TYPE))
-        PATCH -> patch(jsonData.toRequestBody(JSON_MEDIA_TYPE))
+        POST -> post(requestJsonPayload.toRequestBody(JSON_MEDIA_TYPE))
+        PATCH -> patch(requestJsonPayload.toRequestBody(JSON_MEDIA_TYPE))
       }
     }
 

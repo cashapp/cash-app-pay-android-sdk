@@ -2,12 +2,12 @@ package app.cash.paykit.core.models.analytics.payloads
 
 open class AnalyticsBasePayload(
   // Version of the SDK.
-  val sdkVersion: String,
+  open val sdkVersion: String,
 
   // User Agent of the app.
-  val clientUserAgent: String,
+  open val clientUserAgent: String,
 
-  val requestPlatform: String,
+  open val requestPlatform: String,
 
-  val clientId: String,
+  open val clientId: String,
 )
