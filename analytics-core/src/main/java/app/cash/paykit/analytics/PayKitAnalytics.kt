@@ -242,6 +242,7 @@ class PayKitAnalytics constructor(
     ensureExecutorIsUpAndRunning()
     val handler: DeliveryHandler? = getDeliveryHandler(type)
     return if (handler != null && handler.deliverableType.equals(type, ignoreCase = true)) {
+      logger.i(TAG, "Scheduling $type for delivery --- $content")
       ScheduleDeliverableTask(type, content, metaData).also {
         executor!!.execute(it)
       }
