@@ -17,6 +17,7 @@ import app.cash.paykit.core.models.response.CustomerTopLevelResponse
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 import app.cash.paykit.core.network.RetryManager
 import app.cash.paykit.core.network.RetryManagerImpl
+import app.cash.paykit.core.network.RetryManagerOptions
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
@@ -39,6 +40,7 @@ internal class NetworkManagerImpl(
   private val baseUrl: String,
   private val userAgentValue: String,
   private val okHttpClient: OkHttpClient,
+  private val retryManagerOptions: RetryManagerOptions = RetryManagerOptions(),
 ) : NetworkManager {
 
   // TODO: Generic network calls retry logic. ( https://www.notion.so/cashappcash/Generic-Retry-logic-for-all-network-requests-2fce583bb4154476835af908c8688995 )
@@ -108,7 +110,7 @@ internal class NetworkManagerImpl(
       POST,
       ANALYTICS_PROD_ENDPOINT,
       null,
-      RetryManagerImpl(),
+      RetryManagerImpl(retryManagerOptions),
       analyticsRequest,
     )
   }
@@ -135,8 +137,8 @@ internal class NetworkManagerImpl(
       requestType,
       endpointUrl,
       clientId,
-      RetryManagerImpl(),
-      jsonData
+      RetryManagerImpl(retryManagerOptions),
+      jsonData,
     )
   }
 
@@ -185,9 +187,18 @@ internal class NetworkManagerImpl(
         }
 
         okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
-          if (!response.isSuccessful) {
-            // TODO: We should retry on 5XX errors as well.
+          // TODO : Test 5XX retry scenario.
+          if (response.code >= 500) {
+            retryManager.networkAttemptFailed()
 
+            // Wait until the next retry.
+            if (retryManager.shouldRetry()) {
+              Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+            }
+            return@use
+          }
+
+          if (!response.isSuccessful) {
             // Unsuccessfully response is handled here.
             // Under normal circumstances:
             //  - 3xx errors won’t have a payload.

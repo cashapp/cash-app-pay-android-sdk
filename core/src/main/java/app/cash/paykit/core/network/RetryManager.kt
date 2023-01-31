@@ -14,16 +14,23 @@ internal interface RetryManager {
   fun getRetryCount(): Int
 }
 
+internal class RetryManagerOptions(
+  val maxRetries: Int = 4,
+  val initialDuration: Duration = 1.5.toDuration(DurationUnit.SECONDS),
+)
+
 /**
  * A [RetryManager] implementation with max number of retries and back-off strategy.
  */
-internal class RetryManagerImpl(private val maxRetries: Int = 4) : RetryManager {
+internal class RetryManagerImpl(
+  private val retryManagerOptions: RetryManagerOptions,
+) : RetryManager {
 
-  private var durationTillNextRetry = 1.5.toDuration(DurationUnit.SECONDS)
+  private var durationTillNextRetry = retryManagerOptions.initialDuration
   private var retryCount = 0
 
   override fun shouldRetry(): Boolean {
-    return retryCount <= maxRetries
+    return retryCount <= retryManagerOptions.maxRetries
   }
 
   override fun timeUntilNextRetry(): Duration {
