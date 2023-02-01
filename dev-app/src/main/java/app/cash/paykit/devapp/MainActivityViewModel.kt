@@ -109,6 +109,7 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
       SANDBOX -> {
         clientId = sandboxClientID
         brandId = sandboxBrandID
+        setAnalyticsEndpoint("https://api.squareup.com/")
         CashAppPayKitFactory.createSandbox(clientId)
       }
 
@@ -117,6 +118,10 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
         val baseUrlProd = CashAppPayKitFactory::class.java.getDeclaredField("BASE_URL_PRODUCTION")
         baseUrlProd.isAccessible = true
         baseUrlProd.set(CashAppPayKitFactory, BASE_URL_STAGING)
+
+        // Change Analytics endpoint to Staging.
+        setAnalyticsEndpoint("https://api.squareupstaging.com/")
+
         clientId = stagingClientID
         brandId = stagingBrandID
         CashAppPayKitFactory.create(clientId)
@@ -124,5 +129,11 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
     }
 
     payKitSdk.registerForStateUpdates(this@MainActivityViewModel)
+  }
+
+  private fun setAnalyticsEndpoint(analyticsBaseUrl: String) {
+    val baseUrlProd = CashAppPayKitFactory::class.java.getDeclaredField("ANALYTICS_BASE_URL")
+    baseUrlProd.isAccessible = true
+    baseUrlProd.set(CashAppPayKitFactory, analyticsBaseUrl)
   }
 }
