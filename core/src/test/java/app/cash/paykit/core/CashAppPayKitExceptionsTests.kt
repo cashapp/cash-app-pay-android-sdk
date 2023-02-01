@@ -44,6 +44,6 @@ class CashAppPayKitExceptionsTests {
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = useSandboxEnvironment,
-      analytics = mockk(relaxed = true),
+      analyticsEventDispatcher = mockk(relaxed = true),
     )
 }

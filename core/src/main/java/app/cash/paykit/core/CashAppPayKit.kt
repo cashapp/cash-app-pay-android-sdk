@@ -133,12 +133,13 @@ object CashAppPayKitFactory {
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
-    val paykitAnalytics = buildPayKitAnalytics(clientId, networkManager, paykitAnalytics)
+    val analyticsEventDispatcher =
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
 
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = networkManager,
-      analytics = paykitAnalytics,
+      analyticsEventDispatcher = analyticsEventDispatcher,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = false,
     )
@@ -156,18 +157,19 @@ object CashAppPayKitFactory {
       okHttpClient = defaultOkHttpClient,
     )
 
-    val payKitAnalytics = buildPayKitAnalytics(clientId, networkManager, paykitAnalytics)
+    val analyticsEventDispatcher =
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
 
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = networkManager,
-      analytics = payKitAnalytics,
+      analyticsEventDispatcher = analyticsEventDispatcher,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = true,
     )
   }
 
-  private fun buildPayKitAnalytics(
+  private fun buildPayKitAnalyticsEventDispatcher(
     clientId: String,
     networkManager: NetworkManager,
     eventsManager: PayKitAnalytics,
