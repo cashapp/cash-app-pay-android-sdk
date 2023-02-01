@@ -19,8 +19,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 
-private const val sandboxClientID = "CASH_CHECKOUT_SANDBOX"
-private const val sandboxBrandID = "BRAND_9kx6p0mkuo97jnl025q9ni94t"
+private const val sandboxClientID = "CAS-CI_PAYKIT_MOBILE_DEMO"
+private const val sandboxBrandID = "BRAND_9t4pg7c16v4lukc98bm9jxyse"
 
 private const val stagingClientID = "CASH_CHECKOUT"
 private const val stagingBrandID = "BRAND_4wv02dz5v4eg22b3enoffn6rt"
@@ -33,8 +33,6 @@ enum class SDKEnvironments {
 }
 
 class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
-
-  private val BASE_URL_STAGING = "https://api.cashstaging.app/customer-request/v1/"
 
   private val _payKitState = MutableStateFlow<PayKitState>(PayKitState.NotStarted)
   val payKitState: StateFlow<PayKitState> = _payKitState.asStateFlow()
@@ -117,7 +115,7 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
         // Change internal production URL via Reflection, to act as staging.
         val baseUrlProd = CashAppPayKitFactory::class.java.getDeclaredField("BASE_URL_PRODUCTION")
         baseUrlProd.isAccessible = true
-        baseUrlProd.set(CashAppPayKitFactory, BASE_URL_STAGING)
+        baseUrlProd.set(CashAppPayKitFactory, Companion.BASE_URL_STAGING)
 
         // Change Analytics endpoint to Staging.
         setAnalyticsEndpoint("https://api.squareupstaging.com/")
@@ -135,5 +133,9 @@ class MainActivityViewModel : ViewModel(), CashAppPayKitListener {
     val baseUrlProd = CashAppPayKitFactory::class.java.getDeclaredField("ANALYTICS_BASE_URL")
     baseUrlProd.isAccessible = true
     baseUrlProd.set(CashAppPayKitFactory, analyticsBaseUrl)
+  }
+
+  companion object {
+    private const val BASE_URL_STAGING = "https://api.cashstaging.app/customer-request/v1/"
   }
 }
