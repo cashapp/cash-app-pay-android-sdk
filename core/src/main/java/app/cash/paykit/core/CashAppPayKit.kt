@@ -1,9 +1,13 @@
 package app.cash.paykit.core
 
 import android.content.Context
+import android.os.Build
+import android.util.Log
 import androidx.annotation.WorkerThread
-import app.cash.paykit.core.analytics.PayKitAnalyticsEvents
-import app.cash.paykit.core.analytics.PayKitAnalyticsEventsImpl
+import app.cash.paykit.analytics.AnalyticsOptions
+import app.cash.paykit.analytics.PayKitAnalytics
+import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
+import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcherImpl
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
@@ -13,6 +17,7 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
+import kotlin.time.Duration.Companion.seconds
 
 interface CashAppPayKit {
   /**
@@ -90,6 +95,30 @@ object CashAppPayKitFactory {
 
   private val payKitLifecycleObserver: PayKitLifecycleObserver = PayKitLifecycleObserverImpl()
 
+  private val paykitAnalytics by lazy { buildPayKitAnalytics() }
+
+  private fun buildPayKitAnalytics() =
+    with(ApplicationContextHolder.applicationContext) {
+      val info = packageManager.getPackageInfo(packageName, 0)
+
+      @Suppress("DEPRECATION")
+      val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        info?.longVersionCode
+      } else {
+        info?.versionCode
+      }
+
+      PayKitAnalytics(
+        context = ApplicationContextHolder.applicationContext,
+        options = AnalyticsOptions(
+          delay = 10.seconds,
+          logLevel = Log.VERBOSE,
+          isLoggerDisabled = !BuildConfig.DEBUG,
+          applicationVersionCode = versionCode!!.toInt(), // casting as int gives us the "legacy" version code
+        ),
+      )
+    }
+
   private fun getUserAgentValue(): String {
     return UserAgentProvider.provideUserAgent(ApplicationContextHolder.applicationContext)
   }
@@ -105,12 +134,13 @@ object CashAppPayKitFactory {
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
-    val paykitAnalytics = buildPayKitAnalytics(clientId, networkManager)
+    val analyticsEventDispatcher =
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
 
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = networkManager,
-      analytics = paykitAnalytics,
+      analyticsEventDispatcher = analyticsEventDispatcher,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = false,
     )
@@ -128,24 +158,32 @@ object CashAppPayKitFactory {
       okHttpClient = defaultOkHttpClient,
     )
 
-    val payKitAnalytics = buildPayKitAnalytics(clientId, networkManager)
+    val analyticsEventDispatcher =
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
 
     return CashAppPayKitImpl(
       clientId = clientId,
       networkManager = networkManager,
-      analytics = payKitAnalytics,
+      analyticsEventDispatcher = analyticsEventDispatcher,
       payKitLifecycleListener = payKitLifecycleObserver,
       useSandboxEnvironment = true,
     )
   }
 
-  private fun buildPayKitAnalytics(
+  private fun buildPayKitAnalyticsEventDispatcher(
     clientId: String,
     networkManager: NetworkManager,
-  ): PayKitAnalyticsEvents {
+    eventsManager: PayKitAnalytics,
+  ): PayKitAnalyticsEventDispatcher {
     val sdkVersion =
       ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
-    return PayKitAnalyticsEventsImpl(sdkVersion, clientId, getUserAgentValue(), networkManager)
+    return PayKitAnalyticsEventDispatcherImpl(
+      sdkVersion,
+      clientId,
+      getUserAgentValue(),
+      eventsManager,
+      networkManager,
+    )
   }
 
   private val defaultOkHttpClient = OkHttpProvider.provideOkHttpClient()

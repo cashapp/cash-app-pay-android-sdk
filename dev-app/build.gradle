@@ -38,7 +38,7 @@ android {
     htmlReport true
     checkAllWarnings true
     warningsAsErrors true
-    disable 'UnusedIds'
+    disable 'UnusedIds', 'GradleDependency'
     baseline file("lint-baseline.xml")
   }
 }
