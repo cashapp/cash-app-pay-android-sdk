@@ -128,7 +128,10 @@ class PayKitAnalytics constructor(
     while (itr.hasNext()) {
       itr.next().run {
         if (isCancelled || isDone) {
-          logger.d(TAG, "Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)")
+          logger.d(
+            TAG,
+            "Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)",
+          )
           itr.remove()
         }
       }
@@ -242,6 +245,7 @@ class PayKitAnalytics constructor(
     ensureExecutorIsUpAndRunning()
     val handler: DeliveryHandler? = getDeliveryHandler(type)
     return if (handler != null && handler.deliverableType.equals(type, ignoreCase = true)) {
+      logger.i(TAG, "Scheduling $type for delivery --- $content")
       ScheduleDeliverableTask(type, content, metaData).also {
         executor!!.execute(it)
       }

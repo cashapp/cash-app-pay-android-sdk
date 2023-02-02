@@ -119,6 +119,6 @@ abstract class EntriesDataSource(val options: AnalyticsOptions) {
    */
   abstract fun updateStatuses(entries: List<AnalyticEntry>, status: Int)
 }
-fun List<AnalyticEntry>.toCommaSeparatedList() = joinToString(transform = {
+fun List<AnalyticEntry>.toCommaSeparatedListIds() = joinToString(transform = {
   it.id.toString()
 })

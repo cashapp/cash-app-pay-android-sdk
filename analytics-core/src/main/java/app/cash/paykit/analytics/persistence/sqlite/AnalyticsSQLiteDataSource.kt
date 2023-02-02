@@ -6,7 +6,7 @@ import android.util.Log
 import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
-import app.cash.paykit.analytics.persistence.toCommaSeparatedList
+import app.cash.paykit.analytics.persistence.toCommaSeparatedListIds
 
 class AnalyticsSQLiteDataSource(
   private val sqLiteHelper: AnalyticsSqLiteHelper,
@@ -40,7 +40,7 @@ class AnalyticsSQLiteDataSource(
   override fun deleteEntry(entries: List<AnalyticEntry>) {
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
-      val whereClauseForDelete = "$COLUMN_ID IN (${entries.toCommaSeparatedList()})"
+      val whereClauseForDelete = "$COLUMN_ID IN (${entries.toCommaSeparatedListIds()})"
       database.delete(TABLE_SYNC_ENTRIES, whereClauseForDelete, null)
     } catch (e: Exception) {
       Log.e("", "", e)
@@ -122,7 +122,7 @@ class AnalyticsSQLiteDataSource(
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
       val query =
-        "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=$status WHERE id IN (" + entries.toCommaSeparatedList() + ");"
+        "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=$status WHERE id IN (" + entries.toCommaSeparatedListIds() + ");"
       database.execSQL(query)
     } catch (e: Exception) {
       Log.e("", "", e)

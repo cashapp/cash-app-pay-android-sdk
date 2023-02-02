@@ -86,7 +86,7 @@ internal object Utils {
     processId: String?,
     entryType: String?,
     entryState: Int,
-    load: String?,
+    load: String,
     metaData: String?,
     version: String?,
   ) = AnalyticEntry(

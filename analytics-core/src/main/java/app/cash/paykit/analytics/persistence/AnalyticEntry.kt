@@ -8,7 +8,7 @@ import android.database.Cursor
 data class AnalyticEntry constructor(
   val id: Long = 0,
   val type: String? = null,
-  val content: String? = null,
+  val content: String,
   val state: Int = 0,
   val metaData: String? = null,
   val processId: String? = null,

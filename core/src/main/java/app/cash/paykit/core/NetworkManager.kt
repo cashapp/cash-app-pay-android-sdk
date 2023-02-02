@@ -1,5 +1,6 @@
 package app.cash.paykit.core
 
+import app.cash.paykit.core.models.analytics.EventStream2Response
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
@@ -25,5 +26,5 @@ internal interface NetworkManager {
     requestId: String,
   ): NetworkResult<CustomerTopLevelResponse>
 
-  fun uploadAnalyticsEvents(eventsAsJson: List<String>)
+  fun uploadAnalyticsEvents(eventsAsJson: List<String>): NetworkResult<EventStream2Response>
 }
