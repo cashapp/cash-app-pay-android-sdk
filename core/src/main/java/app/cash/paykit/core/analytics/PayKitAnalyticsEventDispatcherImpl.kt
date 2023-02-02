@@ -45,7 +45,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       override val deliverableType = ESEventType
 
       override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) {
-        val eventsAsJson = entries.map { it.content!! }
+        val eventsAsJson = entries.map { it.content }
         when (networkManager.uploadAnalyticsEvents(eventsAsJson)) {
           is Failure -> deliveryListener.onError(entries)
           is Success -> deliveryListener.onSuccess(entries)

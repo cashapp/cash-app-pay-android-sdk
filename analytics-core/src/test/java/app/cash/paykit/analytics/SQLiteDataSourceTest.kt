@@ -71,8 +71,8 @@ class SQLiteDataSourceTest {
       dataSource.insertEntry("TYPE_1", "load.testInsertEntry.1", "metadata.testInsertEntry.1")
     val pkgId2: Long =
       dataSource.insertEntry("TYPE_2", "load.testInsertEntry.2", "metadata.testInsertEntry.2")
-    val p1 = AnalyticEntry(id = pkgId1)
-    val p2 = AnalyticEntry(id = pkgId2)
+    val p1 = AnalyticEntry(id = pkgId1, content = "content")
+    val p2 = AnalyticEntry(id = pkgId2, content = "content")
     val entries = listOf(p1, p2)
 
     dataSource.deleteEntry(entries)
@@ -422,10 +422,10 @@ class SQLiteDataSourceTest {
     )
     // @formatter:on
 
-    val pkg1 = AnalyticEntry(id = p1)
-    val pkg2 = AnalyticEntry(id = p2)
-    val pkg3 = AnalyticEntry(id = p3)
-    val pkg4 = AnalyticEntry(id = p4)
+    val pkg1 = AnalyticEntry(id = p1, content = "content")
+    val pkg2 = AnalyticEntry(id = p2, content = "content")
+    val pkg3 = AnalyticEntry(id = p3, content = "content")
+    val pkg4 = AnalyticEntry(id = p4, content = "content")
 
     val entriesToUpdate = listOf(pkg1, pkg2, pkg3, pkg4)
     dataSource.updateStatuses(entriesToUpdate, AnalyticEntry.STATE_NEW)

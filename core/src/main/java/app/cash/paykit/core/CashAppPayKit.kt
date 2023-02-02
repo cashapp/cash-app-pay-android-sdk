@@ -95,7 +95,9 @@ object CashAppPayKitFactory {
 
   private val payKitLifecycleObserver: PayKitLifecycleObserver = PayKitLifecycleObserverImpl()
 
-  private val paykitAnalytics by lazy {
+  private val paykitAnalytics by lazy { buildPayKitAnalytics() }
+
+  private fun buildPayKitAnalytics() =
     with(ApplicationContextHolder.applicationContext) {
       val info = packageManager.getPackageInfo(packageName, 0)
 
@@ -116,7 +118,6 @@ object CashAppPayKitFactory {
         ),
       )
     }
-  }
 
   private fun getUserAgentValue(): String {
     return UserAgentProvider.provideUserAgent(ApplicationContextHolder.applicationContext)
