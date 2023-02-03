@@ -38,7 +38,7 @@ android {
     htmlReport true
     checkAllWarnings true
     warningsAsErrors true
-    disable 'UnusedIds'
+    disable 'UnusedIds', 'GradleDependency'
     baseline file("lint-baseline.xml")
   }
 }
@@ -56,8 +56,10 @@ dependencies {
   // Easier Network event inspection.
   debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
   releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
-  
+
   implementation project(':core')
+
+  debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.10'
 
   testImplementation "junit:junit:$junit_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"

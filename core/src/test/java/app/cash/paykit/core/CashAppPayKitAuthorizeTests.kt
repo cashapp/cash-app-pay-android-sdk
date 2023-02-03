@@ -74,6 +74,6 @@ class CashAppPayKitAuthorizeTests {
       networkManager = mockk(),
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
-      analytics = mockk(relaxed = true),
+      analyticsEventDispatcher = mockk(relaxed = true),
     )
 }

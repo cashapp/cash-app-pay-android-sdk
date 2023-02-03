@@ -212,6 +212,6 @@ class NetworkErrorTests {
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
-      analytics = mockk(relaxed = true),
+      analyticsEventDispatcher = mockk(relaxed = true),
     )
 }
