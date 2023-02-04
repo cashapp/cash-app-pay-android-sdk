@@ -131,6 +131,7 @@ object CashAppPayKitFactory {
   ): CashAppPayKit {
     val networkManager = NetworkManagerImpl(
       BASE_URL_PRODUCTION,
+      ANALYTICS_BASE_URL,
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
@@ -154,6 +155,7 @@ object CashAppPayKitFactory {
   ): CashAppPayKit {
     val networkManager = NetworkManagerImpl(
       BASE_URL_SANDBOX,
+      ANALYTICS_BASE_URL,
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
@@ -191,6 +193,7 @@ object CashAppPayKitFactory {
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
   private val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
   private val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
+  private val ANALYTICS_BASE_URL = "https://api.squareup.com/"
 }
 
 interface CashAppPayKitListener {
