@@ -187,7 +187,7 @@ class CashAppPayKitStateTests {
       useSandboxEnvironment = true,
       initialState = initialState,
       initialCustomerResponseData = initialCustomerResponseData,
-      analytics = mockk(relaxed = true),
+      analyticsEventDispatcher = mockk(relaxed = true),
     )
 
   /**

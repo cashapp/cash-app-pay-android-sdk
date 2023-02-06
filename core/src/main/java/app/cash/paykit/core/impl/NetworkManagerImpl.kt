@@ -38,6 +38,7 @@ enum class RequestType {
 
 internal class NetworkManagerImpl(
   private val baseUrl: String,
+  private val analyticsBaseUrl: String,
   private val userAgentValue: String,
   private val okHttpClient: OkHttpClient,
   private val retryManagerOptions: RetryManagerOptions = RetryManagerOptions(),
@@ -53,6 +54,9 @@ internal class NetworkManagerImpl(
 
   val UPDATE_CUSTOMER_REQUEST_ENDPOINT: String
     get() = "${baseUrl}requests/"
+
+  val ANALYTICS_ENDPOINT: String
+    get() = "${analyticsBaseUrl}2.0/log/eventstream"
 
   @Throws(IOException::class)
   override fun createCustomerRequest(
@@ -104,11 +108,11 @@ internal class NetworkManagerImpl(
     )
   }
 
-  override fun uploadAnalyticsEvents(eventsAsJson: List<String>) {
+  override fun uploadAnalyticsEvents(eventsAsJson: List<String>): NetworkResult<EventStream2Response> {
     val analyticsRequest = "{\"events\": [${eventsAsJson.joinToString()}]}"
-    val response: NetworkResult<EventStream2Response> = executePlainNetworkRequest(
+    return executePlainNetworkRequest(
       POST,
-      ANALYTICS_PROD_ENDPOINT,
+      ANALYTICS_ENDPOINT,
       null,
       RetryManagerImpl(retryManagerOptions),
       analyticsRequest,
@@ -265,12 +269,6 @@ internal class NetworkManagerImpl(
   }
 
   companion object {
-
-    private const val ANALYTICS_SERVICE_SUFFIX = "2.0/log/eventstream"
-    const val ANALYTICS_STAGING_ENDPOINT =
-      "https://api.squareupstaging.com/$ANALYTICS_SERVICE_SUFFIX"
-    const val ANALYTICS_PROD_ENDPOINT = "https://api.squareup.com/$ANALYTICS_SERVICE_SUFFIX"
-
     private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
   }
 }

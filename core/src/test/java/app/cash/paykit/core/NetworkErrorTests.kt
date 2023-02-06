@@ -206,12 +206,12 @@ class NetworkErrorTests {
     return NetworkManagerImpl(
       baseUrl = baseUrl.toString(),
       userAgentValue = "",
-      OkHttpClient(),
+      okHttpClient = OkHttpClient(),
       retryManagerOptions = RetryManagerOptions(
         maxRetries = 1,
         initialDuration = 1.toDuration(DurationUnit.MILLISECONDS),
       ),
-
+      analyticsBaseUrl = ""
     )
   }
 
@@ -221,6 +221,6 @@ class NetworkErrorTests {
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
-      analytics = mockk(relaxed = true),
+      analyticsEventDispatcher = mockk(relaxed = true),
     )
 }

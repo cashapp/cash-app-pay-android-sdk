@@ -22,7 +22,7 @@ import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
-import app.cash.paykit.core.analytics.PayKitAnalyticsEvents
+import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
@@ -39,7 +39,7 @@ import app.cash.paykit.core.utils.orElse
 internal class CashAppPayKitImpl(
   private val clientId: String,
   private val networkManager: NetworkManager,
-  private val analytics: PayKitAnalyticsEvents,
+  private val analyticsEventDispatcher: PayKitAnalyticsEventDispatcher,
   private val payKitLifecycleListener: PayKitLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
   initialState: PayKitState = NotStarted,
@@ -57,9 +57,9 @@ internal class CashAppPayKitImpl(
       field = value
       // Analytics.
       when (value) {
-        is Approved -> customerResponseData?.let { analytics.stateApproved(it) }
-        is PayKitException -> analytics.exceptionOccurred(value, customerResponseData)
-        else -> analytics.genericStateChanged(value, customerResponseData)
+        is Approved -> customerResponseData?.let { analyticsEventDispatcher.stateApproved(it) }
+        is PayKitException -> analyticsEventDispatcher.exceptionOccurred(value, customerResponseData)
+        else -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
       }
 
       // Notify listener of State change.
@@ -75,7 +75,7 @@ internal class CashAppPayKitImpl(
   init {
     // Register for process lifecycle updates.
     payKitLifecycleListener.register(this)
-    analytics.sdkInitialized()
+    analyticsEventDispatcher.sdkInitialized()
   }
 
   /**
@@ -89,9 +89,6 @@ internal class CashAppPayKitImpl(
   override fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
     enforceRegisteredStateUpdatesListener()
     currentState = CreatingCustomerRequest
-
-    // Record analytics.
-    analytics.createdCustomerRequest(paymentAction)
 
     // Network call.
     val networkResult = networkManager.createCustomerRequest(clientId, paymentAction)
@@ -124,7 +121,7 @@ internal class CashAppPayKitImpl(
     currentState = UpdatingCustomerRequest
 
     // Record analytics.
-    analytics.updatedCustomerRequest(requestId, paymentAction, customerResponseData)
+    analyticsEventDispatcher.updatedCustomerRequest(requestId, paymentAction, customerResponseData)
 
     // Network request.
     val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentAction)
@@ -232,7 +229,7 @@ internal class CashAppPayKitImpl(
    */
   override fun registerForStateUpdates(listener: CashAppPayKitListener) {
     callbackListener = listener
-    analytics.eventListenerAdded()
+    analyticsEventDispatcher.eventListenerAdded()
   }
 
   /**
@@ -241,7 +238,7 @@ internal class CashAppPayKitImpl(
   override fun unregisterFromStateUpdates() {
     callbackListener = null
     payKitLifecycleListener.unregister(this)
-    analytics.eventListenerRemoved()
+    analyticsEventDispatcher.eventListenerRemoved()
   }
 
   private fun enforceRegisteredStateUpdatesListener() {
