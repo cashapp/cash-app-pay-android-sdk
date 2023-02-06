@@ -211,7 +211,7 @@ class NetworkErrorTests {
         maxRetries = 1,
         initialDuration = 1.toDuration(DurationUnit.MILLISECONDS),
       ),
-      analyticsBaseUrl = ""
+      analyticsBaseUrl = "",
     )
   }
 
