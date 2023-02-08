@@ -120,7 +120,7 @@ class NetworkErrorTests {
       .writeTimeout(1, MILLISECONDS)
       .build()
 
-    val networkManager = networkManager(baseUrl)
+    val networkManager = networkManager(baseUrl, okHttpClient)
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -202,11 +202,14 @@ class NetworkErrorTests {
     }
   }
 
-  private fun networkManager(baseUrl: HttpUrl): NetworkManager {
+  private fun networkManager(
+    baseUrl: HttpUrl,
+    okHttpClient: OkHttpClient = OkHttpClient(),
+  ): NetworkManager {
     return NetworkManagerImpl(
       baseUrl = baseUrl.toString(),
       userAgentValue = "",
-      okHttpClient = OkHttpClient(),
+      okHttpClient = okHttpClient,
       retryManagerOptions = RetryManagerOptions(
         maxRetries = 1,
         initialDuration = 1.toDuration(DurationUnit.MILLISECONDS),

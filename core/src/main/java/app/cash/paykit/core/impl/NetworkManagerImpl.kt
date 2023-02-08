@@ -27,8 +27,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
-import java.util.UUID
+import java.util.*
 
 enum class RequestType {
   GET,
@@ -191,8 +192,7 @@ internal class NetworkManagerImpl(
         }
 
         okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
-          // TODO : Test 5XX retry scenario.
-          if (response.code >= 500) {
+          if (response.code >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
             retryManager.networkAttemptFailed()
 
             // Wait until the next retry.
