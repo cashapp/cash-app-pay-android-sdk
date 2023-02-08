@@ -5,10 +5,12 @@ import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
+import app.cash.paykit.core.network.RetryManagerOptions
 import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.JsonDataException
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -18,6 +20,8 @@ import java.io.IOException
 import java.io.InterruptedIOException
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 
 class NetworkErrorTests {
 
@@ -37,13 +41,7 @@ class NetworkErrorTests {
 
     val baseUrl = server.url("")
 
-    val networkManager =
-      NetworkManagerImpl(
-        baseUrl = baseUrl.toString(),
-        userAgentValue = "",
-        okHttpClient = OkHttpClient(),
-        analyticsBaseUrl = "",
-      )
+    val networkManager = networkManager(baseUrl)
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -83,13 +81,7 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager =
-      NetworkManagerImpl(
-        baseUrl = baseUrl.toString(),
-        userAgentValue = "",
-        okHttpClient = OkHttpClient(),
-        analyticsBaseUrl = "",
-      )
+    val networkManager = networkManager(baseUrl)
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -128,13 +120,7 @@ class NetworkErrorTests {
       .writeTimeout(1, MILLISECONDS)
       .build()
 
-    val networkManager =
-      NetworkManagerImpl(
-        baseUrl = baseUrl.toString(),
-        userAgentValue = "",
-        okHttpClient = okHttpClient,
-        analyticsBaseUrl = "",
-      )
+    val networkManager = networkManager(baseUrl, okHttpClient)
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -193,13 +179,7 @@ class NetworkErrorTests {
     server.start()
 
     val baseUrl = server.url("")
-    val networkManager =
-      NetworkManagerImpl(
-        baseUrl = baseUrl.toString(),
-        userAgentValue = "",
-        okHttpClient = OkHttpClient(),
-        analyticsBaseUrl = "",
-      )
+    val networkManager = networkManager(baseUrl)
     val payKit = createPayKit(networkManager)
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
@@ -220,6 +200,22 @@ class NetworkErrorTests {
     override fun payKitStateDidChange(newState: PayKitState) {
       state = newState
     }
+  }
+
+  private fun networkManager(
+    baseUrl: HttpUrl,
+    okHttpClient: OkHttpClient = OkHttpClient(),
+  ): NetworkManager {
+    return NetworkManagerImpl(
+      baseUrl = baseUrl.toString(),
+      userAgentValue = "",
+      okHttpClient = okHttpClient,
+      retryManagerOptions = RetryManagerOptions(
+        maxRetries = 1,
+        initialDuration = 1.toDuration(DurationUnit.MILLISECONDS),
+      ),
+      analyticsBaseUrl = "",
+    )
   }
 
   private fun createPayKit(networkManager: NetworkManager) =
