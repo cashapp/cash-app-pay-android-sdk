@@ -23,7 +23,7 @@ jobs:
 
       - name: Validate tag on main
         run: |
-          git branch -a -r --contains $GITHUB_SHA | grep -q origin/main 
+          git branch -a -r --contains $GITHUB_SHA | grep -q remotes/origin/main 
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
