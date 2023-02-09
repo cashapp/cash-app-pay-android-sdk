@@ -9,8 +9,7 @@ here: https://www.notion.so/cashappcash/Android-PayKit-SDK-a45d3902660146bca1fe5
 
 ## About this repo
 
-There are 2 main modules in this repository: **PayKit SDK** and **Dev App**. The later is an Android
-application meant to be used during development for testing the various functionalities of the SDK.
+This is the **private** repository for Cash App PayKit SDK for Android.
 
 # CI
 
@@ -20,6 +19,10 @@ Github Actions will build our artifacts.
 
 The sample app is build via [this job](https://kochiku.sqprod.co/squareup/android-cash-paykit-sdk),
 and uploads the APK to [go/mr](https://mobile-releases.squareup.com/cash-apps)
+
+## Dev App
+
+Auxiliary Dev App can be found [here](https://github.com/squareup/cash-paykit-dev-app-android).
 
 # RELEASING
 
@@ -57,13 +60,13 @@ the [snapshots repository](https://oss.sonatype.org/index.html#view-repositories
 ## Run Android lint on the project
 
 ```bash
-./gradlew dev-app:lint core:lint
+./gradlew core:lint
 ```
 
 ## Apply Ktlint formatting via Spotless
 
 ```bash
-./gradlew :dev-app:spotlessApply ; ./gradlew :core:spotlessApply
+./gradlew :core:spotlessApply
 ```
 
 ## Run all Unit Tests
