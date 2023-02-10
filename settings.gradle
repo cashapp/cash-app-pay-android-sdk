@@ -13,6 +13,5 @@ dependencyResolutionManagement {
   }
 }
 rootProject.name = "PayKit SDK"
-include ':dev-app'
 include ':core'
 include ':analytics-core'
