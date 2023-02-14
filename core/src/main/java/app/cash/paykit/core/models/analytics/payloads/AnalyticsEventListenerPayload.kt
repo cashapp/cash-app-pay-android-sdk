@@ -50,7 +50,7 @@ class AnalyticsEventListenerPayload(
   @Json(name = "mobile_cap_pk_event_listener_is_added")
   val isAdded: Boolean,
 
-  ) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId) {
+) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId) {
 
   companion object {
     const val CATALOG = "mobile_cap_pk_event_listener"

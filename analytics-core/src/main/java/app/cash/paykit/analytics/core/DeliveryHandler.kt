@@ -36,7 +36,7 @@ abstract class DeliveryHandler {
     override fun onSuccess(entries: List<AnalyticEntry>) {
       logger?.d(
         TAG,
-        "successful delivery, deleting $deliverableType[" + entries.toCommaSeparatedListIds() + "]"
+        "successful delivery, deleting $deliverableType[" + entries.toCommaSeparatedListIds() + "]",
       )
       dataSource?.deleteEntry(entries)
     }
@@ -44,7 +44,7 @@ abstract class DeliveryHandler {
     override fun onError(entries: List<AnalyticEntry>) {
       logger?.d(
         TAG,
-        "DELIVERY_FAILED for $deliverableType[" + entries.toCommaSeparatedListIds() + "]"
+        "DELIVERY_FAILED for $deliverableType[" + entries.toCommaSeparatedListIds() + "]",
       )
       dataSource?.updateStatuses(entries, AnalyticEntry.STATE_DELIVERY_FAILED)
     }

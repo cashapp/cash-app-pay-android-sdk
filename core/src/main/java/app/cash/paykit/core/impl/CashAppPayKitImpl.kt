@@ -77,7 +77,7 @@ internal class CashAppPayKitImpl(
         is Approved -> customerResponseData?.let { analyticsEventDispatcher.stateApproved(it) }
         is PayKitException -> analyticsEventDispatcher.exceptionOccurred(
           value,
-          customerResponseData
+          customerResponseData,
         )
         else -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
       }
