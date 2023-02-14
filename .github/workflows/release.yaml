@@ -5,6 +5,7 @@ name: release
 # from zipline - https://github.com/cashapp/zipline/blob/trunk/.github/workflows/release.yaml#LL111C7-L130C22
 
 on:
+  workflow_dispatch:
   push:
     tags:
     - 'v[0-9]+.[0-9]+.[0-9]+-[a-zA-Z]*'
