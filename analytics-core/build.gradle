@@ -1,6 +1,7 @@
 plugins {
   id 'com.android.library'
   id 'org.jetbrains.kotlin.android'
+  id "com.vanniktech.maven.publish.base"
 }
 
 android {
@@ -47,4 +48,9 @@ dependencies {
 
   // Robolectric environment.
   testImplementation "org.robolectric:robolectric:$robolectric_version"
+}
+
+mavenPublishing {
+  // TODO: stop publishing the debug release
+  configure(new com.vanniktech.maven.publish.AndroidMultiVariantLibrary(true, true))
 }
