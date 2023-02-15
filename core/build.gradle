@@ -85,7 +85,7 @@ dependencies {
   //noinspection GradleDependency
   implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
-  api project(':analytics-core')
+  implementation project(':analytics-core')
 
   // TEST RELATED.
 
