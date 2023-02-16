@@ -1,4 +1,4 @@
-[![release](https://github.com/cashapp/android-cash-paykit-sdk/actions/workflows/release.yaml/badge.svg)](https://github.com/cashapp/android-cash-paykit-sdk/actions/workflows/release.yaml)
+[![release](https://github.com/cashapp/android-cash-paykit-sdk/actions/workflows/release.yaml/badge.svg)](https://github.com/cashapp/android-cash-paykit-sdk/actions/workflows/release.yaml) ![License](https://img.shields.io/github/license/cashapp/cash-pay-kit-sdk-android-sample-app?style=plastic) 
 
 # About
 
