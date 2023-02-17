@@ -183,6 +183,7 @@ internal class NetworkManagerImpl(
       .url(endpointUrl)
       .addHeader("Content-Type", "application/json")
       .addHeader("Accept", "application/json")
+      .addHeader("Accept-Language", Locale.getDefault().toLanguageTag())
       .addHeader("User-Agent", userAgentValue)
 
     if (clientId != null) {
