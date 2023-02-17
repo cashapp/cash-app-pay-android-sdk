@@ -74,7 +74,7 @@ internal class CashAppPayKitImpl(
       field = value
       // Analytics.
       when (value) {
-        is Approved -> customerResponseData?.let { analyticsEventDispatcher.stateApproved(it) }
+        is Approved -> analyticsEventDispatcher.stateApproved(value)
         is PayKitException -> analyticsEventDispatcher.exceptionOccurred(
           value,
           customerResponseData,

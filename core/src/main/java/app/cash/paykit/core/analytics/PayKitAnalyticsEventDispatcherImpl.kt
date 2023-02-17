@@ -24,7 +24,16 @@ import app.cash.paykit.analytics.core.DeliveryListener
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.PayKitState
+import app.cash.paykit.core.PayKitState.Approved
+import app.cash.paykit.core.PayKitState.Authorizing
+import app.cash.paykit.core.PayKitState.CreatingCustomerRequest
+import app.cash.paykit.core.PayKitState.Declined
+import app.cash.paykit.core.PayKitState.NotStarted
 import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.PayKitState.PollingTransactionStatus
+import app.cash.paykit.core.PayKitState.ReadyToAuthorize
+import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
+import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
 import app.cash.paykit.core.analytics.EventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
@@ -116,7 +125,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           userAgent,
           PLATFORM,
           clientId,
-          action = PayKitState.CreatingCustomerRequest.javaClass.simpleName,
+          action = stateToAnalyticsAction(CreatingCustomerRequest),
           createActions = action.toString(),
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = action.redirectUri,
@@ -130,7 +139,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           userAgent,
           PLATFORM,
           clientId,
-          action = PayKitState.CreatingCustomerRequest.javaClass.simpleName,
+          action = stateToAnalyticsAction(CreatingCustomerRequest),
           createActions = action.toString(),
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = action.redirectUri,
@@ -155,7 +164,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     val eventPayload = when (action) {
       is OnFileAction -> {
         baseEvent.copy(
-          action = PayKitState.UpdatingCustomerRequest.javaClass.simpleName,
+          action = stateToAnalyticsAction(UpdatingCustomerRequest),
           updateActions = action.toString(),
           updateReferenceId = action.accountReferenceId,
         )
@@ -163,7 +172,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
       is OneTimeAction -> {
         baseEvent.copy(
-          action = PayKitState.UpdatingCustomerRequest.javaClass.simpleName,
+          action = stateToAnalyticsAction(UpdatingCustomerRequest),
           updateActions = action.toString(),
         )
       }
@@ -179,17 +188,17 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     customerResponseData: CustomerResponseData?,
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = payKitState.javaClass.simpleName)
+      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitState))
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun stateApproved(
-    customerResponseData: CustomerResponseData,
+    approved: Approved,
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = PayKitState.Approved::class.java.simpleName)
+      eventFromCustomerResponseData(approved.responseData).copy(action = stateToAnalyticsAction(approved))
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
@@ -200,7 +209,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     customerResponseData: CustomerResponseData?,
   ) {
     var eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = PayKitException::class.java.simpleName)
+      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitException))
 
     eventPayload = if (payKitException.exception is PayKitApiNetworkException) {
       val apiError = payKitException.exception
@@ -262,5 +271,23 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       customerId = customerResponseData?.customerProfile?.id,
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
     )
+  }
+
+  /**
+   * This function converts a [PayKitState] into a valid String action for analytics ingestion.
+   */
+  private fun stateToAnalyticsAction(state: PayKitState): String {
+    return when (state) {
+      is Approved -> "approved"
+      Authorizing -> "redirect"
+      CreatingCustomerRequest -> "create"
+      Declined -> "declined"
+      NotStarted -> "not_started"
+      is PayKitException -> "paykit_exception"
+      PollingTransactionStatus -> "polling"
+      is ReadyToAuthorize -> "ready_to_authorize"
+      RetrievingExistingCustomerRequest -> "retrieve_existing_customer_request"
+      UpdatingCustomerRequest -> "update"
+    }
   }
 }
