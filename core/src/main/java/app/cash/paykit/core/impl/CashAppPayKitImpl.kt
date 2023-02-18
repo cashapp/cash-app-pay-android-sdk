@@ -72,14 +72,21 @@ internal class CashAppPayKitImpl(
   private var currentState: PayKitState = initialState
     set(value) {
       field = value
-      // Analytics.
+      // Track Analytics for various state changes.
       when (value) {
         is Approved -> analyticsEventDispatcher.stateApproved(value)
         is PayKitException -> analyticsEventDispatcher.exceptionOccurred(
           value,
           customerResponseData,
         )
-        else -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        Authorizing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        Declined -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        NotStarted -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        PollingTransactionStatus -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        is ReadyToAuthorize -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        RetrievingExistingCustomerRequest -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        CreatingCustomerRequest -> { } // Handled separately.
+        UpdatingCustomerRequest -> { } // Handled separately.
       }
 
       // Notify listener of State change.
@@ -139,9 +146,6 @@ internal class CashAppPayKitImpl(
   ) {
     enforceRegisteredStateUpdatesListener()
     currentState = UpdatingCustomerRequest
-
-    // Record analytics.
-    analyticsEventDispatcher.updatedCustomerRequest(requestId, paymentAction, customerResponseData)
 
     // Network request.
     val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentAction)

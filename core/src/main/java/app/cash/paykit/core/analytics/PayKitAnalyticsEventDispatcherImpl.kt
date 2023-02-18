@@ -40,10 +40,12 @@ import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsInitializationPayload
+import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN_APP
 import app.cash.paykit.core.models.response.CustomerResponseData
+import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OnFileAction
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OneTimeAction
@@ -115,38 +117,10 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun createdCustomerRequest(
-    action: PayKitPaymentAction,
+    paymentKitAction: PayKitPaymentAction,
+    apiAction: Action,
   ) {
-    // Inner payload of the ES2 event.
-    val eventPayload = when (action) {
-      is OnFileAction -> {
-        AnalyticsCustomerRequestPayload(
-          sdkVersion,
-          userAgent,
-          PLATFORM,
-          clientId,
-          action = stateToAnalyticsAction(CreatingCustomerRequest),
-          createActions = action.toString(),
-          createChannel = CHANNEL_IN_APP,
-          createRedirectUrl = action.redirectUri,
-          createReferenceId = action.accountReferenceId,
-        )
-      }
-
-      is OneTimeAction -> {
-        AnalyticsCustomerRequestPayload(
-          sdkVersion,
-          userAgent,
-          PLATFORM,
-          clientId,
-          action = stateToAnalyticsAction(CreatingCustomerRequest),
-          createActions = action.toString(),
-          createChannel = CHANNEL_IN_APP,
-          createRedirectUrl = action.redirectUri,
-          createReferenceId = null,
-        )
-      }
-    }
+    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitAction, apiAction, null)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -155,28 +129,10 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
   override fun updatedCustomerRequest(
     requestId: String,
-    action: PayKitPaymentAction,
-    customerResponseData: CustomerResponseData?,
+    paymentKitAction: PayKitPaymentAction,
+    apiAction: Action,
   ) {
-    val baseEvent = eventFromCustomerResponseData(customerResponseData)
-
-    // Inner payload of the ES2 event.
-    val eventPayload = when (action) {
-      is OnFileAction -> {
-        baseEvent.copy(
-          action = stateToAnalyticsAction(UpdatingCustomerRequest),
-          updateActions = action.toString(),
-          updateReferenceId = action.accountReferenceId,
-        )
-      }
-
-      is OneTimeAction -> {
-        baseEvent.copy(
-          action = stateToAnalyticsAction(UpdatingCustomerRequest),
-          updateActions = action.toString(),
-        )
-      }
-    }
+    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitAction, apiAction, requestId)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -231,6 +187,55 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
+  private fun createOrUpdateAnalyticsPayload(
+    paymentKitAction: PayKitPaymentAction,
+    apiAction: Action,
+    requestId: String?,
+  ): AnalyticsCustomerRequestPayload {
+    val isUpdate = requestId != null
+    val actionType = if (isUpdate) {
+      UpdatingCustomerRequest
+    } else {
+      CreatingCustomerRequest
+    }
+
+    val moshiAdapter: JsonAdapter<Action> = moshi.adapter()
+    val apiActionAsJson: String = moshiAdapter.toJson(apiAction)
+
+    // Inner payload of the ES2 event.
+    val eventPayload = when (paymentKitAction) {
+      is OnFileAction -> {
+        AnalyticsCustomerRequestPayload(
+          sdkVersion,
+          userAgent,
+          PLATFORM,
+          clientId,
+          action = stateToAnalyticsAction(actionType),
+          createActions = apiActionAsJson,
+          createChannel = CHANNEL_IN_APP,
+          createRedirectUrl = paymentKitAction.redirectUri,
+          createReferenceId = paymentKitAction.accountReferenceId,
+        )
+      }
+
+      is OneTimeAction -> {
+        AnalyticsCustomerRequestPayload(
+          sdkVersion,
+          userAgent,
+          PLATFORM,
+          clientId,
+          action = stateToAnalyticsAction(actionType),
+          createActions = apiActionAsJson,
+          createChannel = CHANNEL_IN_APP,
+          createRedirectUrl = paymentKitAction.redirectUri,
+          createReferenceId = null,
+        )
+      }
+    }
+
+    return eventPayload
+  }
+
   private inline fun <reified In : AnalyticsBasePayload> encodeToJsonString(
     payload: In,
     catalog: String,
@@ -254,6 +259,12 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   private fun eventFromCustomerResponseData(customerResponseData: CustomerResponseData?): AnalyticsCustomerRequestPayload {
+    var grantsPayload: String? = null
+    if (customerResponseData?.grants != null) {
+      val moshiAdapter: JsonAdapter<List<Grant>> = moshi.adapter()
+      grantsPayload = moshiAdapter.toJson(customerResponseData.grants)
+    }
+
     return AnalyticsCustomerRequestPayload(
       sdkVersion,
       userAgent,
@@ -266,7 +277,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       originType = customerResponseData?.origin?.type,
       originId = customerResponseData?.origin?.id,
       requestChannel = CHANNEL_IN_APP,
-      approvedGrants = customerResponseData?.grants?.joinToString(),
+      approvedGrants = grantsPayload,
       customerId = customerResponseData?.customerProfile?.id,
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
       requestId = customerResponseData?.id,

@@ -18,6 +18,7 @@
 package app.cash.paykit.core.impl
 
 import app.cash.paykit.core.NetworkManager
+import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
 import app.cash.paykit.core.impl.RequestType.GET
@@ -62,8 +63,6 @@ internal class NetworkManagerImpl(
   private val retryManagerOptions: RetryManagerOptions = RetryManagerOptions(),
 ) : NetworkManager {
 
-  // TODO: Generic network calls retry logic. ( https://www.notion.so/cashappcash/Generic-Retry-logic-for-all-network-requests-2fce583bb4154476835af908c8688995 )
-
   val CREATE_CUSTOMER_REQUEST_ENDPOINT: String
     get() = "${baseUrl}requests"
 
@@ -76,6 +75,8 @@ internal class NetworkManagerImpl(
   val ANALYTICS_ENDPOINT: String
     get() = "${analyticsBaseUrl}2.0/log/eventstream"
 
+  var analyticsEventDispatcher: PayKitAnalyticsEventDispatcher? = null
+
   @Throws(IOException::class)
   override fun createCustomerRequest(
     clientId: String,
@@ -86,6 +87,9 @@ internal class NetworkManagerImpl(
       idempotencyKey = UUID.randomUUID().toString(),
       customerRequestData = customerRequestData,
     )
+
+    // Record analytics.
+    analyticsEventDispatcher?.createdCustomerRequest(paymentAction, customerRequestData.actions.first())
 
     return executeNetworkRequest(
       POST,
@@ -106,6 +110,10 @@ internal class NetworkManagerImpl(
     val createCustomerRequest = CreateCustomerRequest(
       customerRequestData = customerRequestData,
     )
+
+    // Record analytics.
+    analyticsEventDispatcher?.updatedCustomerRequest(requestId, paymentAction, customerRequestData.actions.first())
+
     return executeNetworkRequest(
       PATCH,
       UPDATE_CUSTOMER_REQUEST_ENDPOINT + requestId,
