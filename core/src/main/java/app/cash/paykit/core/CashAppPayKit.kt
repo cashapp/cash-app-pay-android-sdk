@@ -154,6 +154,7 @@ object CashAppPayKitFactory {
     )
     val analyticsEventDispatcher =
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
+    networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
     return CashAppPayKitImpl(
       clientId = clientId,
@@ -179,6 +180,7 @@ object CashAppPayKitFactory {
 
     val analyticsEventDispatcher =
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
+    networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
     return CashAppPayKitImpl(
       clientId = clientId,

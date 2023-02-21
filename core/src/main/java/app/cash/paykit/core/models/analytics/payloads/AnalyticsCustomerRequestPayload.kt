@@ -82,7 +82,7 @@ data class AnalyticsCustomerRequestPayload(
   val requestChannel: String? = null,
 
   // The ID of the Customer Request.
-  @Json(name = "mobile_cap_pk_customer_request_request_id")
+  @Json(name = "mobile_cap_pk_customer_request_customer_request_id")
   val requestId: String? = null,
 
   // A string built from the Payment Actions of a Customer Request.
