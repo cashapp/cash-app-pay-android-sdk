@@ -267,9 +267,10 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       originId = customerResponseData?.origin?.id,
       requestChannel = CHANNEL_IN_APP,
       approvedGrants = customerResponseData?.grants?.joinToString(),
-      referenceId = customerResponseData?.id,
       customerId = customerResponseData?.customerProfile?.id,
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
+      requestId = customerResponseData?.id,
+      referenceId = customerResponseData?.referenceId,
     )
   }
 
