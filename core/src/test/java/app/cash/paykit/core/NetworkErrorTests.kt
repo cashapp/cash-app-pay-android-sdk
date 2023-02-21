@@ -17,7 +17,7 @@
 
 package app.cash.paykit.core
 
-import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.PayKitState.PayKitExceptionState
 import app.cash.paykit.core.exceptions.PayKitApiNetworkException
 import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
 import app.cash.paykit.core.impl.CashAppPayKitImpl
@@ -66,11 +66,11 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that all the appropriate exception wrapping has occurred for a 503 error.
-    assertThat(mockListener.state).isInstanceOf(PayKitException::class.java)
-    assertThat((mockListener.state as PayKitException).exception).isInstanceOf(
+    assertThat(mockListener.state).isInstanceOf(PayKitExceptionState::class.java)
+    assertThat((mockListener.state as PayKitExceptionState).exception).isInstanceOf(
       PayKitConnectivityNetworkException::class.java,
     )
-    assertThat(((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
+    assertThat(((mockListener.state as PayKitExceptionState).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
       IOException::class.java,
     )
   }
@@ -106,13 +106,13 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
-    assertThat(mockListener.state).isInstanceOf(PayKitException::class.java)
-    assertThat((mockListener.state as PayKitException).exception).isInstanceOf(
+    assertThat(mockListener.state).isInstanceOf(PayKitExceptionState::class.java)
+    assertThat((mockListener.state as PayKitExceptionState).exception).isInstanceOf(
       PayKitApiNetworkException::class.java,
     )
 
     // Verify that all the API error details have been deserialized correctly.
-    val apiError = (mockListener.state as PayKitException).exception as PayKitApiNetworkException
+    val apiError = (mockListener.state as PayKitExceptionState).exception as PayKitApiNetworkException
     assertThat(apiError.code).isEqualTo("MISSING_REQUIRED_PARAMETER")
     assertThat(apiError.category).isEqualTo("INVALID_REQUEST_ERROR")
     assertThat(apiError.field_value).isEqualTo("request.action.amount")
@@ -145,7 +145,7 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
-    assertThat(((mockListener.state as PayKitException).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
+    assertThat(((mockListener.state as PayKitExceptionState).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
       InterruptedIOException::class.java,
     )
   }
@@ -204,8 +204,8 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that we got the appropriate JSON deserialization error.
-    assertThat(mockListener.state).isInstanceOf(PayKitException::class.java)
-    assertThat((mockListener.state as PayKitException).exception).isInstanceOf(JsonDataException::class.java)
+    assertThat(mockListener.state).isInstanceOf(PayKitExceptionState::class.java)
+    assertThat((mockListener.state as PayKitExceptionState).exception).isInstanceOf(JsonDataException::class.java)
   }
 
   /**

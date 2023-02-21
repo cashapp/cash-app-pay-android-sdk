@@ -83,5 +83,5 @@ sealed interface PayKitState {
    * This state is typically unrecoverable, and it is advised to restart the process from scratch in
    * case it is met.
    */
-  class PayKitException(val exception: Exception) : PayKitState
+  class PayKitExceptionState(val exception: Exception) : PayKitState
 }
