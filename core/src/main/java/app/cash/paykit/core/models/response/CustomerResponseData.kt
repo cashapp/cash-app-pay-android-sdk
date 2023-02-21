@@ -50,4 +50,6 @@ data class CustomerResponseData(
   val customerProfile: CustomerProfile?,
   @Json(name = "grants")
   val grants: List<Grant>?,
+  @Json(name = "reference_id")
+  val referenceId: String?,
 )
