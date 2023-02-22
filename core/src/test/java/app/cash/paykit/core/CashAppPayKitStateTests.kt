@@ -17,12 +17,14 @@
 
 package app.cash.paykit.core
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import app.cash.paykit.core.PayKitState.Approved
 import app.cash.paykit.core.PayKitState.Authorizing
 import app.cash.paykit.core.PayKitState.CreatingCustomerRequest
 import app.cash.paykit.core.PayKitState.Declined
 import app.cash.paykit.core.PayKitState.NotStarted
+import app.cash.paykit.core.PayKitState.PayKitExceptionState
 import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
@@ -191,6 +193,24 @@ class CashAppPayKitStateTests {
 
     verify { context.startActivity(any()) }
     verify { listener.payKitStateDidChange(Authorizing) }
+  }
+
+  @Test
+  fun `fail to Authorize if mobileUrl cannot be opened by the system`() {
+    val payKit = createPayKit()
+    val customerResponseData = mockk<CustomerResponseData>(relaxed = true) {
+      every { authFlowTriggers } returns mockk {
+        every { mobileUrl } returns "cashme://url"
+      }
+    }
+    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    payKit.registerForStateUpdates(listener)
+
+    every { context.startActivity(any()) } throws ActivityNotFoundException("yoh")
+    payKit.authorizeCustomerRequest(context, customerResponseData)
+
+    verify { context.startActivity(any()) }
+    verify { listener.payKitStateDidChange(ofType(PayKitExceptionState::class)) }
   }
 
   private fun createPayKit(

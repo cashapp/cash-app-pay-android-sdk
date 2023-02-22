@@ -19,7 +19,7 @@ package app.cash.paykit.core.analytics
 
 import app.cash.paykit.core.PayKitState
 import app.cash.paykit.core.PayKitState.Approved
-import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.PayKitState.PayKitExceptionState
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.PayKitPaymentAction
@@ -51,7 +51,7 @@ internal interface PayKitAnalyticsEventDispatcher {
   fun stateApproved(approved: Approved)
 
   fun exceptionOccurred(
-    payKitException: PayKitException,
+    payKitExceptionState: PayKitExceptionState,
     customerResponseData: CustomerResponseData?,
   )
 }

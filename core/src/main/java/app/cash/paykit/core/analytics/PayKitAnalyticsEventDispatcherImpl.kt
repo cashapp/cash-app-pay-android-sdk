@@ -29,7 +29,7 @@ import app.cash.paykit.core.PayKitState.Authorizing
 import app.cash.paykit.core.PayKitState.CreatingCustomerRequest
 import app.cash.paykit.core.PayKitState.Declined
 import app.cash.paykit.core.PayKitState.NotStarted
-import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.PayKitState.PayKitExceptionState
 import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
@@ -161,14 +161,14 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun exceptionOccurred(
-    payKitException: PayKitException,
+    payKitExceptionState: PayKitExceptionState,
     customerResponseData: CustomerResponseData?,
   ) {
     var eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitException))
+      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitExceptionState))
 
-    eventPayload = if (payKitException.exception is PayKitApiNetworkException) {
-      val apiError = payKitException.exception
+    eventPayload = if (payKitExceptionState.exception is PayKitApiNetworkException) {
+      val apiError = payKitExceptionState.exception
       eventPayload.copy(
         errorCode = apiError.code,
         errorCategory = apiError.category,
@@ -177,8 +177,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       )
     } else {
       eventPayload.copy(
-        errorCode = payKitException.exception.cause?.toString(),
-        errorDetail = payKitException.exception.message,
+        errorCode = payKitExceptionState.exception.cause?.toString(),
+        errorDetail = payKitExceptionState.exception.message,
       )
     }
 
@@ -295,7 +295,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       CreatingCustomerRequest -> "create"
       Declined -> "declined"
       NotStarted -> "not_started"
-      is PayKitException -> "paykit_exception"
+      is PayKitExceptionState -> "paykit_exception"
       PollingTransactionStatus -> "polling"
       is ReadyToAuthorize -> "ready_to_authorize"
       RetrievingExistingCustomerRequest -> "retrieve_existing_customer_request"

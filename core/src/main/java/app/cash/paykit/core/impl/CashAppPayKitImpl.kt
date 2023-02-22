@@ -34,7 +34,7 @@ import app.cash.paykit.core.PayKitState.Authorizing
 import app.cash.paykit.core.PayKitState.CreatingCustomerRequest
 import app.cash.paykit.core.PayKitState.Declined
 import app.cash.paykit.core.PayKitState.NotStarted
-import app.cash.paykit.core.PayKitState.PayKitException
+import app.cash.paykit.core.PayKitState.PayKitExceptionState
 import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
@@ -75,7 +75,7 @@ internal class CashAppPayKitImpl(
       // Track Analytics for various state changes.
       when (value) {
         is Approved -> analyticsEventDispatcher.stateApproved(value)
-        is PayKitException -> analyticsEventDispatcher.exceptionOccurred(
+        is PayKitExceptionState -> analyticsEventDispatcher.exceptionOccurred(
           value,
           customerResponseData,
         )
@@ -121,7 +121,7 @@ internal class CashAppPayKitImpl(
     val networkResult = networkManager.createCustomerRequest(clientId, paymentAction)
     when (networkResult) {
       is Failure -> {
-        currentState = PayKitException(networkResult.exception)
+        currentState = PayKitExceptionState(networkResult.exception)
       }
 
       is Success -> {
@@ -151,7 +151,7 @@ internal class CashAppPayKitImpl(
     val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentAction)
     when (networkResult) {
       is Failure -> {
-        currentState = PayKitException(networkResult.exception)
+        currentState = PayKitExceptionState(networkResult.exception)
       }
 
       is Success -> {
@@ -168,7 +168,7 @@ internal class CashAppPayKitImpl(
     val networkResult = networkManager.retrieveUpdatedRequestData(clientId, requestId)
     when (networkResult) {
       is Failure -> {
-        currentState = PayKitException(networkResult.exception)
+        currentState = PayKitExceptionState(networkResult.exception)
       }
 
       is Success -> {
@@ -243,7 +243,8 @@ internal class CashAppPayKitImpl(
     try {
       context.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
-      throw RuntimeException("unable to open mobileUrl")
+      currentState = PayKitExceptionState(PayKitIntegrationException("Unable to open mobileUrl: ${customerData.authFlowTriggers?.mobileUrl}"))
+      return
     }
     currentState = Authorizing
   }
@@ -282,7 +283,7 @@ internal class CashAppPayKitImpl(
         customerResponseData!!.id,
       )
       if (networkResult is Failure) {
-        currentState = PayKitException(networkResult.exception)
+        currentState = PayKitExceptionState(networkResult.exception)
         return@Thread
       }
       customerResponseData = (networkResult as Success).data.customerResponseData
