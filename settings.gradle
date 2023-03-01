@@ -12,6 +12,6 @@ dependencyResolutionManagement {
     mavenCentral()
   }
 }
-rootProject.name = "PayKit SDK"
+rootProject.name = "Pay Kit SDK"
 include ':core'
 include ':analytics-core'

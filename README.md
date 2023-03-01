@@ -2,7 +2,7 @@
 
 # About
 
-Cash PayKit Android SDK is wrapper library around our public APIs that allows merchants to easily
+Cash App Pay Android SDK is a wrapper library around our public APIs that allows merchants to easily
 integrate payments with Cash on their native Android checkout flows. Similar SDK projects existing
 for Web and iOS.
 
@@ -15,7 +15,7 @@ our [Cash App Developers webpage](https://developers.cash.app/docs/api/technical
 ## Sample App
 
 A Sample App that showcases our demo merchant can be found
-in [here](https://github.com/squareup/cash-pay-kit-sdk-android-sample-app).
+in [here](https://github.com/cashapp/cash-pay-pay-sdk-android-sample-app).
 
 ## Sandbox App
 
