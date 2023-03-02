@@ -27,4 +27,6 @@ open class AnalyticsBasePayload(
   open val requestPlatform: String,
 
   open val clientId: String,
+
+  open val isSandbox: Boolean,
 )

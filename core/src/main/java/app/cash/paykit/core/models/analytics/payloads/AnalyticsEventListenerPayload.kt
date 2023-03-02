@@ -40,6 +40,9 @@ class AnalyticsEventListenerPayload(
   @Json(name = "mobile_cap_pk_event_listener_client_id")
   clientId: String,
 
+  @Json(name = "mobile_cap_pk_event_listener_is_sandbox")
+  override val isSandbox: Boolean,
+
   /*
   * Event Specific fields.
    */
@@ -50,7 +53,7 @@ class AnalyticsEventListenerPayload(
   @Json(name = "mobile_cap_pk_event_listener_is_added")
   val isAdded: Boolean,
 
-) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId) {
+) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId, isSandbox) {
 
   companion object {
     const val CATALOG = "mobile_cap_pk_event_listener"

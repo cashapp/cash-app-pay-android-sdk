@@ -236,6 +236,19 @@ class PayKitAnalytics constructor(
     }
   }
 
+  @Synchronized
+  fun unregisterDeliveryHandler(handler: DeliveryHandler) {
+    deliveryHandlers.remove(handler)
+    logger.i(
+      TAG,
+      "Unregistering %s as delivery handler for %s".format(
+        Locale.US,
+        handler.javaClass.simpleName,
+        handler.deliverableType,
+      ),
+    )
+  }
+
   /**
    * Returns synchronization handler for given package type.
    *
