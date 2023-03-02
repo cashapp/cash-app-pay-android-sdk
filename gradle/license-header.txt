@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Cash App
+ * Copyright (C) $YEAR Cash App
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.analytics
-
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-
-@JsonClass(generateAdapter = true)
-data class EventStream2Response(
-  @Json(name = "failure_count")
-  val failureCount: Int,
-  @Json(name = "invalid_count")
-  val invalidCount: Int,
-  @Json(name = "success_count")
-  val successCount: Int,
-)

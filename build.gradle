@@ -43,6 +43,7 @@ subprojects { subproject ->
           'charset': 'utf-8',
           'indent_size': '2',
       ])
+      licenseHeaderFile(rootProject.file('gradle/license-header.txt'))
     }
     java {
       target("src/**/*.java")
