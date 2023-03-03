@@ -23,12 +23,13 @@ android {
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"
+    resValue("string", "cashpaykit_version", "$version")
+  }
 
-    publishing {
-      singleVariant("release") {
-        withSourcesJar()
-        withJavadocJar()
-      }
+  publishing {
+    singleVariant("release") {
+      withSourcesJar()
+      withJavadocJar()
     }
   }
 
@@ -36,12 +37,11 @@ android {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-      resValue("string", "cashpaykit_version", "$version")
-    }
-    debug {
-      resValue("string", "cashpaykit_version", "$version")
     }
   }
+
+
+
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
