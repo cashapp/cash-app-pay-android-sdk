@@ -25,44 +25,8 @@ import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSQLiteDataSource
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSqLiteHelper
 import java.lang.reflect.Field
-import java.lang.reflect.Method
 
 internal object Utils {
-  @Throws(Exception::class)
-  fun invokePrivateMethod(
-    targetObject: Any,
-    methodName: String?,
-    parameterTypes: Array<Class<*>?>,
-    vararg args: Any?,
-  ): Any {
-    val method: Method = targetObject.javaClass.getDeclaredMethod(methodName, *parameterTypes)
-    method.isAccessible = true
-    return method.invoke(targetObject, args)
-  }
-
-  fun setPrivateStaticField(clazz: Class<*>, fieldName: String?, value: Any?) {
-    try {
-      val field: Field = clazz.getDeclaredField(fieldName)
-      field.setAccessible(true)
-      field.set(null, value)
-    } catch (e: NoSuchFieldException) {
-      e.printStackTrace()
-    } catch (e: IllegalAccessException) {
-      e.printStackTrace()
-    }
-  }
-
-  fun setPrivateField(obj: Any, fieldName: String?, value: Any?) {
-    try {
-      val field: Field = obj.javaClass.getDeclaredField(fieldName)
-      field.isAccessible = true
-      field.set(obj, value)
-    } catch (e: NoSuchFieldException) {
-      e.printStackTrace()
-    } catch (e: IllegalAccessException) {
-      e.printStackTrace()
-    }
-  }
 
   fun getPrivateField(obj: Any, fieldName: String?): Any? {
     try {
@@ -80,17 +44,6 @@ internal object Utils {
   fun createEntry(entryType: String?, entryState: Int): AnalyticEntry {
     return createEntry(
       "entry.process.id",
-      entryType,
-      entryState,
-      "entry.load",
-      "entry.metadata",
-      "v1",
-    )
-  }
-
-  fun createEntry(processId: String?, entryType: String?, entryState: Int): AnalyticEntry {
-    return createEntry(
-      processId,
       entryType,
       entryState,
       "entry.load",
