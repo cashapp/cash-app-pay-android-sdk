@@ -24,13 +24,7 @@ android {
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"
     resValue("string", "cashpaykit_version", "$version")
-  }
 
-  publishing {
-    singleVariant("release") {
-      withSourcesJar()
-      withJavadocJar()
-    }
   }
 
   buildTypes {
