@@ -49,11 +49,11 @@ subprojects { subproject ->
     }
   }
 }
-def NEXT_VERSION = "1.0.4-SNAPSHOT"
+def NEXT_VERSION = "1.0.5-SNAPSHOT"
 
 allprojects {
   group = 'app.cash.paykit'
-  version = '1.0.3'
+  version = '1.0.4-SNAPSHOT'
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     mavenPublishing {
