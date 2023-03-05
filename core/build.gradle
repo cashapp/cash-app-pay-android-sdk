@@ -101,6 +101,6 @@ dependencies {
 }
 
 mavenPublishing {
-  // TODO: stop publishing the debug release
-  configure(new com.vanniktech.maven.publish.AndroidMultiVariantLibrary(true, true))
+  // AndroidMultiVariantLibrary(publish a sources jar, publish a javadoc jar)
+  configure(new com.vanniktech.maven.publish.AndroidMultiVariantLibrary(true, true),  ["release"])
 }
