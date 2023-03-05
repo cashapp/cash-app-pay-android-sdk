@@ -24,13 +24,6 @@ android {
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"
     resValue("string", "cashpaykit_version", "$version")
-
-    publishing {
-      singleVariant("release") {
-        withSourcesJar()
-        withJavadocJar()
-      }
-    }
   }
 
   buildTypes {
@@ -102,5 +95,5 @@ dependencies {
 
 mavenPublishing {
   // AndroidMultiVariantLibrary(publish a sources jar, publish a javadoc jar)
-  configure(new com.vanniktech.maven.publish.AndroidMultiVariantLibrary(true, true),  ["release"])
+  configure(new com.vanniktech.maven.publish.AndroidSingleVariantLibrary("release", true, true))
 }
