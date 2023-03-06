@@ -17,7 +17,12 @@
 
 package app.cash.paykit.core.android
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Application
+import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Context
+import android.os.Bundle
 import java.lang.ref.WeakReference
 
 /**
@@ -27,6 +32,9 @@ internal object ApplicationContextHolder {
   private var isInitialized: Boolean = false
 
   private lateinit var applicationContextReference: WeakReference<Context>
+  private var currentActivityReference: WeakReference<Activity>? = null
+
+  fun getCurrentActivity() = currentActivityReference?.get()
 
   fun init(applicationContext: Context) {
     if (isInitialized) {
@@ -34,6 +42,32 @@ internal object ApplicationContextHolder {
     }
     isInitialized = true
     applicationContextReference = WeakReference(applicationContext.applicationContext)
+
+    val app = applicationContext as Application
+    app.registerActivityLifecycleCallbacks(object :ActivityLifecycleCallbacks{
+      override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+      }
+
+      override fun onActivityStarted(activity: Activity) {
+      }
+
+      override fun onActivityResumed(activity: Activity) {
+        currentActivityReference?.clear()
+        currentActivityReference = WeakReference(activity)
+      }
+
+      override fun onActivityPaused(activity: Activity) {
+      }
+
+      override fun onActivityStopped(activity: Activity) {
+      }
+
+      override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+      }
+
+      override fun onActivityDestroyed(activity: Activity) {
+      }
+    })
   }
 
   val applicationContext: Context

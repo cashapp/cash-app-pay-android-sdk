@@ -40,6 +40,7 @@ import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
+import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.PayKitIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
@@ -195,11 +196,9 @@ internal class CashAppPayKitImpl(
   /**
    * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
    * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
-   *
-   * @param context Android context class.
    */
   @Throws(IllegalArgumentException::class, PayKitIntegrationException::class)
-  override fun authorizeCustomerRequest(context: Context) {
+  override fun authorizeCustomerRequest() {
     val customerData = customerResponseData
 
     if (customerData == null) {
@@ -211,7 +210,7 @@ internal class CashAppPayKitImpl(
       return
     }
 
-    authorizeCustomerRequest(context, customerData)
+    authorizeCustomerRequest(customerData)
   }
 
   /**
@@ -221,7 +220,6 @@ internal class CashAppPayKitImpl(
    */
   @Throws(IllegalArgumentException::class, RuntimeException::class)
   override fun authorizeCustomerRequest(
-    context: Context,
     customerData: CustomerResponseData,
   ) {
     enforceRegisteredStateUpdatesListener()
@@ -241,7 +239,7 @@ internal class CashAppPayKitImpl(
     customerResponseData = customerData
 
     try {
-      context.startActivity(intent)
+      ApplicationContextHolder.getCurrentActivity()!!.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
       currentState = PayKitExceptionState(PayKitIntegrationException("Unable to open mobileUrl: ${customerData.authFlowTriggers?.mobileUrl}"))
       return
