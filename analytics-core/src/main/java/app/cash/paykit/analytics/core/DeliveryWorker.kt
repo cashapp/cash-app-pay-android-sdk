@@ -18,7 +18,6 @@
 package app.cash.paykit.analytics.core
 
 import app.cash.paykit.analytics.AnalyticsLogger
-import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
 import app.cash.paykit.analytics.persistence.toCommaSeparatedListIds
@@ -28,7 +27,7 @@ import java.util.concurrent.Callable
 internal class DeliveryWorker(
   private val dataSource: EntriesDataSource,
   private val handlers: List<DeliveryHandler> = emptyList(),
-  private val logger: AnalyticsLogger = AnalyticsLogger(AnalyticsOptions()),
+  private val logger: AnalyticsLogger,
 ) : Callable<Unit> {
   init {
     logger.d(TAG, "DeliveryWorker initialized.")

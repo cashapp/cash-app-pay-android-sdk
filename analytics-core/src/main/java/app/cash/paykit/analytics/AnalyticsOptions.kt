@@ -36,7 +36,7 @@ data class AnalyticsOptions constructor(
   val batchSize: Int = 10,
 
   /** The name of the database file on disk. */
-  val databaseName: String = "paykit-events.db",
+  val databaseName: String,
 
   /** The log level. */
   val logLevel: Int = Log.ERROR,

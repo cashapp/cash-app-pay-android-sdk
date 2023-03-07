@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class PayKitAnalytics constructor(
   private val context: Context,
-  private val options: AnalyticsOptions = AnalyticsOptions(),
+  private val options: AnalyticsOptions,
   private val sqLiteHelper: AnalyticsSqLiteHelper = AnalyticsSqLiteHelper(
     context = context,
     options = options,
