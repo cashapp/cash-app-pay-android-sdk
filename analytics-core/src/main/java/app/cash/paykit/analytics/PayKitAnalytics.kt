@@ -117,7 +117,7 @@ class PayKitAnalytics constructor(
    * .mPeriod and synchronization start will be delayed for number of seconds defined in Options.mDelay.
    */
   private fun initializeScheduledExecutorService() {
-    shouldShutdown.getAndSet(false)
+    shouldShutdown.set(false)
     scheduler = Executors.newSingleThreadScheduledExecutor().also {
       logger.d(
         TAG,
@@ -188,7 +188,7 @@ class PayKitAnalytics constructor(
   ) : FutureTask<Unit>(DeliveryWorker(dataSource, handlers, logger))
 
   fun scheduleShutdown() {
-    shouldShutdown.getAndSet(true)
+    shouldShutdown.set(true)
     logger.i(TAG, "Scheduled shutdown.")
   }
 
@@ -206,7 +206,7 @@ class PayKitAnalytics constructor(
       logger.i(TAG, "FutureTask list cleared.")
     }
 
-    // TODO shutdown the database?
+    sqLiteHelper.close()
     logger.i(TAG, "Shutdown completed.")
   }
 
@@ -234,19 +234,6 @@ class PayKitAnalytics constructor(
         ),
       )
     }
-  }
-
-  @Synchronized
-  fun unregisterDeliveryHandler(handler: DeliveryHandler) {
-    deliveryHandlers.remove(handler)
-    logger.i(
-      TAG,
-      "Unregistering %s as delivery handler for %s".format(
-        Locale.US,
-        handler.javaClass.simpleName,
-        handler.deliverableType,
-      ),
-    )
   }
 
   /**
