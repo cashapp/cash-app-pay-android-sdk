@@ -1,20 +1,18 @@
 /*
  * Copyright (C) 2023 Cash App
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package app.cash.paykit.analytics
 
 import android.content.Context
@@ -35,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class PayKitAnalytics constructor(
   private val context: Context,
-  private val options: AnalyticsOptions = AnalyticsOptions(),
+  private val options: AnalyticsOptions,
   private val sqLiteHelper: AnalyticsSqLiteHelper = AnalyticsSqLiteHelper(
     context = context,
     options = options,
@@ -117,7 +115,7 @@ class PayKitAnalytics constructor(
    * .mPeriod and synchronization start will be delayed for number of seconds defined in Options.mDelay.
    */
   private fun initializeScheduledExecutorService() {
-    shouldShutdown.getAndSet(false)
+    shouldShutdown.set(false)
     scheduler = Executors.newSingleThreadScheduledExecutor().also {
       logger.d(
         TAG,
@@ -188,7 +186,7 @@ class PayKitAnalytics constructor(
   ) : FutureTask<Unit>(DeliveryWorker(dataSource, handlers, logger))
 
   fun scheduleShutdown() {
-    shouldShutdown.getAndSet(true)
+    shouldShutdown.set(true)
     logger.i(TAG, "Scheduled shutdown.")
   }
 
@@ -206,7 +204,7 @@ class PayKitAnalytics constructor(
       logger.i(TAG, "FutureTask list cleared.")
     }
 
-    // TODO shutdown the database?
+    sqLiteHelper.close()
     logger.i(TAG, "Shutdown completed.")
   }
 
@@ -234,6 +232,19 @@ class PayKitAnalytics constructor(
         ),
       )
     }
+  }
+
+  @Synchronized
+  fun unregisterDeliveryHandler(handler: DeliveryHandler) {
+    deliveryHandlers.remove(handler)
+    logger.i(
+      TAG,
+      "Unregistering %s as delivery handler for %s".format(
+        Locale.US,
+        handler.javaClass.simpleName,
+        handler.deliverableType,
+      ),
+    )
   }
 
   /**

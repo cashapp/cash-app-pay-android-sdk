@@ -1,20 +1,18 @@
 /*
  * Copyright (C) 2023 Cash App
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package app.cash.paykit.core
 
 import android.content.Context
@@ -109,9 +107,7 @@ object CashAppPayKitFactory {
 
   private val payKitLifecycleObserver: PayKitLifecycleObserver = PayKitLifecycleObserverImpl()
 
-  private val paykitAnalytics by lazy { buildPayKitAnalytics() }
-
-  private fun buildPayKitAnalytics() =
+  private fun buildPayKitAnalytics(isSandbox: Boolean) =
     with(ApplicationContextHolder.applicationContext) {
       val info = packageManager.getPackageInfo(packageName, 0)
 
@@ -122,11 +118,18 @@ object CashAppPayKitFactory {
         info?.versionCode
       }
 
+      val dbName = if (isSandbox) {
+        ANALYTICS_DB_NAME_SANDBOX
+      } else {
+        ANALYTICS_DB_NAME_PROD
+      }
+
       PayKitAnalytics(
         context = ApplicationContextHolder.applicationContext,
         options = AnalyticsOptions(
           delay = 10.seconds,
           logLevel = Log.VERBOSE,
+          databaseName = dbName,
           isLoggerDisabled = !BuildConfig.DEBUG,
           applicationVersionCode = versionCode!!.toInt(), // casting as int gives us the "legacy" version code
         ),
@@ -149,8 +152,9 @@ object CashAppPayKitFactory {
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
+    val analytics = buildPayKitAnalytics(isSandbox = false)
     val analyticsEventDispatcher =
-      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, isSandbox = false)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
     return CashAppPayKitImpl(
@@ -175,8 +179,9 @@ object CashAppPayKitFactory {
       okHttpClient = defaultOkHttpClient,
     )
 
+    val analytics = buildPayKitAnalytics(isSandbox = true)
     val analyticsEventDispatcher =
-      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, paykitAnalytics)
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, isSandbox = true)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
     return CashAppPayKitImpl(
@@ -192,6 +197,7 @@ object CashAppPayKitFactory {
     clientId: String,
     networkManager: NetworkManager,
     eventsManager: PayKitAnalytics,
+    isSandbox: Boolean,
   ): PayKitAnalyticsEventDispatcher {
     val sdkVersion =
       ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
@@ -199,6 +205,7 @@ object CashAppPayKitFactory {
       sdkVersion,
       clientId,
       getUserAgentValue(),
+      isSandbox,
       eventsManager,
       networkManager,
     )
@@ -210,6 +217,8 @@ object CashAppPayKitFactory {
   private val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
   private val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
   private val ANALYTICS_BASE_URL = "https://api.squareup.com/"
+  private val ANALYTICS_DB_NAME_PROD = "paykit-events.db"
+  private val ANALYTICS_DB_NAME_SANDBOX = "paykit-events-sandbox.db"
 }
 
 interface CashAppPayKitListener {

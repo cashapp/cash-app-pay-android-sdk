@@ -1,20 +1,18 @@
 /*
  * Copyright (C) 2023 Cash App
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 package app.cash.paykit.core.analytics
 
 import EventStream2Event
@@ -62,13 +60,16 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkVersion: String,
   private val clientId: String,
   private val userAgent: String,
+  private val isSandbox: Boolean,
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
   private val moshi: Moshi = Moshi.Builder().build(),
 ) : PayKitAnalyticsEventDispatcher {
 
+  private var eventStreamDeliverHandler: DeliveryHandler? = null
+
   init {
-    val eventStreamDeliverHandler = object : DeliveryHandler() {
+    eventStreamDeliverHandler = object : DeliveryHandler() {
 
       override val deliverableType = ESEventType
 
@@ -81,13 +82,15 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       }
     }
 
-    payKitAnalytics.registerDeliveryHandler(eventStreamDeliverHandler)
+    eventStreamDeliverHandler?.let {
+      payKitAnalytics.registerDeliveryHandler(it)
+    }
   }
 
   override fun sdkInitialized() {
     // Inner payload of the ES2 event.
     val initializationPayload =
-      AnalyticsInitializationPayload(sdkVersion, userAgent, PLATFORM, clientId)
+      AnalyticsInitializationPayload(sdkVersion, userAgent, PLATFORM, clientId, isSandbox)
 
     val es2EventAsJsonString =
       encodeToJsonString(initializationPayload, AnalyticsInitializationPayload.CATALOG)
@@ -99,7 +102,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerAdded() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true)
+      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true, isSandbox = isSandbox)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -109,7 +112,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerRemoved() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false)
+      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false, isSandbox = isSandbox)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -187,6 +190,10 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
+  override fun shutdown() {
+    payKitAnalytics.scheduleShutdown()
+  }
+
   private fun createOrUpdateAnalyticsPayload(
     paymentKitAction: PayKitPaymentAction,
     apiAction: Action,
@@ -215,6 +222,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = paymentKitAction.redirectUri,
           createReferenceId = paymentKitAction.accountReferenceId,
+          isSandbox = isSandbox,
         )
       }
 
@@ -229,6 +237,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = paymentKitAction.redirectUri,
           createReferenceId = null,
+          isSandbox = isSandbox,
         )
       }
     }
@@ -282,6 +291,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
       requestId = customerResponseData?.id,
       referenceId = customerResponseData?.referenceId,
+      isSandbox = isSandbox,
     )
   }
 
