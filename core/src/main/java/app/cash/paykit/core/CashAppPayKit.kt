@@ -15,7 +15,6 @@
  */
 package app.cash.paykit.core
 
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.WorkerThread

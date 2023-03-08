@@ -16,7 +16,6 @@
 package app.cash.paykit.core.impl
 
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
