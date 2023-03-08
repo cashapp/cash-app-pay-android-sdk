@@ -227,6 +227,7 @@ internal class CashAppPayKitImpl(
     }
     // Open Mobile URL provided by backend response.
     val intent = Intent(Intent.ACTION_VIEW)
+    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
     intent.data = try {
       Uri.parse(customerData.authFlowTriggers?.mobileUrl)
     } catch (error: NullPointerException) {
@@ -237,7 +238,7 @@ internal class CashAppPayKitImpl(
     customerResponseData = customerData
 
     try {
-      ApplicationContextHolder.getCurrentActivity()!!.startActivity(intent)
+      ApplicationContextHolder.applicationContext.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
       currentState = PayKitExceptionState(PayKitIntegrationException("Unable to open mobileUrl: ${customerData.authFlowTriggers?.mobileUrl}"))
       return
