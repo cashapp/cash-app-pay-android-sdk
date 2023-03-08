@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class PayKitAnalytics constructor(
   private val context: Context,
-  private val options: AnalyticsOptions = AnalyticsOptions(),
+  private val options: AnalyticsOptions,
   private val sqLiteHelper: AnalyticsSqLiteHelper = AnalyticsSqLiteHelper(
     context = context,
     options = options,
@@ -115,7 +115,7 @@ class PayKitAnalytics constructor(
    * .mPeriod and synchronization start will be delayed for number of seconds defined in Options.mDelay.
    */
   private fun initializeScheduledExecutorService() {
-    shouldShutdown.getAndSet(false)
+    shouldShutdown.set(false)
     scheduler = Executors.newSingleThreadScheduledExecutor().also {
       logger.d(
         TAG,
@@ -186,7 +186,7 @@ class PayKitAnalytics constructor(
   ) : FutureTask<Unit>(DeliveryWorker(dataSource, handlers, logger))
 
   fun scheduleShutdown() {
-    shouldShutdown.getAndSet(true)
+    shouldShutdown.set(true)
     logger.i(TAG, "Scheduled shutdown.")
   }
 
@@ -204,7 +204,7 @@ class PayKitAnalytics constructor(
       logger.i(TAG, "FutureTask list cleared.")
     }
 
-    // TODO shutdown the database?
+    sqLiteHelper.close()
     logger.i(TAG, "Shutdown completed.")
   }
 

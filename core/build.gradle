@@ -23,25 +23,16 @@ android {
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"
-
-    publishing {
-      singleVariant("release") {
-        withSourcesJar()
-        withJavadocJar()
-      }
-    }
+    resValue("string", "cashpaykit_version", "$version")
   }
 
   buildTypes {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-      resValue("string", "cashpaykit_version", "$version")
-    }
-    debug {
-      resValue("string", "cashpaykit_version", "$version")
     }
   }
+
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
@@ -103,6 +94,6 @@ dependencies {
 }
 
 mavenPublishing {
-  // TODO: stop publishing the debug release
-  configure(new com.vanniktech.maven.publish.AndroidMultiVariantLibrary(true, true))
+  // AndroidMultiVariantLibrary(publish a sources jar, publish a javadoc jar)
+  configure(new com.vanniktech.maven.publish.AndroidSingleVariantLibrary("release", true, true))
 }

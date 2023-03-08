@@ -191,9 +191,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun shutdown() {
-    eventStreamDeliverHandler?.let {
-      payKitAnalytics.unregisterDeliveryHandler(it)
-    }
+    payKitAnalytics.scheduleShutdown()
   }
 
   private fun createOrUpdateAnalyticsPayload(

@@ -37,8 +37,9 @@ class DeliveryWorkerTest {
   @Test
   fun testNoDeliveryHandlers() {
     val dataSource: AnalyticsSQLiteDataSource = mockk(relaxed = true)
+    val analyticsOptions: AnalyticsOptions = mockk(relaxed = true)
     val handlers = ArrayList<DeliveryHandler>()
-    val worker = DeliveryWorker(dataSource, handlers, AnalyticsLogger())
+    val worker = DeliveryWorker(dataSource, handlers, AnalyticsLogger(analyticsOptions))
     worker.call()
 
     verify(inverse = true) { dataSource.generateProcessId(any()) }
@@ -60,7 +61,8 @@ class DeliveryWorkerTest {
     }
 
     val handlers = listOf(deliveryHandler)
-    val worker = DeliveryWorker(dataSource, handlers, AnalyticsLogger())
+    val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
+    val worker = DeliveryWorker(dataSource, handlers, analyticsLogger)
     worker.call()
 
     verify(exactly = 1) { dataSource.generateProcessId(eq(deliveryType)) }
@@ -122,7 +124,8 @@ class DeliveryWorkerTest {
       Utils.getEntriesToSync(0)
 
     // start processing
-    DeliveryWorker(dataSource, handlers, AnalyticsLogger()).call()
+    val analyticsLogger: AnalyticsLogger = mockk(relaxed = true)
+    DeliveryWorker(dataSource, handlers, analyticsLogger).call()
 
     // Processing 1st handler
     verifyOrder {
