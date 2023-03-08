@@ -40,14 +40,14 @@ class CashAppPayKitAuthorizeTests {
   fun `should throw if calling authorize before createCustomer`() {
     val payKit = createPayKit()
     payKit.registerForStateUpdates(mockk())
-    payKit.authorizeCustomerRequest(context)
+    payKit.authorizeCustomerRequest()
   }
 
   @Test(expected = PayKitIntegrationException::class)
   fun `should throw on authorizeCustomerRequest if has NOT registered for state updates`() {
     val payKit = createPayKit()
     val customerResponseData = mockk<CustomerResponseData>(relaxed = true)
-    payKit.authorizeCustomerRequest(context, customerResponseData)
+    payKit.authorizeCustomerRequest(customerResponseData)
   }
 
   @Test(expected = IllegalArgumentException::class)
@@ -56,7 +56,7 @@ class CashAppPayKitAuthorizeTests {
     val customerResponseData = mockk<CustomerResponseData>(relaxed = true)
     payKit.registerForStateUpdates(mockk())
 
-    payKit.authorizeCustomerRequest(context, customerResponseData)
+    payKit.authorizeCustomerRequest(customerResponseData)
   }
 
   @Test(expected = IllegalArgumentException::class)
@@ -67,7 +67,7 @@ class CashAppPayKitAuthorizeTests {
     }
     payKit.registerForStateUpdates(mockk())
 
-    payKit.authorizeCustomerRequest(context, customerResponseData)
+    payKit.authorizeCustomerRequest(customerResponseData)
   }
 
   @Test(expected = RuntimeException::class)
@@ -80,7 +80,7 @@ class CashAppPayKitAuthorizeTests {
     }
     payKit.registerForStateUpdates(mockk())
 
-    payKit.authorizeCustomerRequest(context, customerResponseData)
+    payKit.authorizeCustomerRequest(customerResponseData)
   }
 
   private fun createPayKit() =

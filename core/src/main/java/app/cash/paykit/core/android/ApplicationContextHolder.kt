@@ -16,6 +16,7 @@
 package app.cash.paykit.core.android
 
 import android.content.Context
+import androidx.annotation.VisibleForTesting
 import java.lang.ref.WeakReference
 
 /**
@@ -36,4 +37,9 @@ internal object ApplicationContextHolder {
 
   val applicationContext: Context
     get() = applicationContextReference.get()!!
+
+  @VisibleForTesting
+  fun clearApplicationRef() {
+    isInitialized = false
+  }
 }
