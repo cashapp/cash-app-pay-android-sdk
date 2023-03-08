@@ -264,6 +264,7 @@ internal class CashAppPayKitImpl(
     callbackListener = null
     payKitLifecycleListener.unregister(this)
     analyticsEventDispatcher.eventListenerRemoved()
+    analyticsEventDispatcher.shutdown()
   }
 
   private fun enforceRegisteredStateUpdatesListener() {

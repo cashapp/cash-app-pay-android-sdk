@@ -54,4 +54,9 @@ internal interface PayKitAnalyticsEventDispatcher {
     payKitExceptionState: PayKitExceptionState,
     customerResponseData: CustomerResponseData?,
   )
+
+  /**
+   * Command this [PayKitAnalyticsEventDispatcher] to stop executing and discard.
+   */
+  fun shutdown()
 }
