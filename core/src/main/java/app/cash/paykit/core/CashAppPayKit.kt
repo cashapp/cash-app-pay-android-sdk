@@ -15,7 +15,6 @@
  */
 package app.cash.paykit.core
 
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.WorkerThread
@@ -78,11 +77,9 @@ interface CashAppPayKit {
   /**
    * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
    * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
-   *
-   * @param context Android context class.
    */
   @Throws(IllegalArgumentException::class, PayKitIntegrationException::class)
-  fun authorizeCustomerRequest(context: Context)
+  fun authorizeCustomerRequest()
 
   /**
    * Authorize a customer request with a previously created `customerData`.
@@ -91,7 +88,6 @@ interface CashAppPayKit {
    */
   @Throws(IllegalArgumentException::class, RuntimeException::class)
   fun authorizeCustomerRequest(
-    context: Context,
     customerData: CustomerResponseData,
   )
 

@@ -26,6 +26,7 @@ import app.cash.paykit.core.PayKitState.PayKitExceptionState
 import app.cash.paykit.core.PayKitState.PollingTransactionStatus
 import app.cash.paykit.core.PayKitState.ReadyToAuthorize
 import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
+import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.impl.CashAppPayKitImpl
 import app.cash.paykit.core.impl.PayKitLifecycleListener
 import app.cash.paykit.core.models.common.NetworkResult
@@ -35,10 +36,13 @@ import com.google.common.truth.Truth.assertThat
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.verify
 import okhttp3.internal.notifyAll
 import okhttp3.internal.wait
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -55,6 +59,11 @@ class CashAppPayKitStateTests {
   @Before
   fun setup() {
     MockKAnnotations.init(this)
+  }
+
+  @After
+  fun teardown() {
+    ApplicationContextHolder.clearApplicationRef()
   }
 
   @Test
@@ -148,6 +157,24 @@ class CashAppPayKitStateTests {
   }
 
   @Test
+  fun `Authorizing State`() {
+    every { context.startActivity(any()) } just runs
+    setupAppHolder()
+    val payKit = createPayKit()
+    val customerResponseData = mockk<CustomerResponseData>(relaxed = true) {
+      every { authFlowTriggers } returns mockk {
+        every { mobileUrl } returns "http://url"
+      }
+    }
+    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    payKit.registerForStateUpdates(listener)
+
+    payKit.authorizeCustomerRequest(customerResponseData)
+
+    verify { listener.payKitStateDidChange(Authorizing) }
+  }
+
+  @Test
   fun `Declined State`() {
     val starterCustomerResponseData: CustomerResponseData = mockk(relaxed = true)
     val payKit = createPayKit(Authorizing, starterCustomerResponseData)
@@ -177,23 +204,6 @@ class CashAppPayKitStateTests {
   }
 
   @Test
-  fun `Authorizing State`() {
-    val payKit = createPayKit()
-    val customerResponseData = mockk<CustomerResponseData>(relaxed = true) {
-      every { authFlowTriggers } returns mockk {
-        every { mobileUrl } returns "http://url"
-      }
-    }
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
-    payKit.registerForStateUpdates(listener)
-
-    payKit.authorizeCustomerRequest(context, customerResponseData)
-
-    verify { context.startActivity(any()) }
-    verify { listener.payKitStateDidChange(Authorizing) }
-  }
-
-  @Test
   fun `fail to Authorize if mobileUrl cannot be opened by the system`() {
     val payKit = createPayKit()
     val customerResponseData = mockk<CustomerResponseData>(relaxed = true) {
@@ -205,9 +215,9 @@ class CashAppPayKitStateTests {
     payKit.registerForStateUpdates(listener)
 
     every { context.startActivity(any()) } throws ActivityNotFoundException("yoh")
-    payKit.authorizeCustomerRequest(context, customerResponseData)
+    setupAppHolder()
+    payKit.authorizeCustomerRequest(customerResponseData)
 
-    verify { context.startActivity(any()) }
     verify { listener.payKitStateDidChange(ofType(PayKitExceptionState::class)) }
   }
 
@@ -248,6 +258,11 @@ class CashAppPayKitStateTests {
     override fun unregister(instanceToRemove: PayKitLifecycleListener) {
       listener = null
     }
+  }
+
+  private fun setupAppHolder() {
+    every { context.applicationContext } returns context
+    ApplicationContextHolder.init(context)
   }
 
   /**
