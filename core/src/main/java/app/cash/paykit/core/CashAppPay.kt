@@ -92,17 +92,17 @@ interface CashAppPay {
   )
 
   /**
-   *  Register a [CashAppPayKitListener] to receive PayKit callbacks.
+   *  Register a [CashAppPayListener] to receive PayKit callbacks.
    */
-  fun registerForStateUpdates(listener: CashAppPayKitListener)
+  fun registerForStateUpdates(listener: CashAppPayListener)
 
   /**
-   *  Unregister any previously registered [CashAppPayKitListener] from PayKit updates.
+   *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   fun unregisterFromStateUpdates()
 }
 
-object CashAppPayKitFactory {
+object CashAppPayFactory {
 
   private val cashAppPayLifecycleObserver: CashAppPayLifecycleObserver = CashAppPayLifecycleObserverImpl()
 
@@ -220,6 +220,6 @@ object CashAppPayKitFactory {
   private val ANALYTICS_DB_NAME_SANDBOX = "paykit-events-sandbox.db"
 }
 
-interface CashAppPayKitListener {
-  fun payKitStateDidChange(newState: CashAppPayState)
+interface CashAppPayListener {
+  fun cashAppPayStateDidChange(newState: CashAppPayState)
 }

@@ -69,7 +69,7 @@ class CashAppPayStateTests {
   @Test
   fun `CreatingCustomerRequest State`() {
     val payKit = createPayKit()
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
     every { networkManager.createCustomerRequest(any(), any()) } returns NetworkResult.failure(
@@ -77,13 +77,13 @@ class CashAppPayStateTests {
     )
 
     payKit.createCustomerRequest(FakeData.oneTimePayment)
-    verify { listener.payKitStateDidChange(CreatingCustomerRequest) }
+    verify { listener.cashAppPayStateDidChange(CreatingCustomerRequest) }
   }
 
   @Test
   fun `UpdatingCustomerRequest State`() {
     val payKit = createPayKit()
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
     every {
@@ -96,22 +96,22 @@ class CashAppPayStateTests {
       Exception("bad"),
     )
     payKit.updateCustomerRequest("abc", FakeData.oneTimePayment)
-    verify { listener.payKitStateDidChange(UpdatingCustomerRequest) }
+    verify { listener.cashAppPayStateDidChange(UpdatingCustomerRequest) }
   }
 
   @Test
   fun `PollingTransactionStatus State`() {
     val payKit = createPayKit(Authorizing)
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
     mockLifecycleListener.simulateOnApplicationForegrounded()
-    verify { listener.payKitStateDidChange(PollingTransactionStatus) }
+    verify { listener.cashAppPayStateDidChange(PollingTransactionStatus) }
   }
 
   @Test
   fun `ReadyToAuthorize State`() {
     val payKit = createPayKit()
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
     val customerTopLevelResponse: NetworkResult.Success<CustomerTopLevelResponse> = mockk()
     val customerResponseData: CustomerResponseData = mockk(relaxed = true)
@@ -124,14 +124,14 @@ class CashAppPayStateTests {
     } returns customerTopLevelResponse
 
     payKit.createCustomerRequest(FakeData.oneTimePayment)
-    verify { listener.payKitStateDidChange(ofType(ReadyToAuthorize::class)) }
+    verify { listener.cashAppPayStateDidChange(ofType(ReadyToAuthorize::class)) }
   }
 
   @Test
   fun `Approved State`() {
     val starterCustomerResponseData: CustomerResponseData = mockk(relaxed = true)
     val payKit = createPayKit(Authorizing, starterCustomerResponseData)
-    val payKitListener = MockCashAppPayKitListener()
+    val payKitListener = MockCashAppPayListener()
     payKit.registerForStateUpdates(payKitListener)
 
     // Mock necessary network response.
@@ -166,19 +166,19 @@ class CashAppPayStateTests {
         every { mobileUrl } returns "http://url"
       }
     }
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
     payKit.authorizeCustomerRequest(customerResponseData)
 
-    verify { listener.payKitStateDidChange(Authorizing) }
+    verify { listener.cashAppPayStateDidChange(Authorizing) }
   }
 
   @Test
   fun `Declined State`() {
     val starterCustomerResponseData: CustomerResponseData = mockk(relaxed = true)
     val payKit = createPayKit(Authorizing, starterCustomerResponseData)
-    val payKitListener = MockCashAppPayKitListener()
+    val payKitListener = MockCashAppPayListener()
     payKit.registerForStateUpdates(payKitListener)
 
     // Mock necessary network response.
@@ -211,14 +211,14 @@ class CashAppPayStateTests {
         every { mobileUrl } returns "cashme://url"
       }
     }
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
     every { context.startActivity(any()) } throws ActivityNotFoundException("yoh")
     setupAppHolder()
     payKit.authorizeCustomerRequest(customerResponseData)
 
-    verify { listener.payKitStateDidChange(ofType(CashAppPayExceptionState::class)) }
+    verify { listener.cashAppPayStateDidChange(ofType(CashAppPayExceptionState::class)) }
   }
 
   private fun createPayKit(
@@ -266,12 +266,12 @@ class CashAppPayStateTests {
   }
 
   /**
-   * Our own Mock [CashAppPayKitListener] listener, that allows us to wait on a new state before continuing test execution.
+   * Our own Mock [CashAppPayListener] listener, that allows us to wait on a new state before continuing test execution.
    */
-  internal class MockCashAppPayKitListener : CashAppPayKitListener {
+  internal class MockCashAppPayListener : CashAppPayListener {
     var state: CashAppPayState? = null
 
-    override fun payKitStateDidChange(newState: CashAppPayState) {
+    override fun cashAppPayStateDidChange(newState: CashAppPayState) {
       state = newState
       synchronized(this) { notifyAll() }
     }

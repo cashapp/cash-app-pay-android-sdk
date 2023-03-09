@@ -22,8 +22,8 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import app.cash.paykit.core.BuildConfig
 import app.cash.paykit.core.CashAppPay
-import app.cash.paykit.core.CashAppPayKitListener
 import app.cash.paykit.core.CashAppPayLifecycleObserver
+import app.cash.paykit.core.CashAppPayListener
 import app.cash.paykit.core.CashAppPayState
 import app.cash.paykit.core.CashAppPayState.Approved
 import app.cash.paykit.core.CashAppPayState.Authorizing
@@ -63,7 +63,7 @@ internal class CashAppCashAppPayImpl(
 
   // TODO: Check if a given API call is allowed against a given internal SDK state. ( https://www.notion.so/cashappcash/Check-if-a-given-API-call-is-allowed-against-current-internal-SDK-state-0073051cd5aa42c7b9672542e9576f85 )
 
-  private var callbackListener: CashAppPayKitListener? = null
+  private var callbackListener: CashAppPayListener? = null
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
 
@@ -88,7 +88,7 @@ internal class CashAppCashAppPayImpl(
       }
 
       // Notify listener of State change.
-      callbackListener?.payKitStateDidChange(value)
+      callbackListener?.cashAppPayStateDidChange(value)
         .orElse {
           logError(
             "State changed to ${value.javaClass.simpleName}, but no listeners were notified." +
@@ -246,15 +246,15 @@ internal class CashAppCashAppPayImpl(
   }
 
   /**
-   *  Register a [CashAppPayKitListener] to receive PayKit callbacks.
+   *  Register a [CashAppPayListener] to receive PayKit callbacks.
    */
-  override fun registerForStateUpdates(listener: CashAppPayKitListener) {
+  override fun registerForStateUpdates(listener: CashAppPayListener) {
     callbackListener = listener
     analyticsEventDispatcher.eventListenerAdded()
   }
 
   /**
-   *  Unregister any previously registered [CashAppPayKitListener] from PayKit updates.
+   *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   override fun unregisterFromStateUpdates() {
     callbackListener = null

@@ -44,7 +44,7 @@ class CashAppPayExceptionsTests {
   @Test
   fun `logAndSoftCrash should NOT crash in prod`() {
     val payKit = createPayKit(useSandboxEnvironment = false)
-    val listener = mockk<CashAppPayKitListener>(relaxed = true)
+    val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
     every { networkManager.createCustomerRequest(any(), any()) } returns NetworkResult.failure(

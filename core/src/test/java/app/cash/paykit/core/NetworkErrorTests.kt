@@ -207,12 +207,12 @@ class NetworkErrorTests {
   }
 
   /**
-   * Our own Mock [CashAppPayKitListener] listener, that allows us to wait on a new state before continuing test execution.
+   * Our own Mock [CashAppPayListener] listener, that allows us to wait on a new state before continuing test execution.
    */
-  internal class MockListener : CashAppPayKitListener {
+  internal class MockListener : CashAppPayListener {
     var state: CashAppPayState? = null
 
-    override fun payKitStateDidChange(newState: CashAppPayState) {
+    override fun cashAppPayStateDidChange(newState: CashAppPayState) {
       state = newState
     }
   }

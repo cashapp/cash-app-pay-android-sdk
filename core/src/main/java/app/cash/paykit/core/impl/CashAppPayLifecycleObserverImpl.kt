@@ -20,13 +20,13 @@ import android.os.Looper
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import app.cash.paykit.core.CashAppPayKitFactory
+import app.cash.paykit.core.CashAppPayFactory
 import app.cash.paykit.core.CashAppPayLifecycleObserver
 import java.lang.ref.WeakReference
 
 /**
  * This class is intended to be a singleton.
- * The [CashAppPayKitFactory] static object creates and holds onto this single instance.
+ * The [CashAppPayFactory] static object creates and holds onto this single instance.
  */
 internal class CashAppPayLifecycleObserverImpl(
   private val processLifecycleOwner: LifecycleOwner = ProcessLifecycleOwner.get(),
