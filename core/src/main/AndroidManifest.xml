@@ -12,7 +12,7 @@
         tools:node="merge">
       <!-- This entry makes PayKitInitializer discoverable. -->
       <meta-data
-          android:name="app.cash.paykit.core.PayKitInitializer"
+          android:name="app.cash.paykit.core.CashAppPayInitializer"
           android:value="androidx.startup" />
     </provider>
   </application>

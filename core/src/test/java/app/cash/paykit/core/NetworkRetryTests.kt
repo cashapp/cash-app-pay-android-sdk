@@ -15,11 +15,11 @@
  */
 package app.cash.paykit.core
 
+import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
+import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
 import app.cash.paykit.core.NetworkErrorTests.MockListener
-import app.cash.paykit.core.PayKitState.PayKitExceptionState
-import app.cash.paykit.core.PayKitState.ReadyToAuthorize
-import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
-import app.cash.paykit.core.impl.CashAppPayKitImpl
+import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
+import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
 import com.google.common.truth.Truth.assertThat
@@ -95,7 +95,7 @@ class NetworkRetryTests {
 
     // We should retry twice, and then stop retrying. If the number of retries is correct,
     // we should have reached a `PayKitException` and NOT a `ReadyToAuthorize` state.
-    assertThat(mockListener.state).isInstanceOf(PayKitExceptionState::class.java)
+    assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)
   }
 
   @Test
@@ -165,7 +165,7 @@ class NetworkRetryTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
-    assertThat(((mockListener.state as PayKitExceptionState).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
+    assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(
       InterruptedIOException::class.java,
     )
   }
@@ -187,7 +187,7 @@ class NetworkRetryTests {
   }
 
   private fun createPayKit(networkManager: NetworkManager) =
-    CashAppPayKitImpl(
+    CashAppCashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),

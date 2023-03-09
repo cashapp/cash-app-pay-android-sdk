@@ -18,8 +18,8 @@ package app.cash.paykit.core
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
-import app.cash.paykit.core.impl.PayKitLifecycleListener
-import app.cash.paykit.core.impl.PayKitLifecycleObserverImpl
+import app.cash.paykit.core.impl.CashAppPayLifecycleListener
+import app.cash.paykit.core.impl.CashAppPayLifecycleObserverImpl
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -35,7 +35,7 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-class PayKitLifecycleObserverTests {
+class CashAppPayLifecycleObserverTests {
 
   private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -47,10 +47,10 @@ class PayKitLifecycleObserverTests {
   @Test
   fun `registered PayKitLifecycleListener will receive updates`() = runTest {
     val testLifecycleOwner = TestLifecycleOwner()
-    val payKitLifecycleObserver = PayKitLifecycleObserverImpl(testLifecycleOwner)
+    val payKitLifecycleObserver = CashAppPayLifecycleObserverImpl(testLifecycleOwner)
 
     // Create and register listener.
-    val listenerMock = mockk<PayKitLifecycleListener>(relaxed = true)
+    val listenerMock = mockk<CashAppPayLifecycleListener>(relaxed = true)
     payKitLifecycleObserver.register(listenerMock)
 
     // Simulate Application Lifecycle events.
@@ -64,8 +64,8 @@ class PayKitLifecycleObserverTests {
   @Test
   fun `after unRegister PayKitLifecycleListener will NOT receive updates`() = runTest {
     val testLifecycleOwner = TestLifecycleOwner()
-    val payKitLifecycleObserver = PayKitLifecycleObserverImpl(testLifecycleOwner)
-    val listenerMock = mockk<PayKitLifecycleListener>(relaxed = true)
+    val payKitLifecycleObserver = CashAppPayLifecycleObserverImpl(testLifecycleOwner)
+    val listenerMock = mockk<CashAppPayLifecycleListener>(relaxed = true)
 
     // Register and unregister listener.
     payKitLifecycleObserver.register(listenerMock)
@@ -88,10 +88,10 @@ class PayKitLifecycleObserverTests {
     val mockLifecycleOwner = mockk<LifecycleOwner>(relaxed = true)
     val mockLifecycle = mockk<Lifecycle>(relaxed = true)
     every { mockLifecycleOwner.lifecycle } returns mockLifecycle
-    val payKitLifecycleObserver = PayKitLifecycleObserverImpl(mockLifecycleOwner)
+    val payKitLifecycleObserver = CashAppPayLifecycleObserverImpl(mockLifecycleOwner)
 
     // Register and unregister a mock listener.
-    val listenerMock = mockk<PayKitLifecycleListener>(relaxed = true)
+    val listenerMock = mockk<CashAppPayLifecycleListener>(relaxed = true)
     payKitLifecycleObserver.register(listenerMock)
     verify(exactly = 0) { mockLifecycle.removeObserver(any()) }
 

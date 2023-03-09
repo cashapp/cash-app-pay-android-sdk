@@ -47,7 +47,7 @@ internal object UserAgentProvider {
     stb.append("; ")
     stb.append(Locale.getDefault())
     stb.append(") PayKitVersion/")
-    stb.append(context.getString(R.string.cashpaykit_version))
+    stb.append(context.getString(R.string.cap_version))
 
     return stb.toString()
   }

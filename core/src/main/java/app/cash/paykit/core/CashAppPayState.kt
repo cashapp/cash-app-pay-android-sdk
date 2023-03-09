@@ -18,62 +18,62 @@ package app.cash.paykit.core
 import app.cash.paykit.core.models.response.CustomerResponseData
 
 /**
- * Various states Cash App PayKit SDK might be in depending the stage of the transaction process.
+ * Various states Cash App Pay SDK might be in depending the stage of the transaction process.
  *
  */
-sealed interface PayKitState {
+sealed interface CashAppPayState {
 
   /**
-   * This is the initial PayKit State.
+   * This is the initial Cash App Pay State.
    */
-  object NotStarted : PayKitState
+  object NotStarted : CashAppPayState
 
   /**
    * This state denotes that a the Create Customer Request has been started. If successful, this state
    * will transition to [ReadyToAuthorize].
    */
-  object CreatingCustomerRequest : PayKitState
+  object CreatingCustomerRequest : CashAppPayState
 
   /**
    * This state denotes that a the Update Customer Request has been started. If successful, this state
    * will transition to [ReadyToAuthorize].
    */
-  object UpdatingCustomerRequest : PayKitState
+  object UpdatingCustomerRequest : CashAppPayState
 
   /**
    * This state denotes that the SDK is in the process of retrieving an existing Customer Request.
    * If successful, this state will transition into the corresponding state of the request that was
    * retrieved, which can be one of the following: [ReadyToAuthorize], [Approved], [Declined].
    */
-  object RetrievingExistingCustomerRequest : PayKitState
+  object RetrievingExistingCustomerRequest : CashAppPayState
 
   /**
    * This state denotes that a valid Customer Request exists, and we're ready to authorize upon
    * user action.
    */
-  class ReadyToAuthorize(val responseData: CustomerResponseData) : PayKitState
+  class ReadyToAuthorize(val responseData: CustomerResponseData) : CashAppPayState
 
   /**
    * This state denotes that we've entered the process of authorizing an existing customer request.
    * This state will transition to [PollingTransactionStatus].
    */
-  object Authorizing : PayKitState
+  object Authorizing : CashAppPayState
 
   /**
    * This state denotes that we're actively polling for an authorization update. This state will
    * typically transition to either [Approved] or [Declined].
    */
-  object PollingTransactionStatus : PayKitState
+  object PollingTransactionStatus : CashAppPayState
 
   /**
    * Terminal state denoting that the request authorization was approved.
    */
-  class Approved(val responseData: CustomerResponseData) : PayKitState
+  class Approved(val responseData: CustomerResponseData) : CashAppPayState
 
   /**
    * Terminal state denoting that the request authorization was declined.
    */
-  object Declined : PayKitState
+  object Declined : CashAppPayState
 
   /**
    * Terminal state that can happen as a result of most states, indicates that an exception has
@@ -81,5 +81,5 @@ sealed interface PayKitState {
    * This state is typically unrecoverable, and it is advised to restart the process from scratch in
    * case it is met.
    */
-  class PayKitExceptionState(val exception: Exception) : PayKitState
+  class CashAppPayExceptionState(val exception: Exception) : CashAppPayState
 }

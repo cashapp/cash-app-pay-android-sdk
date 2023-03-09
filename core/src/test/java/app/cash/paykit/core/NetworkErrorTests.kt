@@ -15,10 +15,10 @@
  */
 package app.cash.paykit.core
 
-import app.cash.paykit.core.PayKitState.PayKitExceptionState
-import app.cash.paykit.core.exceptions.PayKitApiNetworkException
-import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
-import app.cash.paykit.core.impl.CashAppPayKitImpl
+import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
+import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
+import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
+import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
 import com.google.common.truth.Truth.assertThat
@@ -64,11 +64,11 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that all the appropriate exception wrapping has occurred for a 503 error.
-    assertThat(mockListener.state).isInstanceOf(PayKitExceptionState::class.java)
-    assertThat((mockListener.state as PayKitExceptionState).exception).isInstanceOf(
-      PayKitConnectivityNetworkException::class.java,
+    assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)
+    assertThat((mockListener.state as CashAppPayExceptionState).exception).isInstanceOf(
+      CashAppPayConnectivityNetworkException::class.java,
     )
-    assertThat(((mockListener.state as PayKitExceptionState).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
+    assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(
       IOException::class.java,
     )
   }
@@ -104,13 +104,13 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
-    assertThat(mockListener.state).isInstanceOf(PayKitExceptionState::class.java)
-    assertThat((mockListener.state as PayKitExceptionState).exception).isInstanceOf(
-      PayKitApiNetworkException::class.java,
+    assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)
+    assertThat((mockListener.state as CashAppPayExceptionState).exception).isInstanceOf(
+      CashAppCashAppPayApiNetworkException::class.java,
     )
 
     // Verify that all the API error details have been deserialized correctly.
-    val apiError = (mockListener.state as PayKitExceptionState).exception as PayKitApiNetworkException
+    val apiError = (mockListener.state as CashAppPayExceptionState).exception as CashAppCashAppPayApiNetworkException
     assertThat(apiError.code).isEqualTo("MISSING_REQUIRED_PARAMETER")
     assertThat(apiError.category).isEqualTo("INVALID_REQUEST_ERROR")
     assertThat(apiError.field_value).isEqualTo("request.action.amount")
@@ -143,7 +143,7 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
-    assertThat(((mockListener.state as PayKitExceptionState).exception as PayKitConnectivityNetworkException).e).isInstanceOf(
+    assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(
       InterruptedIOException::class.java,
     )
   }
@@ -202,17 +202,17 @@ class NetworkErrorTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment)
 
     // Verify that we got the appropriate JSON deserialization error.
-    assertThat(mockListener.state).isInstanceOf(PayKitExceptionState::class.java)
-    assertThat((mockListener.state as PayKitExceptionState).exception).isInstanceOf(JsonDataException::class.java)
+    assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)
+    assertThat((mockListener.state as CashAppPayExceptionState).exception).isInstanceOf(JsonDataException::class.java)
   }
 
   /**
-   * Our own Mock [CashAppPayKitListener] listener, that allows us to wait on a new state before continuing test execution.
+   * Our own Mock [CashAppPayListener] listener, that allows us to wait on a new state before continuing test execution.
    */
-  internal class MockListener : CashAppPayKitListener {
-    var state: PayKitState? = null
+  internal class MockListener : CashAppPayListener {
+    var state: CashAppPayState? = null
 
-    override fun payKitStateDidChange(newState: PayKitState) {
+    override fun cashAppPayStateDidChange(newState: CashAppPayState) {
       state = newState
     }
   }
@@ -234,7 +234,7 @@ class NetworkErrorTests {
   }
 
   private fun createPayKit(networkManager: NetworkManager) =
-    CashAppPayKitImpl(
+    CashAppCashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),

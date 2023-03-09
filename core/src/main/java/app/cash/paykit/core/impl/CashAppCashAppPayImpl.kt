@@ -21,59 +21,59 @@ import android.net.Uri
 import android.util.Log
 import androidx.annotation.WorkerThread
 import app.cash.paykit.core.BuildConfig
-import app.cash.paykit.core.CashAppPayKit
-import app.cash.paykit.core.CashAppPayKitListener
+import app.cash.paykit.core.CashAppPay
+import app.cash.paykit.core.CashAppPayLifecycleObserver
+import app.cash.paykit.core.CashAppPayListener
+import app.cash.paykit.core.CashAppPayState
+import app.cash.paykit.core.CashAppPayState.Approved
+import app.cash.paykit.core.CashAppPayState.Authorizing
+import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
+import app.cash.paykit.core.CashAppPayState.CreatingCustomerRequest
+import app.cash.paykit.core.CashAppPayState.Declined
+import app.cash.paykit.core.CashAppPayState.NotStarted
+import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
+import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
+import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.PayKitLifecycleObserver
-import app.cash.paykit.core.PayKitState
-import app.cash.paykit.core.PayKitState.Approved
-import app.cash.paykit.core.PayKitState.Authorizing
-import app.cash.paykit.core.PayKitState.CreatingCustomerRequest
-import app.cash.paykit.core.PayKitState.Declined
-import app.cash.paykit.core.PayKitState.NotStarted
-import app.cash.paykit.core.PayKitState.PayKitExceptionState
-import app.cash.paykit.core.PayKitState.PollingTransactionStatus
-import app.cash.paykit.core.PayKitState.ReadyToAuthorize
-import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
-import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.android.ApplicationContextHolder
-import app.cash.paykit.core.exceptions.PayKitIntegrationException
+import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.STATUS_APPROVED
 import app.cash.paykit.core.models.response.STATUS_PENDING
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.utils.orElse
 
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
  * @param useSandboxEnvironment Specify what development environment should be used.
  */
-internal class CashAppPayKitImpl(
+internal class CashAppCashAppPayImpl(
   private val clientId: String,
   private val networkManager: NetworkManager,
   private val analyticsEventDispatcher: PayKitAnalyticsEventDispatcher,
-  private val payKitLifecycleListener: PayKitLifecycleObserver,
+  private val payKitLifecycleListener: CashAppPayLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
-  initialState: PayKitState = NotStarted,
+  initialState: CashAppPayState = NotStarted,
   initialCustomerResponseData: CustomerResponseData? = null,
-) : CashAppPayKit, PayKitLifecycleListener {
+) : CashAppPay, CashAppPayLifecycleListener {
 
   // TODO: Check if a given API call is allowed against a given internal SDK state. ( https://www.notion.so/cashappcash/Check-if-a-given-API-call-is-allowed-against-current-internal-SDK-state-0073051cd5aa42c7b9672542e9576f85 )
 
-  private var callbackListener: CashAppPayKitListener? = null
+  private var callbackListener: CashAppPayListener? = null
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
 
-  private var currentState: PayKitState = initialState
+  private var currentState: CashAppPayState = initialState
     set(value) {
       field = value
       // Track Analytics for various state changes.
       when (value) {
         is Approved -> analyticsEventDispatcher.stateApproved(value)
-        is PayKitExceptionState -> analyticsEventDispatcher.exceptionOccurred(
+        is CashAppPayExceptionState -> analyticsEventDispatcher.exceptionOccurred(
           value,
           customerResponseData,
         )
@@ -88,7 +88,7 @@ internal class CashAppPayKitImpl(
       }
 
       // Notify listener of State change.
-      callbackListener?.payKitStateDidChange(value)
+      callbackListener?.cashAppPayStateDidChange(value)
         .orElse {
           logError(
             "State changed to ${value.javaClass.simpleName}, but no listeners were notified." +
@@ -104,14 +104,14 @@ internal class CashAppPayKitImpl(
   }
 
   /**
-   * Create customer request given a [PayKitPaymentAction].
+   * Create customer request given a [CashAppPayPaymentAction].
    * Must be called from a background thread.
    *
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  override fun createCustomerRequest(paymentAction: PayKitPaymentAction) {
+  override fun createCustomerRequest(paymentAction: CashAppPayPaymentAction) {
     enforceRegisteredStateUpdatesListener()
     currentState = CreatingCustomerRequest
 
@@ -119,7 +119,7 @@ internal class CashAppPayKitImpl(
     val networkResult = networkManager.createCustomerRequest(clientId, paymentAction)
     when (networkResult) {
       is Failure -> {
-        currentState = PayKitExceptionState(networkResult.exception)
+        currentState = CashAppPayExceptionState(networkResult.exception)
       }
 
       is Success -> {
@@ -130,7 +130,7 @@ internal class CashAppPayKitImpl(
   }
 
   /**
-   * Update an existing customer request given its [requestId] an the updated definitions contained within [PayKitPaymentAction].
+   * Update an existing customer request given its [requestId] an the updated definitions contained within [CashAppPayPaymentAction].
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do update.
@@ -140,7 +140,7 @@ internal class CashAppPayKitImpl(
   @WorkerThread
   override fun updateCustomerRequest(
     requestId: String,
-    paymentAction: PayKitPaymentAction,
+    paymentAction: CashAppPayPaymentAction,
   ) {
     enforceRegisteredStateUpdatesListener()
     currentState = UpdatingCustomerRequest
@@ -149,7 +149,7 @@ internal class CashAppPayKitImpl(
     val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentAction)
     when (networkResult) {
       is Failure -> {
-        currentState = PayKitExceptionState(networkResult.exception)
+        currentState = CashAppPayExceptionState(networkResult.exception)
       }
 
       is Success -> {
@@ -166,7 +166,7 @@ internal class CashAppPayKitImpl(
     val networkResult = networkManager.retrieveUpdatedRequestData(clientId, requestId)
     when (networkResult) {
       is Failure -> {
-        currentState = PayKitExceptionState(networkResult.exception)
+        currentState = CashAppPayExceptionState(networkResult.exception)
       }
 
       is Success -> {
@@ -194,13 +194,13 @@ internal class CashAppPayKitImpl(
    * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
    * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
    */
-  @Throws(IllegalArgumentException::class, PayKitIntegrationException::class)
+  @Throws(IllegalArgumentException::class, CashAppPayIntegrationException::class)
   override fun authorizeCustomerRequest() {
     val customerData = customerResponseData
 
     if (customerData == null) {
       logAndSoftCrash(
-        PayKitIntegrationException(
+        CashAppPayIntegrationException(
           "Can't call authorizeCustomerRequest user before calling `createCustomerRequest`. Alternatively provide your own customerData",
         ),
       )
@@ -239,22 +239,22 @@ internal class CashAppPayKitImpl(
     try {
       ApplicationContextHolder.applicationContext.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
-      currentState = PayKitExceptionState(PayKitIntegrationException("Unable to open mobileUrl: ${customerData.authFlowTriggers?.mobileUrl}"))
+      currentState = CashAppPayExceptionState(CashAppPayIntegrationException("Unable to open mobileUrl: ${customerData.authFlowTriggers?.mobileUrl}"))
       return
     }
     currentState = Authorizing
   }
 
   /**
-   *  Register a [CashAppPayKitListener] to receive PayKit callbacks.
+   *  Register a [CashAppPayListener] to receive PayKit callbacks.
    */
-  override fun registerForStateUpdates(listener: CashAppPayKitListener) {
+  override fun registerForStateUpdates(listener: CashAppPayListener) {
     callbackListener = listener
     analyticsEventDispatcher.eventListenerAdded()
   }
 
   /**
-   *  Unregister any previously registered [CashAppPayKitListener] from PayKit updates.
+   *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   override fun unregisterFromStateUpdates() {
     callbackListener = null
@@ -266,7 +266,7 @@ internal class CashAppPayKitImpl(
   private fun enforceRegisteredStateUpdatesListener() {
     if (callbackListener == null) {
       logAndSoftCrash(
-        PayKitIntegrationException(
+        CashAppPayIntegrationException(
           "Shouldn't call this function before registering for state updates via `registerForStateUpdates`.",
         ),
       )
@@ -280,7 +280,7 @@ internal class CashAppPayKitImpl(
         customerResponseData!!.id,
       )
       if (networkResult is Failure) {
-        currentState = PayKitExceptionState(networkResult.exception)
+        currentState = CashAppPayExceptionState(networkResult.exception)
         return@Thread
       }
       customerResponseData = (networkResult as Success).data.customerResponseData

@@ -15,12 +15,12 @@
  */
 package app.cash.paykit.core.analytics
 
-import app.cash.paykit.core.PayKitState
-import app.cash.paykit.core.PayKitState.Approved
-import app.cash.paykit.core.PayKitState.PayKitExceptionState
+import app.cash.paykit.core.CashAppPayState
+import app.cash.paykit.core.CashAppPayState.Approved
+import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 
 /**
  * Definition of analytics events that we want to capture.
@@ -34,22 +34,22 @@ internal interface PayKitAnalyticsEventDispatcher {
   fun eventListenerRemoved()
 
   fun createdCustomerRequest(
-    paymentKitAction: PayKitPaymentAction,
+    paymentKitAction: CashAppPayPaymentAction,
     apiAction: Action,
   )
 
   fun updatedCustomerRequest(
     requestId: String,
-    paymentKitAction: PayKitPaymentAction,
+    paymentKitAction: CashAppPayPaymentAction,
     apiAction: Action,
   )
 
-  fun genericStateChanged(payKitState: PayKitState, customerResponseData: CustomerResponseData?)
+  fun genericStateChanged(cashAppPayState: CashAppPayState, customerResponseData: CustomerResponseData?)
 
   fun stateApproved(approved: Approved)
 
   fun exceptionOccurred(
-    payKitExceptionState: PayKitExceptionState,
+    payKitExceptionState: CashAppPayExceptionState,
     customerResponseData: CustomerResponseData?,
   )
 

@@ -15,15 +15,13 @@
  */
 package app.cash.paykit.core.exceptions
 
-import app.cash.paykit.core.exceptions.PayKitNetworkErrorType.API
-
 /**
- * This exception encapsulates all of the metadata provided by an API error.
+ * This exception represents a network related issue. Subclasses of this will be used to represent higher granularity.
+ * See [CashAppPayNetworkErrorType] for more.
  */
-data class PayKitApiNetworkException(
-  val category: String,
-  val code: String,
-  val detail: String?,
-  val field_value: String?,
-) :
-  PayKitNetworkException(API)
+open class CashAppPayNetworkException(val errorType: CashAppPayNetworkErrorType) : Exception()
+
+enum class CashAppPayNetworkErrorType {
+  API,
+  CONNECTIVITY,
+}

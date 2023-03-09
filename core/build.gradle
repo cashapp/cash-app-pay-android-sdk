@@ -23,7 +23,7 @@ android {
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"
-    resValue("string", "cashpaykit_version", "$version")
+    resValue("string", "cap_version", "$version")
   }
 
   buildTypes {
@@ -41,7 +41,7 @@ android {
     jvmTarget = '1.8'
   }
 
-  resourcePrefix 'cashpaykit_'
+  resourcePrefix 'cap_'
 
   lintOptions {
     abortOnError true

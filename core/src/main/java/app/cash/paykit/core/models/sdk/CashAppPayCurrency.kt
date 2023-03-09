@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core
+package app.cash.paykit.core.models.sdk
 
-import app.cash.paykit.core.impl.PayKitLifecycleListener
-
-interface PayKitLifecycleObserver {
-  fun register(newInstance: PayKitLifecycleListener)
-  fun unregister(instanceToRemove: PayKitLifecycleListener)
+/**
+ * Supported Cash App Pay Currencies.
+ */
+enum class CashAppPayCurrency(val backendValue: String) {
+  USD("USD"),
 }

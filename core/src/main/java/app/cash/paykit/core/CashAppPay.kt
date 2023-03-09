@@ -23,19 +23,19 @@ import app.cash.paykit.analytics.PayKitAnalytics
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcherImpl
 import app.cash.paykit.core.android.ApplicationContextHolder
-import app.cash.paykit.core.exceptions.PayKitIntegrationException
-import app.cash.paykit.core.impl.CashAppPayKitImpl
+import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
+import app.cash.paykit.core.impl.CashAppCashAppPayImpl
+import app.cash.paykit.core.impl.CashAppPayLifecycleObserverImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
-import app.cash.paykit.core.impl.PayKitLifecycleObserverImpl
 import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
 import kotlin.time.Duration.Companion.seconds
 
-interface CashAppPayKit {
+interface CashAppPay {
   /**
-   * Create customer request given a [PayKitPaymentAction].
+   * Create customer request given a [CashAppPayPaymentAction].
    *
    * Must be called from a background thread.
    *
@@ -43,21 +43,21 @@ interface CashAppPayKit {
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  fun createCustomerRequest(paymentAction: PayKitPaymentAction)
+  fun createCustomerRequest(paymentAction: CashAppPayPaymentAction)
 
   /**
-   * Update an existing customer request given its [requestId] an the updated definitions contained within [PayKitPaymentAction].
+   * Update an existing customer request given its [requestId] an the updated definitions contained within [CashAppPayPaymentAction].
    *
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do update.
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
-   *                      Look at [PayKitPaymentAction] for more details.
+   *                      Look at [CashAppPayPaymentAction] for more details.
    */
   @WorkerThread
   fun updateCustomerRequest(
     requestId: String,
-    paymentAction: PayKitPaymentAction,
+    paymentAction: CashAppPayPaymentAction,
   )
 
   /**
@@ -78,7 +78,7 @@ interface CashAppPayKit {
    * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
    * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
    */
-  @Throws(IllegalArgumentException::class, PayKitIntegrationException::class)
+  @Throws(IllegalArgumentException::class, CashAppPayIntegrationException::class)
   fun authorizeCustomerRequest()
 
   /**
@@ -92,19 +92,19 @@ interface CashAppPayKit {
   )
 
   /**
-   *  Register a [CashAppPayKitListener] to receive PayKit callbacks.
+   *  Register a [CashAppPayListener] to receive PayKit callbacks.
    */
-  fun registerForStateUpdates(listener: CashAppPayKitListener)
+  fun registerForStateUpdates(listener: CashAppPayListener)
 
   /**
-   *  Unregister any previously registered [CashAppPayKitListener] from PayKit updates.
+   *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   fun unregisterFromStateUpdates()
 }
 
-object CashAppPayKitFactory {
+object CashAppPayFactory {
 
-  private val payKitLifecycleObserver: PayKitLifecycleObserver = PayKitLifecycleObserverImpl()
+  private val cashAppPayLifecycleObserver: CashAppPayLifecycleObserver = CashAppPayLifecycleObserverImpl()
 
   private fun buildPayKitAnalytics(isSandbox: Boolean) =
     with(ApplicationContextHolder.applicationContext) {
@@ -144,7 +144,7 @@ object CashAppPayKitFactory {
    */
   fun create(
     clientId: String,
-  ): CashAppPayKit {
+  ): CashAppPay {
     val networkManager = NetworkManagerImpl(
       BASE_URL_PRODUCTION,
       ANALYTICS_BASE_URL,
@@ -156,11 +156,11 @@ object CashAppPayKitFactory {
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, isSandbox = false)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
-    return CashAppPayKitImpl(
+    return CashAppCashAppPayImpl(
       clientId = clientId,
       networkManager = networkManager,
       analyticsEventDispatcher = analyticsEventDispatcher,
-      payKitLifecycleListener = payKitLifecycleObserver,
+      payKitLifecycleListener = cashAppPayLifecycleObserver,
       useSandboxEnvironment = false,
     )
   }
@@ -170,7 +170,7 @@ object CashAppPayKitFactory {
    */
   fun createSandbox(
     clientId: String,
-  ): CashAppPayKit {
+  ): CashAppPay {
     val networkManager = NetworkManagerImpl(
       BASE_URL_SANDBOX,
       ANALYTICS_BASE_URL,
@@ -183,11 +183,11 @@ object CashAppPayKitFactory {
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, isSandbox = true)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
-    return CashAppPayKitImpl(
+    return CashAppCashAppPayImpl(
       clientId = clientId,
       networkManager = networkManager,
       analyticsEventDispatcher = analyticsEventDispatcher,
-      payKitLifecycleListener = payKitLifecycleObserver,
+      payKitLifecycleListener = cashAppPayLifecycleObserver,
       useSandboxEnvironment = true,
     )
   }
@@ -199,7 +199,7 @@ object CashAppPayKitFactory {
     isSandbox: Boolean,
   ): PayKitAnalyticsEventDispatcher {
     val sdkVersion =
-      ApplicationContextHolder.applicationContext.getString(R.string.cashpaykit_version)
+      ApplicationContextHolder.applicationContext.getString(R.string.cap_version)
     return PayKitAnalyticsEventDispatcherImpl(
       sdkVersion,
       clientId,
@@ -220,6 +220,6 @@ object CashAppPayKitFactory {
   private val ANALYTICS_DB_NAME_SANDBOX = "paykit-events-sandbox.db"
 }
 
-interface CashAppPayKitListener {
-  fun payKitStateDidChange(newState: PayKitState)
+interface CashAppPayListener {
+  fun cashAppPayStateDidChange(newState: CashAppPayState)
 }
