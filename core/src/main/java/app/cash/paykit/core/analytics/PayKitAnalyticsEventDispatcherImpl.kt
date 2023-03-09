@@ -20,20 +20,20 @@ import app.cash.paykit.analytics.PayKitAnalytics
 import app.cash.paykit.analytics.core.DeliveryHandler
 import app.cash.paykit.analytics.core.DeliveryListener
 import app.cash.paykit.analytics.persistence.AnalyticEntry
+import app.cash.paykit.core.CashAppPayState
+import app.cash.paykit.core.CashAppPayState.Approved
+import app.cash.paykit.core.CashAppPayState.Authorizing
+import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
+import app.cash.paykit.core.CashAppPayState.CreatingCustomerRequest
+import app.cash.paykit.core.CashAppPayState.Declined
+import app.cash.paykit.core.CashAppPayState.NotStarted
+import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
+import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
+import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.PayKitState
-import app.cash.paykit.core.PayKitState.Approved
-import app.cash.paykit.core.PayKitState.Authorizing
-import app.cash.paykit.core.PayKitState.CreatingCustomerRequest
-import app.cash.paykit.core.PayKitState.Declined
-import app.cash.paykit.core.PayKitState.NotStarted
-import app.cash.paykit.core.PayKitState.PayKitExceptionState
-import app.cash.paykit.core.PayKitState.PollingTransactionStatus
-import app.cash.paykit.core.PayKitState.ReadyToAuthorize
-import app.cash.paykit.core.PayKitState.RetrievingExistingCustomerRequest
-import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
 import app.cash.paykit.core.analytics.EventStream2Event.Companion.ESEventType
-import app.cash.paykit.core.exceptions.PayKitApiNetworkException
+import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
@@ -44,9 +44,9 @@ import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN_APP
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OneTimeAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
@@ -120,7 +120,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun createdCustomerRequest(
-    paymentKitAction: PayKitPaymentAction,
+    paymentKitAction: CashAppPayPaymentAction,
     apiAction: Action,
   ) {
     val eventPayload = createOrUpdateAnalyticsPayload(paymentKitAction, apiAction, null)
@@ -132,7 +132,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
   override fun updatedCustomerRequest(
     requestId: String,
-    paymentKitAction: PayKitPaymentAction,
+    paymentKitAction: CashAppPayPaymentAction,
     apiAction: Action,
   ) {
     val eventPayload = createOrUpdateAnalyticsPayload(paymentKitAction, apiAction, requestId)
@@ -143,11 +143,11 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun genericStateChanged(
-    payKitState: PayKitState,
+    cashAppPayState: CashAppPayState,
     customerResponseData: CustomerResponseData?,
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitState))
+      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(cashAppPayState))
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
@@ -164,13 +164,13 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun exceptionOccurred(
-    payKitExceptionState: PayKitExceptionState,
+    payKitExceptionState: CashAppPayExceptionState,
     customerResponseData: CustomerResponseData?,
   ) {
     var eventPayload =
       eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitExceptionState))
 
-    eventPayload = if (payKitExceptionState.exception is PayKitApiNetworkException) {
+    eventPayload = if (payKitExceptionState.exception is CashAppCashAppPayApiNetworkException) {
       val apiError = payKitExceptionState.exception
       eventPayload.copy(
         errorCode = apiError.code,
@@ -195,7 +195,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   private fun createOrUpdateAnalyticsPayload(
-    paymentKitAction: PayKitPaymentAction,
+    paymentKitAction: CashAppPayPaymentAction,
     apiAction: Action,
     requestId: String?,
   ): AnalyticsCustomerRequestPayload {
@@ -296,16 +296,16 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   /**
-   * This function converts a [PayKitState] into a valid String action for analytics ingestion.
+   * This function converts a [CashAppPayState] into a valid String action for analytics ingestion.
    */
-  private fun stateToAnalyticsAction(state: PayKitState): String {
+  private fun stateToAnalyticsAction(state: CashAppPayState): String {
     return when (state) {
       is Approved -> "approved"
       Authorizing -> "redirect"
       CreatingCustomerRequest -> "create"
       Declined -> "declined"
       NotStarted -> "not_started"
-      is PayKitExceptionState -> "paykit_exception"
+      is CashAppPayExceptionState -> "paykit_exception"
       PollingTransactionStatus -> "polling"
       is ReadyToAuthorize -> "ready_to_authorize"
       RetrievingExistingCustomerRequest -> "retrieve_existing_customer_request"

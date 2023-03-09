@@ -17,18 +17,18 @@ package app.cash.paykit.core
 
 import android.content.ActivityNotFoundException
 import android.content.Context
-import app.cash.paykit.core.PayKitState.Approved
-import app.cash.paykit.core.PayKitState.Authorizing
-import app.cash.paykit.core.PayKitState.CreatingCustomerRequest
-import app.cash.paykit.core.PayKitState.Declined
-import app.cash.paykit.core.PayKitState.NotStarted
-import app.cash.paykit.core.PayKitState.PayKitExceptionState
-import app.cash.paykit.core.PayKitState.PollingTransactionStatus
-import app.cash.paykit.core.PayKitState.ReadyToAuthorize
-import app.cash.paykit.core.PayKitState.UpdatingCustomerRequest
+import app.cash.paykit.core.CashAppPayState.Approved
+import app.cash.paykit.core.CashAppPayState.Authorizing
+import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
+import app.cash.paykit.core.CashAppPayState.CreatingCustomerRequest
+import app.cash.paykit.core.CashAppPayState.Declined
+import app.cash.paykit.core.CashAppPayState.NotStarted
+import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
+import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.android.ApplicationContextHolder
-import app.cash.paykit.core.impl.CashAppPayKitImpl
-import app.cash.paykit.core.impl.PayKitLifecycleListener
+import app.cash.paykit.core.impl.CashAppCashAppPayImpl
+import app.cash.paykit.core.impl.CashAppPayLifecycleListener
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
@@ -46,7 +46,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
-class CashAppPayKitStateTests {
+class CashAppPayStateTests {
 
   @MockK(relaxed = true)
   private lateinit var context: Context
@@ -54,7 +54,7 @@ class CashAppPayKitStateTests {
   @MockK(relaxed = true)
   private lateinit var networkManager: NetworkManager
 
-  private val mockLifecycleListener = MockLifecycleListener()
+  private val mockLifecycleListener = MockLifecycleListenerCashApp()
 
   @Before
   fun setup() {
@@ -218,14 +218,14 @@ class CashAppPayKitStateTests {
     setupAppHolder()
     payKit.authorizeCustomerRequest(customerResponseData)
 
-    verify { listener.payKitStateDidChange(ofType(PayKitExceptionState::class)) }
+    verify { listener.payKitStateDidChange(ofType(CashAppPayExceptionState::class)) }
   }
 
   private fun createPayKit(
-    initialState: PayKitState = NotStarted,
+    initialState: CashAppPayState = NotStarted,
     initialCustomerResponseData: CustomerResponseData? = null,
   ) =
-    CashAppPayKitImpl(
+    CashAppCashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
       payKitLifecycleListener = mockLifecycleListener,
@@ -236,12 +236,12 @@ class CashAppPayKitStateTests {
     )
 
   /**
-   * Specialized Mock [PayKitLifecycleObserver] that we can easily simulate the following events:
+   * Specialized Mock [CashAppPayLifecycleObserver] that we can easily simulate the following events:
    * - `onApplicationForegrounded`
    * - `onApplicationBackgrounded`
    */
-  private class MockLifecycleListener : PayKitLifecycleObserver {
-    private var listener: PayKitLifecycleListener? = null
+  private class MockLifecycleListenerCashApp : CashAppPayLifecycleObserver {
+    private var listener: CashAppPayLifecycleListener? = null
 
     fun simulateOnApplicationForegrounded() {
       listener?.onApplicationForegrounded()
@@ -251,11 +251,11 @@ class CashAppPayKitStateTests {
       listener?.onApplicationBackgrounded()
     }
 
-    override fun register(newInstance: PayKitLifecycleListener) {
+    override fun register(newInstance: CashAppPayLifecycleListener) {
       listener = newInstance
     }
 
-    override fun unregister(instanceToRemove: PayKitLifecycleListener) {
+    override fun unregister(instanceToRemove: CashAppPayLifecycleListener) {
       listener = null
     }
   }
@@ -269,9 +269,9 @@ class CashAppPayKitStateTests {
    * Our own Mock [CashAppPayKitListener] listener, that allows us to wait on a new state before continuing test execution.
    */
   internal class MockCashAppPayKitListener : CashAppPayKitListener {
-    var state: PayKitState? = null
+    var state: CashAppPayState? = null
 
-    override fun payKitStateDidChange(newState: PayKitState) {
+    override fun payKitStateDidChange(newState: CashAppPayState) {
       state = newState
       synchronized(this) { notifyAll() }
     }

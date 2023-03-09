@@ -20,7 +20,7 @@ import android.util.AttributeSet
 import android.widget.ImageButton
 import app.cash.paykit.core.R
 
-abstract class CashPayKitButton(context: Context, attrs: AttributeSet, style: Int) :
+abstract class CashAppPayButton(context: Context, attrs: AttributeSet, style: Int) :
   ImageButton(
     context,
     attrs,
@@ -29,14 +29,14 @@ abstract class CashPayKitButton(context: Context, attrs: AttributeSet, style: In
   )
 
 /**
- * Cash PayKit button to be used in light mode. Notice that the button itself is dark, as
+ * Cash App Pay button to be used in light mode. Notice that the button itself is dark, as
  * it is meant for contrast with a light background.
  */
-class CashPayKitLightButton(context: Context, attrs: AttributeSet) :
-  CashPayKitButton(
+class CashAppPayLightButton(context: Context, attrs: AttributeSet) :
+  CashAppPayButton(
     context,
     attrs,
-    R.style.CashPayKitButtonStyle_Light,
+    R.style.CAPButtonStyle_Light,
   ) {
   override fun setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)
@@ -49,14 +49,14 @@ class CashPayKitLightButton(context: Context, attrs: AttributeSet) :
 }
 
 /**
- * Cash PayKit button to be used in dark mode. Notice that the button itself is light, as
+ * Cash App Pay button to be used in dark mode. Notice that the button itself is light, as
  * it is meant for contrast with a dark background.
  */
-class CashPayKitDarkButton(context: Context, attrs: AttributeSet) :
-  CashPayKitButton(
+class CashAppPayDarkButton(context: Context, attrs: AttributeSet) :
+  CashAppPayButton(
     context,
     attrs,
-    R.style.CashPayKitButtonStyle_Dark,
+    R.style.CAPButtonStyle_Dark,
   ) {
   override fun setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)

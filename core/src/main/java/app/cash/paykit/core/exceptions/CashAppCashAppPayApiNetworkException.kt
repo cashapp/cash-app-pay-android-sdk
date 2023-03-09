@@ -15,10 +15,15 @@
  */
 package app.cash.paykit.core.exceptions
 
-import app.cash.paykit.core.exceptions.PayKitNetworkErrorType.CONNECTIVITY
+import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.API
 
 /**
- * This exception represents Network connectivity issues, such as network timeout errors.
+ * This exception encapsulates all of the metadata provided by an API error.
  */
-data class PayKitConnectivityNetworkException(val e: Exception) :
-  PayKitNetworkException(CONNECTIVITY)
+data class CashAppCashAppPayApiNetworkException(
+  val category: String,
+  val code: String,
+  val detail: String?,
+  val field_value: String?,
+) :
+  CashAppPayNetworkException(API)

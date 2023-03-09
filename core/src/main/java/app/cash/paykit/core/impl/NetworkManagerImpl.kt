@@ -17,8 +17,8 @@ package app.cash.paykit.core.impl
 
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
-import app.cash.paykit.core.exceptions.PayKitApiNetworkException
-import app.cash.paykit.core.exceptions.PayKitConnectivityNetworkException
+import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
+import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
 import app.cash.paykit.core.impl.RequestType.GET
 import app.cash.paykit.core.impl.RequestType.PATCH
 import app.cash.paykit.core.impl.RequestType.POST
@@ -30,7 +30,7 @@ import app.cash.paykit.core.models.request.CreateCustomerRequest
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory
 import app.cash.paykit.core.models.response.ApiErrorResponse
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.network.RetryManager
 import app.cash.paykit.core.network.RetryManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
@@ -78,7 +78,7 @@ internal class NetworkManagerImpl(
   @Throws(IOException::class)
   override fun createCustomerRequest(
     clientId: String,
-    paymentAction: PayKitPaymentAction,
+    paymentAction: CashAppPayPaymentAction,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData = CustomerRequestDataFactory.build(clientId, paymentAction)
     val createCustomerRequest = CreateCustomerRequest(
@@ -101,7 +101,7 @@ internal class NetworkManagerImpl(
   override fun updateCustomerRequest(
     clientId: String,
     requestId: String,
-    paymentAction: PayKitPaymentAction,
+    paymentAction: CashAppPayPaymentAction,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData =
       CustomerRequestDataFactory.build(clientId, paymentAction, isRequestUpdate = true)
@@ -238,12 +238,12 @@ internal class NetworkManagerImpl(
               deserializeResponse(response.body?.string() ?: "", moshi)
             return when (apiErrorResponse) {
               is Failure -> NetworkResult.failure(
-                PayKitConnectivityNetworkException(apiErrorResponse.exception),
+                CashAppPayConnectivityNetworkException(apiErrorResponse.exception),
               )
 
               is Success -> {
                 val apiError = apiErrorResponse.data.apiErrors.first()
-                val apiException = PayKitApiNetworkException(
+                val apiException = CashAppCashAppPayApiNetworkException(
                   apiError.category,
                   apiError.code,
                   apiError.detail,
@@ -267,7 +267,7 @@ internal class NetworkManagerImpl(
         retryException = e
       }
     }
-    return NetworkResult.failure(PayKitConnectivityNetworkException(retryException))
+    return NetworkResult.failure(CashAppPayConnectivityNetworkException(retryException))
   }
 
   @OptIn(ExperimentalStdlibApi::class)
@@ -284,7 +284,7 @@ internal class NetworkManagerImpl(
       }
       return NetworkResult.failure(IOException("Failed to deserialize response data."))
     } catch (e: SocketTimeoutException) {
-      return NetworkResult.failure(PayKitConnectivityNetworkException(e))
+      return NetworkResult.failure(CashAppPayConnectivityNetworkException(e))
     } catch (e: JsonEncodingException) {
       return NetworkResult.failure(e)
     } catch (e: Exception) {

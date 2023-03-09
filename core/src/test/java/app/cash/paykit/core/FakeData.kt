@@ -15,8 +15,8 @@
  */
 package app.cash.paykit.core
 
-import app.cash.paykit.core.models.sdk.PayKitCurrency.USD
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OneTimeAction
+import app.cash.paykit.core.models.sdk.CashAppPayCurrency.USD
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 
 object FakeData {
   const val CLIENT_ID = "fake_client_id"

@@ -16,12 +16,12 @@
 package app.cash.paykit.core.models.request
 
 import app.cash.paykit.core.models.common.Action
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.PayKitPaymentAction.OneTimeAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 
 /**
- * Factory that will create a [CreateCustomerRequest] from a [PayKitPaymentAction].
+ * Factory that will create a [CreateCustomerRequest] from a [CashAppPayPaymentAction].
  */
 object CustomerRequestDataFactory {
 
@@ -31,7 +31,7 @@ object CustomerRequestDataFactory {
 
   fun build(
     clientId: String,
-    paymentAction: PayKitPaymentAction,
+    paymentAction: CashAppPayPaymentAction,
     isRequestUpdate: Boolean = false,
   ): CustomerRequestData {
     return when (paymentAction) {

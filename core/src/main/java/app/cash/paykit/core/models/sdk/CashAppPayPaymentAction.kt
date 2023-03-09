@@ -15,12 +15,12 @@
  */
 package app.cash.paykit.core.models.sdk
 
-import app.cash.paykit.core.CashAppPayKit
+import app.cash.paykit.core.CashAppPay
 
 /**
- * This class holds the information necessary for [CashAppPayKit.createCustomerRequest] to be executed.
+ * This class holds the information necessary for [CashAppPay.createCustomerRequest] to be executed.
  */
-sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
+sealed class CashAppPayPaymentAction(redirectUri: String, scopeId: String?) {
 
   /**
    * Describes an intent for a client to charge a customer a given amount.
@@ -38,10 +38,10 @@ sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
    */
   data class OneTimeAction(
     val redirectUri: String,
-    val currency: PayKitCurrency?,
+    val currency: CashAppPayCurrency?,
     val amount: Int?,
     val scopeId: String? = null,
-  ) : PayKitPaymentAction(redirectUri, scopeId)
+  ) : CashAppPayPaymentAction(redirectUri, scopeId)
 
   /**
    * Describes an intent for a client to store a customer's account, allowing a client to create payments
@@ -56,5 +56,5 @@ sealed class PayKitPaymentAction(redirectUri: String, scopeId: String?) {
     val scopeId: String? = null,
     val accountReferenceId: String? = null,
   ) :
-    PayKitPaymentAction(redirectUri, scopeId)
+    CashAppPayPaymentAction(redirectUri, scopeId)
 }

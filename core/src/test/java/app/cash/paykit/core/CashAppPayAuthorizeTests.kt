@@ -16,8 +16,8 @@
 package app.cash.paykit.core
 
 import android.content.Context
-import app.cash.paykit.core.exceptions.PayKitIntegrationException
-import app.cash.paykit.core.impl.CashAppPayKitImpl
+import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
+import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import app.cash.paykit.core.models.response.CustomerResponseData
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -26,7 +26,7 @@ import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 
-class CashAppPayKitAuthorizeTests {
+class CashAppPayAuthorizeTests {
 
   @MockK(relaxed = true)
   private lateinit var context: Context
@@ -36,14 +36,14 @@ class CashAppPayKitAuthorizeTests {
     MockKAnnotations.init(this)
   }
 
-  @Test(expected = PayKitIntegrationException::class)
+  @Test(expected = CashAppPayIntegrationException::class)
   fun `should throw if calling authorize before createCustomer`() {
     val payKit = createPayKit()
     payKit.registerForStateUpdates(mockk())
     payKit.authorizeCustomerRequest()
   }
 
-  @Test(expected = PayKitIntegrationException::class)
+  @Test(expected = CashAppPayIntegrationException::class)
   fun `should throw on authorizeCustomerRequest if has NOT registered for state updates`() {
     val payKit = createPayKit()
     val customerResponseData = mockk<CustomerResponseData>(relaxed = true)
@@ -84,7 +84,7 @@ class CashAppPayKitAuthorizeTests {
   }
 
   private fun createPayKit() =
-    CashAppPayKitImpl(
+    CashAppCashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = mockk(),
       payKitLifecycleListener = mockk(relaxed = true),

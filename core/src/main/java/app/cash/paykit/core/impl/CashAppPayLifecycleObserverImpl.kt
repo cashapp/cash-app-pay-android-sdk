@@ -21,19 +21,19 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import app.cash.paykit.core.CashAppPayKitFactory
-import app.cash.paykit.core.PayKitLifecycleObserver
+import app.cash.paykit.core.CashAppPayLifecycleObserver
 import java.lang.ref.WeakReference
 
 /**
  * This class is intended to be a singleton.
  * The [CashAppPayKitFactory] static object creates and holds onto this single instance.
  */
-internal class PayKitLifecycleObserverImpl(
+internal class CashAppPayLifecycleObserverImpl(
   private val processLifecycleOwner: LifecycleOwner = ProcessLifecycleOwner.get(),
 ) : DefaultLifecycleObserver,
-  PayKitLifecycleObserver {
+  CashAppPayLifecycleObserver {
 
-  private val payKitInstances = arrayListOf<WeakReference<PayKitLifecycleListener>>()
+  private val payKitInstances = arrayListOf<WeakReference<CashAppPayLifecycleListener>>()
 
   private var mainHandler: Handler = Handler(Looper.getMainLooper())
 
@@ -41,7 +41,7 @@ internal class PayKitLifecycleObserverImpl(
   * Functions to register & unregister instances of [PayKitLifecycleListener].
    */
 
-  override fun register(newInstance: PayKitLifecycleListener) {
+  override fun register(newInstance: CashAppPayLifecycleListener) {
     // Register for ProcessLifecycle changes if this is the first PayKitLifecycleListener.
     if (payKitInstances.isEmpty()) {
       runOnUiThread {
@@ -54,7 +54,7 @@ internal class PayKitLifecycleObserverImpl(
     payKitInstances.add(WeakReference(newInstance))
   }
 
-  override fun unregister(instanceToRemove: PayKitLifecycleListener) {
+  override fun unregister(instanceToRemove: CashAppPayLifecycleListener) {
     val internalInstance = payKitInstances.firstOrNull { it.get() == instanceToRemove }
     payKitInstances.remove(internalInstance)
 
@@ -95,7 +95,7 @@ internal class PayKitLifecycleObserverImpl(
 /**
  * Interface that exposes process foreground/background callback functions.
  */
-interface PayKitLifecycleListener {
+interface CashAppPayLifecycleListener {
   /**
    * Triggered when the application process was foregrounded.
    */
