@@ -38,10 +38,10 @@ class AnalyticsInitializationPayload(
   @Json(name = "mobile_cap_pk_initialization_client_id")
   clientId: String,
 
-  @Json(name = "mobile_cap_pk_initialization_is_sandbox")
-  override val isSandbox: Boolean,
+  @Json(name = "mobile_cap_pk_initialization_environment")
+  override val environment: String,
 
-) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId, isSandbox) {
+) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId, environment) {
 
   companion object {
     const val CATALOG = "mobile_cap_pk_initialization"

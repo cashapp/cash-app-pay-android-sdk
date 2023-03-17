@@ -153,7 +153,7 @@ object CashAppPayFactory {
     )
     val analytics = buildPayKitAnalytics(isSandbox = false)
     val analyticsEventDispatcher =
-      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, isSandbox = false)
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_PROD_ENVIRONMENT)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
     return CashAppCashAppPayImpl(
@@ -180,7 +180,7 @@ object CashAppPayFactory {
 
     val analytics = buildPayKitAnalytics(isSandbox = true)
     val analyticsEventDispatcher =
-      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, isSandbox = true)
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_SANDBOX_ENVIRONMENT)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
     return CashAppCashAppPayImpl(
@@ -196,7 +196,7 @@ object CashAppPayFactory {
     clientId: String,
     networkManager: NetworkManager,
     eventsManager: PayKitAnalytics,
-    isSandbox: Boolean,
+    environment: String,
   ): PayKitAnalyticsEventDispatcher {
     val sdkVersion =
       ApplicationContextHolder.applicationContext.getString(R.string.cap_version)
@@ -204,7 +204,7 @@ object CashAppPayFactory {
       sdkVersion,
       clientId,
       getUserAgentValue(),
-      isSandbox,
+      environment,
       eventsManager,
       networkManager,
     )
@@ -218,6 +218,8 @@ object CashAppPayFactory {
   private val ANALYTICS_BASE_URL = "https://api.squareup.com/"
   private val ANALYTICS_DB_NAME_PROD = "paykit-events.db"
   private val ANALYTICS_DB_NAME_SANDBOX = "paykit-events-sandbox.db"
+  private val ANALYTICS_PROD_ENVIRONMENT = "production"
+  private val ANALYTICS_SANDBOX_ENVIRONMENT = "sandbox"
 }
 
 interface CashAppPayListener {

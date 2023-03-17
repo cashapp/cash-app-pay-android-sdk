@@ -60,7 +60,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkVersion: String,
   private val clientId: String,
   private val userAgent: String,
-  private val isSandbox: Boolean,
+  private val sdkEnvironment: String,
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
   private val moshi: Moshi = Moshi.Builder().build(),
@@ -90,7 +90,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun sdkInitialized() {
     // Inner payload of the ES2 event.
     val initializationPayload =
-      AnalyticsInitializationPayload(sdkVersion, userAgent, PLATFORM, clientId, isSandbox)
+      AnalyticsInitializationPayload(sdkVersion, userAgent, PLATFORM, clientId, sdkEnvironment)
 
     val es2EventAsJsonString =
       encodeToJsonString(initializationPayload, AnalyticsInitializationPayload.CATALOG)
@@ -102,7 +102,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerAdded() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true, isSandbox = isSandbox)
+      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true, environment = sdkEnvironment)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -112,7 +112,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerRemoved() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false, isSandbox = isSandbox)
+      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false, environment = sdkEnvironment)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -222,7 +222,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = paymentKitAction.redirectUri,
           createReferenceId = paymentKitAction.accountReferenceId,
-          isSandbox = isSandbox,
+          environment = sdkEnvironment,
         )
       }
 
@@ -237,7 +237,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           createChannel = CHANNEL_IN_APP,
           createRedirectUrl = paymentKitAction.redirectUri,
           createReferenceId = null,
-          isSandbox = isSandbox,
+          environment = sdkEnvironment,
         )
       }
     }
@@ -291,7 +291,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
       requestId = customerResponseData?.id,
       referenceId = customerResponseData?.referenceId,
-      isSandbox = isSandbox,
+      environment = sdkEnvironment,
     )
   }
 

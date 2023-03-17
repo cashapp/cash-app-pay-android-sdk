@@ -26,5 +26,6 @@ open class AnalyticsBasePayload(
 
   open val clientId: String,
 
-  open val isSandbox: Boolean,
+  // Environment the SDK is running against. E.: production, sandbox, staging, etc.
+  open val environment: String,
 )
