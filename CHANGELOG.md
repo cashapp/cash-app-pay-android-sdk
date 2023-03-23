@@ -1,3 +1,7 @@
+# 1.0.8
+
+ - Add `environment` property to internal Analytics
+
 # 1.0.7
 
  - Breaking change: `authorizeCustomerRequest` no longer requires a `context` to be passed as a parameter
