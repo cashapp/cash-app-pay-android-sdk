@@ -76,6 +76,9 @@ dependencies {
   //noinspection GradleDependency
   implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
 
+  // Bottom Sheet POC.
+  implementation 'com.google.android.material:material:1.8.0'
+
   implementation project(':analytics-core')
 
   // TEST RELATED.

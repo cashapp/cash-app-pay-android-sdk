@@ -19,6 +19,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageButton
 import app.cash.paykit.core.R
+import app.cash.paykit.core.R.layout
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 abstract class CashAppPayButton(context: Context, attrs: AttributeSet, style: Int) :
   ImageButton(
@@ -26,7 +28,10 @@ abstract class CashAppPayButton(context: Context, attrs: AttributeSet, style: In
     attrs,
     0,
     style,
-  )
+  ){
+
+    abstract fun showBottomSheet()
+  }
 
 /**
  * Cash App Pay button to be used in light mode. Notice that the button itself is dark, as
@@ -38,6 +43,12 @@ class CashAppPayLightButton(context: Context, attrs: AttributeSet) :
     attrs,
     R.style.CAPButtonStyle_Light,
   ) {
+  override fun showBottomSheet() {
+    val bottomSheetDialog = BottomSheetDialog(context)
+    bottomSheetDialog.setContentView(layout.bottom_sheet_layout)
+    bottomSheetDialog.show()
+  }
+
   override fun setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)
     alpha = if (enabled) {
@@ -65,5 +76,9 @@ class CashAppPayDarkButton(context: Context, attrs: AttributeSet) :
     } else {
       .4f
     }
+  }
+
+  override fun showBottomSheet(){
+
   }
 }
