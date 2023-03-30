@@ -1,20 +1,20 @@
 # 1.0.8
 
- - Add `environment` property to internal Analytics
+ - Added the property `environment` to internal analytics.
 
 # 1.0.7
 
- - Breaking change: `authorizeCustomerRequest` no longer requires a `context` to be passed as a parameter
- - Breaking change: several class names have changed to better align across platforms. The gist of it, is that `PayKit` becomes `CashAppPay`
+ - Breaking change: `authorizeCustomerRequest` no longer requires a `context` to be passed as a parameter.
+ - Breaking change: Several class names have changed to be consistent across platforms. Which means that we have changed `PayKit` to `CashAppPay`.
 
-Class renaming correspondence:
+   Classes that are renamed are:
 
-`PayKitState` -> `CashAppPayState`
-`PayKitExceptionState` -> `CashAppPayExceptionState`
-`PayKitCurrency` -> `CashAppPayCurrency`
-`PayKitPaymentAction` -> `CashAppPayPaymentAction`
-`CashAppPayKit` -> `CashAppPay`
-`CashAppPayKitFactory` -> `CashAppPayFactory`
-`CashAppPayKitListener` -> `CashAppPayListener`
-`CashPayKitLightButton` -> `CashAppPayLightButton`
-`CashPayKitDarkButton` -> `CashAppPayDarkButton`
+   `PayKitState` to `CashAppPayState` <br/>
+   `PayKitExceptionState` to `CashAppPayExceptionState` <br/>
+   `PayKitCurrency` to `CashAppPayCurrency` <br/>
+   `PayKitPaymentAction` to `CashAppPayPaymentAction` <br/>
+   `CashAppPayKit` to `CashAppPay` <br/>
+   `CashAppPayKitFactory` to `CashAppPayFactory` <br/>
+   `CashAppPayKitListener` to `CashAppPayListener` <br/>
+   `CashPayKitLightButton` to `CashAppPayLightButton` <br/>
+   `CashPayKitDarkButton` to `CashAppPayDarkButton` <br/>
