@@ -120,26 +120,31 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun createdCustomerRequest(
-    paymentKitAction: CashAppPayPaymentAction,
-    apiAction: Action,
+    paymentKitActions: List<CashAppPayPaymentAction>,
+    apiActions: List<Action>,
+    redirectUri: String,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitAction, apiAction, null)
+    paymentKitActions.zip(apiActions).forEach { pair ->
+      val eventPayload = createOrUpdateAnalyticsPayload(pair.first, pair.second, null, redirectUri)
 
-    val es2EventAsJsonString =
-      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+      val es2EventAsJsonString =
+        encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+      payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    }
   }
 
   override fun updatedCustomerRequest(
     requestId: String,
-    paymentKitAction: CashAppPayPaymentAction,
-    apiAction: Action,
+    paymentKitActions: List<CashAppPayPaymentAction>,
+    apiActions: List<Action>,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitAction, apiAction, requestId)
+    paymentKitActions.zip(apiActions).forEach { pair ->
+      val eventPayload = createOrUpdateAnalyticsPayload(pair.first, pair.second, requestId, null)
 
-    val es2EventAsJsonString =
-      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+      val es2EventAsJsonString =
+        encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+      payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    }
   }
 
   override fun genericStateChanged(
@@ -198,6 +203,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     paymentKitAction: CashAppPayPaymentAction,
     apiAction: Action,
     requestId: String?,
+    redirectUri: String?,
   ): AnalyticsCustomerRequestPayload {
     val isUpdate = requestId != null
     val actionType = if (isUpdate) {
@@ -220,7 +226,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           action = stateToAnalyticsAction(actionType),
           createActions = apiActionAsJson,
           createChannel = CHANNEL_IN_APP,
-          createRedirectUrl = paymentKitAction.redirectUri,
+          createRedirectUrl = redirectUri,
           createReferenceId = paymentKitAction.accountReferenceId,
           environment = sdkEnvironment,
         )
@@ -235,7 +241,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
           action = stateToAnalyticsAction(actionType),
           createActions = apiActionAsJson,
           createChannel = CHANNEL_IN_APP,
-          createRedirectUrl = paymentKitAction.redirectUri,
+          createRedirectUrl = redirectUri,
           createReferenceId = null,
           environment = sdkEnvironment,
         )

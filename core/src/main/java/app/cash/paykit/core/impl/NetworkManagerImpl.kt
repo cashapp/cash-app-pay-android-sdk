@@ -78,16 +78,17 @@ internal class NetworkManagerImpl(
   @Throws(IOException::class)
   override fun createCustomerRequest(
     clientId: String,
-    paymentAction: CashAppPayPaymentAction,
+    redirectUri: String,
+    paymentActions: List<CashAppPayPaymentAction>,
   ): NetworkResult<CustomerTopLevelResponse> {
-    val customerRequestData = CustomerRequestDataFactory.build(clientId, paymentAction)
+    val customerRequestData = CustomerRequestDataFactory.build(clientId, redirectUri, paymentActions)
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
       customerRequestData = customerRequestData,
     )
 
     // Record analytics.
-    analyticsEventDispatcher?.createdCustomerRequest(paymentAction, customerRequestData.actions.first())
+    analyticsEventDispatcher?.createdCustomerRequest(paymentActions, customerRequestData.actions, redirectUri)
 
     return executeNetworkRequest(
       POST,
@@ -101,16 +102,16 @@ internal class NetworkManagerImpl(
   override fun updateCustomerRequest(
     clientId: String,
     requestId: String,
-    paymentAction: CashAppPayPaymentAction,
+    paymentActions: List<CashAppPayPaymentAction>,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData =
-      CustomerRequestDataFactory.build(clientId, paymentAction, isRequestUpdate = true)
+      CustomerRequestDataFactory.build(clientId, null, paymentActions, isRequestUpdate = true)
     val createCustomerRequest = CreateCustomerRequest(
       customerRequestData = customerRequestData,
     )
 
     // Record analytics.
-    analyticsEventDispatcher?.updatedCustomerRequest(requestId, paymentAction, customerRequestData.actions.first())
+    analyticsEventDispatcher?.updatedCustomerRequest(requestId, paymentActions, customerRequestData.actions)
 
     return executeNetworkRequest(
       PATCH,

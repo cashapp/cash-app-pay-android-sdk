@@ -31,68 +31,57 @@ object CustomerRequestDataFactory {
 
   fun build(
     clientId: String,
-    paymentAction: CashAppPayPaymentAction,
+    redirectUri: String?,
+    paymentActions: List<CashAppPayPaymentAction>,
     isRequestUpdate: Boolean = false,
   ): CustomerRequestData {
-    return when (paymentAction) {
-      is OnFileAction -> buildFromOnFileAction(clientId, paymentAction, isRequestUpdate)
-      is OneTimeAction -> buildFromOneTimeAction(clientId, paymentAction, isRequestUpdate)
+    val actions = ArrayList<Action>(paymentActions.size)
+    for (paymentAction in paymentActions) {
+      when (paymentAction) {
+        is OnFileAction -> actions.add(buildFromOnFileAction(clientId, paymentAction))
+        is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId, paymentAction))
+      }
+    }
+
+    return if (isRequestUpdate) {
+      CustomerRequestData(
+        actions = actions,
+        channel = null,
+        redirectUri = null,
+      )
+    } else {
+      CustomerRequestData(
+        actions = actions,
+        channel = CHANNEL_IN_APP,
+        redirectUri = redirectUri,
+      )
     }
   }
 
   private fun buildFromOnFileAction(
     clientId: String,
     onFileAction: OnFileAction,
-    isRequestUpdate: Boolean,
-  ): CustomerRequestData {
+  ): Action {
     // Create request data.
     val scopeIdOrClientId = onFileAction.scopeId ?: clientId
-    val requestAction =
-      Action(
-        scopeId = scopeIdOrClientId,
-        type = PAYMENT_TYPE_ON_FILE,
-      )
-    return if (isRequestUpdate) {
-      CustomerRequestData(
-        actions = listOf(requestAction),
-        channel = null,
-        redirectUri = null,
-      )
-    } else {
-      CustomerRequestData(
-        actions = listOf(requestAction),
-        channel = CHANNEL_IN_APP,
-        redirectUri = onFileAction.redirectUri,
-      )
-    }
+
+    return Action(
+      scopeId = scopeIdOrClientId,
+      type = PAYMENT_TYPE_ON_FILE,
+    )
   }
 
   private fun buildFromOneTimeAction(
     clientId: String,
     oneTimeAction: OneTimeAction,
-    isRequestUpdate: Boolean,
-  ): CustomerRequestData {
+  ): Action {
     // Create request data.
     val scopeIdOrClientId = oneTimeAction.scopeId ?: clientId
-    val requestAction =
-      Action(
-        amount_cents = oneTimeAction.amount,
-        currency = oneTimeAction.currency?.backendValue,
-        scopeId = scopeIdOrClientId,
-        type = PAYMENT_TYPE_ONE_TIME,
-      )
-    return if (isRequestUpdate) {
-      CustomerRequestData(
-        actions = listOf(requestAction),
-        channel = null,
-        redirectUri = null,
-      )
-    } else {
-      CustomerRequestData(
-        actions = listOf(requestAction),
-        channel = CHANNEL_IN_APP,
-        redirectUri = oneTimeAction.redirectUri,
-      )
-    }
+    return Action(
+      amount_cents = oneTimeAction.amount,
+      currency = oneTimeAction.currency?.backendValue,
+      scopeId = scopeIdOrClientId,
+      type = PAYMENT_TYPE_ONE_TIME,
+    )
   }
 }

@@ -34,14 +34,15 @@ internal interface PayKitAnalyticsEventDispatcher {
   fun eventListenerRemoved()
 
   fun createdCustomerRequest(
-    paymentKitAction: CashAppPayPaymentAction,
-    apiAction: Action,
+    paymentKitActions: List<CashAppPayPaymentAction>,
+    apiActions: List<Action>,
+    redirectUri: String,
   )
 
   fun updatedCustomerRequest(
     requestId: String,
-    paymentKitAction: CashAppPayPaymentAction,
-    apiAction: Action,
+    paymentKitActions: List<CashAppPayPaymentAction>,
+    apiActions: List<Action>,
   )
 
   fun genericStateChanged(cashAppPayState: CashAppPayState, customerResponseData: CustomerResponseData?)
