@@ -15,26 +15,14 @@
  */
 package app.cash.paykit.core
 
-import android.content.Context
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import app.cash.paykit.core.models.response.CustomerResponseData
-import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import org.junit.Before
 import org.junit.Test
 
 class CashAppPayAuthorizeTests {
-
-  @MockK(relaxed = true)
-  private lateinit var context: Context
-
-  @Before
-  fun setup() {
-    MockKAnnotations.init(this)
-  }
 
   @Test(expected = CashAppPayIntegrationException::class)
   fun `should throw if calling authorize before createCustomer`() {

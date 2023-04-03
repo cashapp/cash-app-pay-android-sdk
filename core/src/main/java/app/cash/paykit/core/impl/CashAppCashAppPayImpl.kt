@@ -117,6 +117,14 @@ internal class CashAppCashAppPayImpl(
   @WorkerThread
   override fun createCustomerRequest(redirectUri: String, paymentActions: List<CashAppPayPaymentAction>) {
     enforceRegisteredStateUpdatesListener()
+
+    // Validate [paymentActions] is not empty.
+    if (paymentActions.isEmpty()) {
+      val exceptionText = "paymentAction should not be empty"
+      currentState = softCrashOrStateException(CashAppPayIntegrationException(exceptionText))
+      return
+    }
+
     currentState = CreatingCustomerRequest
 
     // Network call.
@@ -151,6 +159,14 @@ internal class CashAppCashAppPayImpl(
     paymentActions: List<CashAppPayPaymentAction>,
   ) {
     enforceRegisteredStateUpdatesListener()
+
+    // Validate [paymentActions] is not empty.
+    if (paymentActions.isEmpty()) {
+      val exceptionText = "paymentAction should not be empty"
+      currentState = softCrashOrStateException(CashAppPayIntegrationException(exceptionText))
+      return
+    }
+
     currentState = UpdatingCustomerRequest
 
     // Network request.
@@ -324,6 +340,18 @@ internal class CashAppCashAppPayImpl(
     if (useSandboxEnvironment || BuildConfig.DEBUG) {
       throw exception
     }
+  }
+
+  /**
+   * This function will throw the provided [exception] during development, or change the SDK state to [CashAppPayExceptionState] otherwise.
+   */
+  @Throws
+  private fun softCrashOrStateException(exception: Exception): CashAppPayExceptionState {
+    logError("Error occurred. E.: $exception")
+    if (useSandboxEnvironment || BuildConfig.DEBUG) {
+      throw exception
+    }
+    return CashAppPayExceptionState(exception)
   }
 
   private fun setStateFinished(wasSuccessful: Boolean) {
