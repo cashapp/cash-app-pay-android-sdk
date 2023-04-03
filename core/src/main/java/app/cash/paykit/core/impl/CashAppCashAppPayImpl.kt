@@ -103,11 +103,15 @@ internal class CashAppCashAppPayImpl(
     analyticsEventDispatcher.sdkInitialized()
   }
 
+  override fun createCustomerRequest(redirectUri: String, paymentAction: CashAppPayPaymentAction) {
+    createCustomerRequest(redirectUri, listOf(paymentAction))
+  }
+
   /**
    * Create customer request given a [CashAppPayPaymentAction].
    * Must be called from a background thread.
    *
-   * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
+   * @param paymentActions A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
@@ -129,12 +133,16 @@ internal class CashAppCashAppPayImpl(
     }
   }
 
+  override fun updateCustomerRequest(requestId: String, paymentAction: CashAppPayPaymentAction) {
+    updateCustomerRequest(requestId, listOf(paymentAction))
+  }
+
   /**
    * Update an existing customer request given its [requestId] an the updated definitions contained within [CashAppPayPaymentAction].
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do update.
-   * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
+   * @param paymentActions A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
