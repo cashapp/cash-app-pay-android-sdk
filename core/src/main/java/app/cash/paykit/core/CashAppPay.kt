@@ -45,7 +45,7 @@ interface CashAppPay {
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  fun createCustomerRequest(redirectUri: String, paymentAction: CashAppPayPaymentAction)
+  fun createCustomerRequest(redirectUri: String?, paymentAction: CashAppPayPaymentAction)
 
   /**
    * Create customer request given list of [CashAppPayPaymentAction].
@@ -57,7 +57,7 @@ interface CashAppPay {
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  fun createCustomerRequest(redirectUri: String, paymentActions: List<CashAppPayPaymentAction>)
+  fun createCustomerRequest(redirectUri: String?, paymentActions: List<CashAppPayPaymentAction>)
 
   /**
    * Update an existing customer request given its [requestId] and the updated definitions contained within [CashAppPayPaymentAction].

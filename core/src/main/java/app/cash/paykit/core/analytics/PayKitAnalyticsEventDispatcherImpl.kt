@@ -46,7 +46,6 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
@@ -122,15 +121,13 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun createdCustomerRequest(
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
-    redirectUri: String,
+    redirectUri: String?,
   ) {
-    paymentKitActions.zip(apiActions).forEach { pair ->
-      val eventPayload = createOrUpdateAnalyticsPayload(pair.first, pair.second, null, redirectUri)
+    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
 
-      val es2EventAsJsonString =
-        encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-      payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
-    }
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun updatedCustomerRequest(
@@ -138,13 +135,11 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
   ) {
-    paymentKitActions.zip(apiActions).forEach { pair ->
-      val eventPayload = createOrUpdateAnalyticsPayload(pair.first, pair.second, requestId, null)
+    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
 
-      val es2EventAsJsonString =
-        encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-      payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
-    }
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
   }
 
   override fun genericStateChanged(
@@ -200,8 +195,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   private fun createOrUpdateAnalyticsPayload(
-    paymentKitAction: CashAppPayPaymentAction,
-    apiAction: Action,
+    paymentKitActions: List<CashAppPayPaymentAction>,
+    apiActions: List<Action>,
     requestId: String?,
     redirectUri: String?,
   ): AnalyticsCustomerRequestPayload {
@@ -212,43 +207,29 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       CreatingCustomerRequest
     }
 
-    val moshiAdapter: JsonAdapter<Action> = moshi.adapter()
-    val apiActionAsJson: String = moshiAdapter.toJson(apiAction)
+    val moshiAdapter: JsonAdapter<List<Action>> = moshi.adapter()
+    val apiActionsAsJson: String = moshiAdapter.toJson(apiActions)
 
     // Inner payload of the ES2 event.
-    val eventPayload = when (paymentKitAction) {
-      is OnFileAction -> {
-        AnalyticsCustomerRequestPayload(
-          sdkVersion,
-          userAgent,
-          PLATFORM,
-          clientId,
-          action = stateToAnalyticsAction(actionType),
-          createActions = apiActionAsJson,
-          createChannel = CHANNEL_IN_APP,
-          createRedirectUrl = redirectUri,
-          createReferenceId = paymentKitAction.accountReferenceId,
-          environment = sdkEnvironment,
-        )
-      }
-
-      is OneTimeAction -> {
-        AnalyticsCustomerRequestPayload(
-          sdkVersion,
-          userAgent,
-          PLATFORM,
-          clientId,
-          action = stateToAnalyticsAction(actionType),
-          createActions = apiActionAsJson,
-          createChannel = CHANNEL_IN_APP,
-          createRedirectUrl = redirectUri,
-          createReferenceId = null,
-          environment = sdkEnvironment,
-        )
+    var possibleReferenceId: String? = null
+    for (paymentAction in paymentKitActions) {
+      if (paymentAction is OnFileAction) {
+        possibleReferenceId = paymentAction.accountReferenceId
       }
     }
 
-    return eventPayload
+    return AnalyticsCustomerRequestPayload(
+      sdkVersion,
+      userAgent,
+      PLATFORM,
+      clientId,
+      action = stateToAnalyticsAction(actionType),
+      createActions = apiActionsAsJson,
+      createChannel = CHANNEL_IN_APP,
+      createRedirectUrl = redirectUri,
+      createReferenceId = possibleReferenceId,
+      environment = sdkEnvironment,
+    )
   }
 
   private inline fun <reified In : AnalyticsBasePayload> encodeToJsonString(

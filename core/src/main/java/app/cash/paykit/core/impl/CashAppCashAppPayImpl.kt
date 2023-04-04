@@ -103,7 +103,7 @@ internal class CashAppCashAppPayImpl(
     analyticsEventDispatcher.sdkInitialized()
   }
 
-  override fun createCustomerRequest(redirectUri: String, paymentAction: CashAppPayPaymentAction) {
+  override fun createCustomerRequest(redirectUri: String?, paymentAction: CashAppPayPaymentAction) {
     createCustomerRequest(redirectUri, listOf(paymentAction))
   }
 
@@ -115,7 +115,7 @@ internal class CashAppCashAppPayImpl(
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  override fun createCustomerRequest(redirectUri: String, paymentActions: List<CashAppPayPaymentAction>) {
+  override fun createCustomerRequest(redirectUri: String?, paymentActions: List<CashAppPayPaymentAction>) {
     enforceRegisteredStateUpdatesListener()
 
     // Validate [paymentActions] is not empty.
