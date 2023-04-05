@@ -59,7 +59,7 @@ class NetworkRetryTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // If retry has happened, we got to a `ReadyToAuthorize` state.
     assertThat(mockListener.state).isInstanceOf(ReadyToAuthorize::class.java)
@@ -91,7 +91,7 @@ class NetworkRetryTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // We should retry twice, and then stop retrying. If the number of retries is correct,
     // we should have reached a `PayKitException` and NOT a `ReadyToAuthorize` state.
@@ -127,7 +127,7 @@ class NetworkRetryTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // If retry has happened, we got to a `ReadyToAuthorize` state.
     assertThat(mockListener.state).isInstanceOf(ReadyToAuthorize::class.java)
@@ -162,7 +162,7 @@ class NetworkRetryTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
     assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(

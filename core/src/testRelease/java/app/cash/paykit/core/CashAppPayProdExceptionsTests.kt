@@ -15,17 +15,14 @@
  */
 package app.cash.paykit.core
 
-import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.impl.CashAppCashAppPayImpl
-import app.cash.paykit.core.models.common.NetworkResult
 import io.mockk.MockKAnnotations
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import org.junit.Before
 import org.junit.Test
 
-class CashAppPayExceptionsTests {
+class CashAppPayProdExceptionsTests {
 
   @MockK(relaxed = true)
   private lateinit var networkManager: NetworkManager
@@ -35,30 +32,12 @@ class CashAppPayExceptionsTests {
     MockKAnnotations.init(this)
   }
 
-  @Test(expected = CashAppPayIntegrationException::class)
-  fun `should throw on createCustomerRequest if has NOT registered for state updates`() {
-    val payKit = createPayKit(useSandboxEnvironment = true)
-    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
-  }
-
-  @Test(expected = CashAppPayIntegrationException::class)
-  fun `should throw during Dev when paymentActions is an empty list`() {
-    val payKit = createPayKit(useSandboxEnvironment = true)
-    val listener = mockk<CashAppPayListener>(relaxed = true)
-    payKit.registerForStateUpdates(listener)
-    payKit.createCustomerRequest(emptyList(), FakeData.REDIRECT_URI)
-  }
-
   @Test
-  fun `logAndSoftCrash should NOT crash in prod`() {
+  fun `softCrashOrStateException should NOT crash in prod`() {
     val payKit = createPayKit(useSandboxEnvironment = false)
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
-
-    every { networkManager.createCustomerRequest(any(), any(), any()) } returns NetworkResult.failure(
-      Exception("bad"),
-    )
-    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
+    payKit.createCustomerRequest(emptyList(), FakeData.REDIRECT_URI)
   }
 
   private fun createPayKit(useSandboxEnvironment: Boolean) =

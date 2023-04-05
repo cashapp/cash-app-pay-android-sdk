@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew lint spotlessCheck
 
       - name: Unit Tests
-        run: ./gradlew test
+        run: ./gradlew testRelease testDebug
 
       - name: Build
         run: ./gradlew core:assemble

@@ -61,7 +61,7 @@ class NetworkErrorTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // Verify that all the appropriate exception wrapping has occurred for a 503 error.
     assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)
@@ -101,7 +101,7 @@ class NetworkErrorTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
     assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)
@@ -140,7 +140,7 @@ class NetworkErrorTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
     assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(
@@ -199,7 +199,7 @@ class NetworkErrorTests {
     val mockListener = MockListener()
     payKit.registerForStateUpdates(mockListener)
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // Verify that we got the appropriate JSON deserialization error.
     assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)

@@ -24,7 +24,7 @@ object FakeData {
   const val REDIRECT_URI = "fake_redirect_uri"
   const val FAKE_AMOUNT = 500
 
-  val oneTimePayment = OneTimeAction(REDIRECT_URI, USD, FAKE_AMOUNT, BRAND_ID)
+  val oneTimePayment = OneTimeAction(USD, FAKE_AMOUNT, BRAND_ID)
 
   val validCreateCustomerJSONresponse = """{
          "request":{

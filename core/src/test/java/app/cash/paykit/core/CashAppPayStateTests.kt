@@ -72,11 +72,11 @@ class CashAppPayStateTests {
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
-    every { networkManager.createCustomerRequest(any(), any()) } returns NetworkResult.failure(
+    every { networkManager.createCustomerRequest(any(), any(), any()) } returns NetworkResult.failure(
       Exception("bad"),
     )
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
     verify { listener.cashAppPayStateDidChange(CreatingCustomerRequest) }
   }
 
@@ -120,10 +120,11 @@ class CashAppPayStateTests {
       networkManager.createCustomerRequest(
         any(),
         any(),
+        any(),
       )
     } returns customerTopLevelResponse
 
-    payKit.createCustomerRequest(FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
     verify { listener.cashAppPayStateDidChange(ofType(ReadyToAuthorize::class)) }
   }
 
@@ -245,10 +246,6 @@ class CashAppPayStateTests {
 
     fun simulateOnApplicationForegrounded() {
       listener?.onApplicationForegrounded()
-    }
-
-    fun simulateOnApplicationBackgrounded() {
-      listener?.onApplicationBackgrounded()
     }
 
     override fun register(newInstance: CashAppPayLifecycleListener) {

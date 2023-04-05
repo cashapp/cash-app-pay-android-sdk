@@ -61,8 +61,6 @@ internal class CashAppCashAppPayImpl(
   initialCustomerResponseData: CustomerResponseData? = null,
 ) : CashAppPay, CashAppPayLifecycleListener {
 
-  // TODO: Check if a given API call is allowed against a given internal SDK state. ( https://www.notion.so/cashappcash/Check-if-a-given-API-call-is-allowed-against-current-internal-SDK-state-0073051cd5aa42c7b9672542e9576f85 )
-
   private var callbackListener: CashAppPayListener? = null
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
@@ -103,20 +101,32 @@ internal class CashAppCashAppPayImpl(
     analyticsEventDispatcher.sdkInitialized()
   }
 
+  override fun createCustomerRequest(paymentAction: CashAppPayPaymentAction, redirectUri: String?) {
+    createCustomerRequest(listOf(paymentAction), redirectUri)
+  }
+
   /**
    * Create customer request given a [CashAppPayPaymentAction].
    * Must be called from a background thread.
    *
-   * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
+   * @param paymentActions A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  override fun createCustomerRequest(paymentAction: CashAppPayPaymentAction) {
+  override fun createCustomerRequest(paymentActions: List<CashAppPayPaymentAction>, redirectUri: String?) {
     enforceRegisteredStateUpdatesListener()
+
+    // Validate [paymentActions] is not empty.
+    if (paymentActions.isEmpty()) {
+      val exceptionText = "paymentAction should not be empty"
+      currentState = softCrashOrStateException(CashAppPayIntegrationException(exceptionText))
+      return
+    }
+
     currentState = CreatingCustomerRequest
 
     // Network call.
-    val networkResult = networkManager.createCustomerRequest(clientId, paymentAction)
+    val networkResult = networkManager.createCustomerRequest(clientId, paymentActions, redirectUri)
     when (networkResult) {
       is Failure -> {
         currentState = CashAppPayExceptionState(networkResult.exception)
@@ -129,24 +139,36 @@ internal class CashAppCashAppPayImpl(
     }
   }
 
+  override fun updateCustomerRequest(requestId: String, paymentAction: CashAppPayPaymentAction) {
+    updateCustomerRequest(requestId, listOf(paymentAction))
+  }
+
   /**
    * Update an existing customer request given its [requestId] an the updated definitions contained within [CashAppPayPaymentAction].
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do update.
-   * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer request.
+   * @param paymentActions A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
   override fun updateCustomerRequest(
     requestId: String,
-    paymentAction: CashAppPayPaymentAction,
+    paymentActions: List<CashAppPayPaymentAction>,
   ) {
     enforceRegisteredStateUpdatesListener()
+
+    // Validate [paymentActions] is not empty.
+    if (paymentActions.isEmpty()) {
+      val exceptionText = "paymentAction should not be empty"
+      currentState = softCrashOrStateException(CashAppPayIntegrationException(exceptionText))
+      return
+    }
+
     currentState = UpdatingCustomerRequest
 
     // Network request.
-    val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentAction)
+    val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentActions)
     when (networkResult) {
       is Failure -> {
         currentState = CashAppPayExceptionState(networkResult.exception)
@@ -316,6 +338,18 @@ internal class CashAppCashAppPayImpl(
     if (useSandboxEnvironment || BuildConfig.DEBUG) {
       throw exception
     }
+  }
+
+  /**
+   * This function will throw the provided [exception] during development, or change the SDK state to [CashAppPayExceptionState] otherwise.
+   */
+  @Throws
+  private fun softCrashOrStateException(exception: Exception): CashAppPayExceptionState {
+    logError("Error occurred. E.: $exception")
+    if (useSandboxEnvironment || BuildConfig.DEBUG) {
+      throw exception
+    }
+    return CashAppPayExceptionState(exception)
   }
 
   private fun setStateFinished(wasSuccessful: Boolean) {
