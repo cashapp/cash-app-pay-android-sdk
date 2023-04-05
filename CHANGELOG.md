@@ -1,3 +1,7 @@
+# 2.0.0
+
+ - 
+
 # 1.0.8
 
  - Added the property `environment` to internal analytics.
