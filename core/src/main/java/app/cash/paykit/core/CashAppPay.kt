@@ -40,7 +40,7 @@ interface CashAppPay {
    *
    * Must be called from a background thread.
    *
-   * @param redirectUri The URI for Cash App to redirect back to your app.
+   * @param redirectUri The URI for Cash App to redirect back to your app. If you do not set this, back navigation from CashApp might not work as intended.
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer requests.
    *                      Look at [PayKitPaymentAction] for more details.
    */
@@ -52,7 +52,7 @@ interface CashAppPay {
    *
    * Must be called from a background thread.
    *
-   * @param redirectUri The URI for Cash App to redirect back to your app.
+   * @param redirectUri The URI for Cash App to redirect back to your app. If you do not set this, back navigation from CashApp might not work as intended.
    * @param paymentActions A wrapper class that contains all of the necessary ingredients for building one or more customer requests.
    *                      Look at [PayKitPaymentAction] for more details.
    */
