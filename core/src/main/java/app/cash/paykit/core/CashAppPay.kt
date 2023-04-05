@@ -40,24 +40,24 @@ interface CashAppPay {
    *
    * Must be called from a background thread.
    *
-   * @param redirectUri The URI for Cash App to redirect back to your app. If you do not set this, back navigation from CashApp might not work as intended.
    * @param paymentAction A wrapper class that contains all of the necessary ingredients for building a customer requests.
    *                      Look at [PayKitPaymentAction] for more details.
+   * @param redirectUri The URI for Cash App to redirect back to your app. If you do not set this, back navigation from CashApp might not work as intended.
    */
   @WorkerThread
-  fun createCustomerRequest(redirectUri: String?, paymentAction: CashAppPayPaymentAction)
+  fun createCustomerRequest(paymentAction: CashAppPayPaymentAction, redirectUri: String?)
 
   /**
    * Create customer request given list of [CashAppPayPaymentAction].
    *
    * Must be called from a background thread.
    *
-   * @param redirectUri The URI for Cash App to redirect back to your app. If you do not set this, back navigation from CashApp might not work as intended.
    * @param paymentActions A wrapper class that contains all of the necessary ingredients for building one or more customer requests.
    *                      Look at [PayKitPaymentAction] for more details.
+   * @param redirectUri The URI for Cash App to redirect back to your app. If you do not set this, back navigation from CashApp might not work as intended.
    */
   @WorkerThread
-  fun createCustomerRequest(redirectUri: String?, paymentActions: List<CashAppPayPaymentAction>)
+  fun createCustomerRequest(paymentActions: List<CashAppPayPaymentAction>, redirectUri: String?)
 
   /**
    * Update an existing customer request given its [requestId] and the updated definitions contained within [CashAppPayPaymentAction].

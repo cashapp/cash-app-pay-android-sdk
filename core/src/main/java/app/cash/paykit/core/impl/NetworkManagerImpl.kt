@@ -78,8 +78,8 @@ internal class NetworkManagerImpl(
   @Throws(IOException::class)
   override fun createCustomerRequest(
     clientId: String,
-    redirectUri: String?,
     paymentActions: List<CashAppPayPaymentAction>,
+    redirectUri: String?,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData = CustomerRequestDataFactory.build(clientId, redirectUri, paymentActions)
     val createCustomerRequest = CreateCustomerRequest(

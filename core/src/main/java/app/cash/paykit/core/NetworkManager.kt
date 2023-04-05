@@ -26,8 +26,8 @@ internal interface NetworkManager {
   @Throws(IOException::class)
   fun createCustomerRequest(
     clientId: String,
-    redirectUri: String?,
     paymentActions: List<CashAppPayPaymentAction>,
+    redirectUri: String?,
   ): NetworkResult<CustomerTopLevelResponse>
 
   @Throws(IOException::class)

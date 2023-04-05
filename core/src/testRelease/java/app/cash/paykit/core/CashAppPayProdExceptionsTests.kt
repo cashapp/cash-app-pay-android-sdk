@@ -37,7 +37,7 @@ class CashAppPayProdExceptionsTests {
     val payKit = createPayKit(useSandboxEnvironment = false)
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
-    payKit.createCustomerRequest(FakeData.REDIRECT_URI, emptyList())
+    payKit.createCustomerRequest(emptyList(), FakeData.REDIRECT_URI)
   }
 
   private fun createPayKit(useSandboxEnvironment: Boolean) =

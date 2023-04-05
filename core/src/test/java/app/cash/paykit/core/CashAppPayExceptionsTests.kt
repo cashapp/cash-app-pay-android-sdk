@@ -38,7 +38,7 @@ class CashAppPayExceptionsTests {
   @Test(expected = CashAppPayIntegrationException::class)
   fun `should throw on createCustomerRequest if has NOT registered for state updates`() {
     val payKit = createPayKit(useSandboxEnvironment = true)
-    payKit.createCustomerRequest(FakeData.REDIRECT_URI, FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
   }
 
   @Test(expected = CashAppPayIntegrationException::class)
@@ -46,7 +46,7 @@ class CashAppPayExceptionsTests {
     val payKit = createPayKit(useSandboxEnvironment = true)
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
-    payKit.createCustomerRequest(FakeData.REDIRECT_URI, emptyList())
+    payKit.createCustomerRequest(emptyList(), FakeData.REDIRECT_URI)
   }
 
   @Test
@@ -58,7 +58,7 @@ class CashAppPayExceptionsTests {
     every { networkManager.createCustomerRequest(any(), any(), any()) } returns NetworkResult.failure(
       Exception("bad"),
     )
-    payKit.createCustomerRequest(FakeData.REDIRECT_URI, FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
   }
 
   private fun createPayKit(useSandboxEnvironment: Boolean) =

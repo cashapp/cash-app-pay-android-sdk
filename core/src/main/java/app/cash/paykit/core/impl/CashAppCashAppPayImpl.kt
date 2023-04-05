@@ -61,8 +61,6 @@ internal class CashAppCashAppPayImpl(
   initialCustomerResponseData: CustomerResponseData? = null,
 ) : CashAppPay, CashAppPayLifecycleListener {
 
-  // TODO: Check if a given API call is allowed against a given internal SDK state. ( https://www.notion.so/cashappcash/Check-if-a-given-API-call-is-allowed-against-current-internal-SDK-state-0073051cd5aa42c7b9672542e9576f85 )
-
   private var callbackListener: CashAppPayListener? = null
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
@@ -103,8 +101,8 @@ internal class CashAppCashAppPayImpl(
     analyticsEventDispatcher.sdkInitialized()
   }
 
-  override fun createCustomerRequest(redirectUri: String?, paymentAction: CashAppPayPaymentAction) {
-    createCustomerRequest(redirectUri, listOf(paymentAction))
+  override fun createCustomerRequest(paymentAction: CashAppPayPaymentAction, redirectUri: String?) {
+    createCustomerRequest(listOf(paymentAction), redirectUri)
   }
 
   /**
@@ -115,7 +113,7 @@ internal class CashAppCashAppPayImpl(
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  override fun createCustomerRequest(redirectUri: String?, paymentActions: List<CashAppPayPaymentAction>) {
+  override fun createCustomerRequest(paymentActions: List<CashAppPayPaymentAction>, redirectUri: String?) {
     enforceRegisteredStateUpdatesListener()
 
     // Validate [paymentActions] is not empty.
@@ -128,7 +126,7 @@ internal class CashAppCashAppPayImpl(
     currentState = CreatingCustomerRequest
 
     // Network call.
-    val networkResult = networkManager.createCustomerRequest(clientId, redirectUri, paymentActions)
+    val networkResult = networkManager.createCustomerRequest(clientId, paymentActions, redirectUri)
     when (networkResult) {
       is Failure -> {
         currentState = CashAppPayExceptionState(networkResult.exception)

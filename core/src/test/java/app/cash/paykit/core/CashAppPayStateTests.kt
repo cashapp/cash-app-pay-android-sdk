@@ -76,7 +76,7 @@ class CashAppPayStateTests {
       Exception("bad"),
     )
 
-    payKit.createCustomerRequest(FakeData.REDIRECT_URI, FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
     verify { listener.cashAppPayStateDidChange(CreatingCustomerRequest) }
   }
 
@@ -124,7 +124,7 @@ class CashAppPayStateTests {
       )
     } returns customerTopLevelResponse
 
-    payKit.createCustomerRequest(FakeData.REDIRECT_URI, FakeData.oneTimePayment)
+    payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
     verify { listener.cashAppPayStateDidChange(ofType(ReadyToAuthorize::class)) }
   }
 
@@ -246,10 +246,6 @@ class CashAppPayStateTests {
 
     fun simulateOnApplicationForegrounded() {
       listener?.onApplicationForegrounded()
-    }
-
-    fun simulateOnApplicationBackgrounded() {
-      listener?.onApplicationBackgrounded()
     }
 
     override fun register(newInstance: CashAppPayLifecycleListener) {
