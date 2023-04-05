@@ -1,6 +1,15 @@
 # 2.0.0
 
- - 
+This version introduces support for multiple `CashAppPayPaymentAction` per `createCustomerRequest`.
+This is a breaking change. The following functions have changed:
+
+ - `createCustomerRequest(paymentAction: CashAppPayPaymentAction)` to `createCustomerRequest(paymentAction: CashAppPayPaymentAction, redirectUri: String?)` <br/>
+ - `CashAppPayPaymentAction` no longer contains the `redirectUri` parameter. Instead pass that value to the `createCustomerRequest` function.
+
+And the following functions were introduced:
+
+ - `createCustomerRequest(paymentActions: List<CashAppPayPaymentAction>, redirectUri: String?)`
+ - `updateCustomerRequest(requestId: String, paymentActions: List<CashAppPayPaymentAction>)`
 
 # 1.0.8
 
