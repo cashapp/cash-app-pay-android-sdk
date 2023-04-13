@@ -197,7 +197,7 @@ internal class CashAppCashAppPayImpl(
         // Determine what kind of status we got.
         currentState = when (customerResponseData?.status) {
           STATUS_PENDING -> {
-            ReadyToAuthorize(networkResult.data.customerResponseData)
+            Authorizing
           }
 
           STATUS_APPROVED -> {
@@ -208,6 +208,8 @@ internal class CashAppCashAppPayImpl(
             Declined
           }
         }
+
+        updateStateAndPoolForTransactionStatus()
       }
     }
   }
@@ -360,16 +362,20 @@ internal class CashAppCashAppPayImpl(
     }
   }
 
+  private fun updateStateAndPoolForTransactionStatus() {
+    if (currentState is Authorizing) {
+      currentState = PollingTransactionStatus
+      poolTransactionStatus()
+    }
+  }
+
   /**
    * Lifecycle callbacks.
    */
 
   override fun onApplicationForegrounded() {
     logError("onApplicationForegrounded")
-    if (currentState is Authorizing) {
-      currentState = PollingTransactionStatus
-      poolTransactionStatus()
-    }
+    updateStateAndPoolForTransactionStatus()
   }
 
   override fun onApplicationBackgrounded() {
