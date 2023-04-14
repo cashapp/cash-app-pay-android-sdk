@@ -44,6 +44,7 @@ import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.STATUS_APPROVED
 import app.cash.paykit.core.models.response.STATUS_PENDING
+import app.cash.paykit.core.models.response.STATUS_PROCESSING
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.utils.orElse
 
@@ -196,8 +197,12 @@ internal class CashAppCashAppPayImpl(
 
         // Determine what kind of status we got.
         currentState = when (customerResponseData?.status) {
-          STATUS_PENDING -> {
+          STATUS_PROCESSING -> {
             Authorizing
+          }
+
+          STATUS_PENDING -> {
+            ReadyToAuthorize(customerResponseData!!)
           }
 
           STATUS_APPROVED -> {
