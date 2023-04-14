@@ -38,10 +38,10 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.RequestBody
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
@@ -202,8 +202,8 @@ internal class NetworkManagerImpl(
     with(requestBuilder) {
       when (requestType) {
         GET -> get()
-        POST -> post(requestJsonPayload.toRequestBody(JSON_MEDIA_TYPE))
-        PATCH -> patch(requestJsonPayload.toRequestBody(JSON_MEDIA_TYPE))
+        POST -> post(RequestBody.create(JSON_MEDIA_TYPE, requestJsonPayload))
+        PATCH -> patch(RequestBody.create(JSON_MEDIA_TYPE, requestJsonPayload))
       }
     }
 
@@ -217,7 +217,7 @@ internal class NetworkManagerImpl(
         }
 
         okHttpClient.newCall(requestBuilder.build()).execute().use { response ->
-          if (response.code >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
+          if (response.code() >= HttpURLConnection.HTTP_INTERNAL_ERROR) {
             retryManager.networkAttemptFailed()
 
             // Wait until the next retry.
@@ -236,7 +236,7 @@ internal class NetworkManagerImpl(
             //
             // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
             val apiErrorResponse: NetworkResult<ApiErrorResponse> =
-              deserializeResponse(response.body?.string() ?: "", moshi)
+              deserializeResponse(response.body()?.string() ?: "", moshi)
             return when (apiErrorResponse) {
               is Failure -> NetworkResult.failure(
                 CashAppPayConnectivityNetworkException(apiErrorResponse.exception),
@@ -256,7 +256,7 @@ internal class NetworkManagerImpl(
           }
 
           // Success continues here.
-          return deserializeResponse(response.body!!.string(), moshi)
+          return deserializeResponse(response.body()?.string() ?: "", moshi)
         }
       } catch (e: Exception) {
         retryManager.networkAttemptFailed()
@@ -294,6 +294,6 @@ internal class NetworkManagerImpl(
   }
 
   companion object {
-    private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
+    private val JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=utf-8")
   }
 }
