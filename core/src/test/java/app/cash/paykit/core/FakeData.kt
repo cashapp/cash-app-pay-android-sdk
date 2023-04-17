@@ -23,6 +23,7 @@ object FakeData {
   const val BRAND_ID = "fake_brand_id"
   const val REDIRECT_URI = "fake_redirect_uri"
   const val FAKE_AMOUNT = 500
+  const val REQUEST_ID = "Request-id-fake-123"
 
   val oneTimePayment = OneTimeAction(USD, FAKE_AMOUNT, BRAND_ID)
 
