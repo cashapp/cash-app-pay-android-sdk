@@ -54,7 +54,7 @@ def NEXT_VERSION = "2.0.2-SNAPSHOT"
 
 allprojects {
   group = 'app.cash.paykit'
-  version = '2.0.1'
+  version = '2.0.1-SNAPSHOT'
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     mavenPublishing {
