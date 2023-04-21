@@ -5,8 +5,6 @@ plugins {
   id "com.vanniktech.maven.publish.base"
 }
 
-apply plugin: 'kotlin-kapt'
-
 task sourceJar(type: Jar) {
   from android.sourceSets.main.java.srcDirs
   classifier "sources"
@@ -58,10 +56,6 @@ android {
       includeAndroidResources = true
     }
   }
-}
-
-kapt {
-  useBuildCache = false
 }
 
 dependencies {
