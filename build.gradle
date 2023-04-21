@@ -5,7 +5,7 @@ buildscript {
   ext {
     junit_androidx_version = '1.1.5'
     junit_version = '4.13.2'
-    moshi_version = '1.13.0'
+    moshi_version = '1.12.0'
     lifecycle_version = '2.5.1'
     mockk_version = '1.13.3'
     coroutines_test_version = '1.6.4'
@@ -50,11 +50,11 @@ subprojects { subproject ->
     }
   }
 }
-def NEXT_VERSION = "2.0.2-SNAPSHOT"
+def NEXT_VERSION = "2.0.3-SNAPSHOT"
 
 allprojects {
   group = 'app.cash.paykit'
-  version = '2.0.1-SNAPSHOT'
+  version = '2.0.2-SNAPSHOT'
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     mavenPublishing {
