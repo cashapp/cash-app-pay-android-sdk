@@ -15,7 +15,6 @@
  */
 package app.cash.paykit.core.analytics
 
-import EventStream2Event
 import app.cash.paykit.analytics.PayKitAnalytics
 import app.cash.paykit.analytics.core.DeliveryHandler
 import app.cash.paykit.analytics.core.DeliveryListener
@@ -34,6 +33,7 @@ import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.EventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
+import app.cash.paykit.core.models.analytics.EventStream2Event
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload

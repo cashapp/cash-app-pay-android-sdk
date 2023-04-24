@@ -27,6 +27,6 @@ internal data class EventStream2Event constructor(
   override val metaData = null
 
   companion object {
-    const val ESEventType = "EventStream2Event"
+    const val ESEventType = "app.cash.paykit.core.models.analytics.EventStream2Event"
   }
 }
