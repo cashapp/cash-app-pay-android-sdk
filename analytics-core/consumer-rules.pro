@@ -1,0 +1,2 @@
+-keep class app.cash.paykit.** { *; }
+-keep class com.squareup.moshi.** { *; }
