@@ -15,7 +15,6 @@
  */
 package app.cash.paykit.core.analytics
 
-import EventStream2Event
 import app.cash.paykit.analytics.PayKitAnalytics
 import app.cash.paykit.analytics.core.DeliveryHandler
 import app.cash.paykit.analytics.core.DeliveryListener
@@ -32,8 +31,9 @@ import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.analytics.EventStream2Event.Companion.ESEventType
+import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
+import app.cash.paykit.core.models.analytics.EventStream2Event
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
@@ -95,7 +95,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       encodeToJsonString(initializationPayload, AnalyticsInitializationPayload.CATALOG)
 
     // Schedule event to be sent.
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun eventListenerAdded() {
@@ -105,7 +105,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun eventListenerRemoved() {
@@ -115,7 +115,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun createdCustomerRequest(
@@ -127,7 +127,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun updatedCustomerRequest(
@@ -139,7 +139,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun genericStateChanged(
@@ -150,7 +150,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(cashAppPayState))
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun stateApproved(
@@ -160,7 +160,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       eventFromCustomerResponseData(approved.responseData).copy(action = stateToAnalyticsAction(approved))
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun exceptionOccurred(
@@ -187,7 +187,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(EventStream2Event(es2EventAsJsonString))
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun shutdown() {
