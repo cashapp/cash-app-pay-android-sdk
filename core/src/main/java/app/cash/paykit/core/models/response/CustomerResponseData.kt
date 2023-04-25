@@ -17,12 +17,10 @@ package app.cash.paykit.core.models.response
 
 import app.cash.paykit.core.models.common.Action
 import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
 
 const val STATUS_PENDING = "PENDING"
 const val STATUS_APPROVED = "APPROVED"
 
-@JsonClass(generateAdapter = true)
 data class CustomerResponseData(
   @Json(name = "actions")
   val actions: List<Action>,

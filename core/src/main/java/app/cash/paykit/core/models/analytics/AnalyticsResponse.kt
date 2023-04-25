@@ -16,9 +16,7 @@
 package app.cash.paykit.core.models.analytics
 
 import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
 
-@JsonClass(generateAdapter = true)
 data class AnalyticsResponse(
   @Json(name = "failure_count")
   val failureCount: Int,
