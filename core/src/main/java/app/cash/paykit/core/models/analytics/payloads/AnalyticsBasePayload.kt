@@ -15,17 +15,4 @@
  */
 package app.cash.paykit.core.models.analytics.payloads
 
-open class AnalyticsBasePayload(
-  // Version of the SDK.
-  open val sdkVersion: String,
-
-  // User Agent of the app.
-  open val clientUserAgent: String,
-
-  open val requestPlatform: String,
-
-  open val clientId: String,
-
-  // Environment the SDK is running against. E.: production, sandbox, staging, etc.
-  open val environment: String,
-)
+open class AnalyticsBasePayload()

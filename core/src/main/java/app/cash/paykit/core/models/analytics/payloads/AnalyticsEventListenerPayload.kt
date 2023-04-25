@@ -25,19 +25,19 @@ class AnalyticsEventListenerPayload(
   * Common fields.
   */
   @Json(name = "mobile_cap_pk_event_listener_sdk_version")
-  sdkVersion: String,
+  val sdkVersion: String,
 
   @Json(name = "mobile_cap_pk_event_listener_client_ua")
-  clientUserAgent: String,
+  val clientUserAgent: String,
 
   @Json(name = "mobile_cap_pk_event_listener_platform")
-  requestPlatform: String,
+  val requestPlatform: String,
 
   @Json(name = "mobile_cap_pk_event_listener_client_id")
-  clientId: String,
+  val clientId: String,
 
   @Json(name = "mobile_cap_pk_event_listener_environment")
-  override val environment: String,
+  val environment: String,
 
   /*
   * Event Specific fields.
@@ -49,7 +49,7 @@ class AnalyticsEventListenerPayload(
   @Json(name = "mobile_cap_pk_event_listener_is_added")
   val isAdded: Boolean,
 
-) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId, environment) {
+) : AnalyticsBasePayload() {
 
   companion object {
     const val CATALOG = "mobile_cap_pk_event_listener"

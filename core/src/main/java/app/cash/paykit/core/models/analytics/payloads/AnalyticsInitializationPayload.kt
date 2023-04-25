@@ -25,21 +25,21 @@ class AnalyticsInitializationPayload(
   * Common fields.
   */
   @Json(name = "mobile_cap_pk_initialization_sdk_version")
-  sdkVersion: String,
+  val sdkVersion: String,
 
   @Json(name = "mobile_cap_pk_initialization_client_ua")
-  clientUserAgent: String,
+  val clientUserAgent: String,
 
   @Json(name = "mobile_cap_pk_initialization_platform")
-  requestPlatform: String,
+  val requestPlatform: String,
 
   @Json(name = "mobile_cap_pk_initialization_client_id")
-  clientId: String,
+  val clientId: String,
 
   @Json(name = "mobile_cap_pk_initialization_environment")
-  override val environment: String,
+  val environment: String,
 
-) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId, environment) {
+) : AnalyticsBasePayload() {
 
   companion object {
     const val CATALOG = "mobile_cap_pk_initialization"

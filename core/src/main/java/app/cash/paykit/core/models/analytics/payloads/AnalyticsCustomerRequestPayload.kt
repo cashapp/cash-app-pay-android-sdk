@@ -26,19 +26,19 @@ data class AnalyticsCustomerRequestPayload(
   * Common fields.
   */
   @Json(name = "mobile_cap_pk_customer_request_sdk_version")
-  override val sdkVersion: String,
+  val sdkVersion: String,
 
   @Json(name = "mobile_cap_pk_customer_request_client_ua")
-  override val clientUserAgent: String,
+  val clientUserAgent: String,
 
   @Json(name = "mobile_cap_pk_customer_request_platform")
-  override val requestPlatform: String,
+  val requestPlatform: String,
 
   @Json(name = "mobile_cap_pk_customer_request_client_id")
-  override val clientId: String,
+  val clientId: String,
 
   @Json(name = "mobile_cap_pk_customer_request_environment")
-  override val environment: String,
+  val environment: String,
 
   /*
   * Create Request.
@@ -175,7 +175,7 @@ data class AnalyticsCustomerRequestPayload(
   // The field of the error.
   @Json(name = "mobile_cap_pk_customer_request_error_field")
   val errorField: String? = null,
-) : AnalyticsBasePayload(sdkVersion, clientUserAgent, requestPlatform, clientId, environment) {
+) : AnalyticsBasePayload() {
 
   companion object {
     const val CATALOG = "mobile_cap_pk_customer_request"
