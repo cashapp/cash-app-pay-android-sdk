@@ -7,7 +7,7 @@ buildscript {
     junit_version = '4.13.2'
     moshi_version = '1.12.0'
     lifecycle_version = '2.5.1'
-    mockk_version = '1.13.3'
+    mockk_version = '1.12.3'
     coroutines_test_version = '1.6.4'
     robolectric_version = '4.9.2'
     mockwebserver_version = '4.10.0'
