@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package app.cash.paykit.analytics
 
 import android.content.Context
@@ -31,7 +30,6 @@ import java.util.concurrent.FutureTask
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.time.ExperimentalTime
 
 class PayKitAnalytics constructor(
   private val context: Context,
