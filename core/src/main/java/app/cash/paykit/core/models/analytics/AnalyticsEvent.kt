@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class AnalyticsEvent(
   @Json(name = "app_name")
   val appName: String,

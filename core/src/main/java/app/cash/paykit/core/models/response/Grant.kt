@@ -17,7 +17,9 @@ package app.cash.paykit.core.models.response
 
 import app.cash.paykit.core.models.common.Action
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Grant(
   @Json(name = "id")
   val id: String,

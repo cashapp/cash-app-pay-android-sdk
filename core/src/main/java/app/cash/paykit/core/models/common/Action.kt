@@ -16,7 +16,9 @@
 package app.cash.paykit.core.models.common
 
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Action(
   @Json(name = "amount")
   val amount_cents: Int? = null,
