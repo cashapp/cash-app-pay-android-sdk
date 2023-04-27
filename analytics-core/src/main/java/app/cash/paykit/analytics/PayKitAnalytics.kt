@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalTime::class)
+
 package app.cash.paykit.analytics
 
 import android.content.Context
@@ -30,6 +32,7 @@ import java.util.concurrent.FutureTask
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.time.ExperimentalTime
 
 class PayKitAnalytics constructor(
   private val context: Context,
@@ -121,8 +124,8 @@ class PayKitAnalytics constructor(
         TAG,
         "Initializing scheduled executor service | delay:%ds, interval:%ds".format(
           Locale.US,
-          options.delay.inWholeSeconds,
-          options.interval.inWholeSeconds,
+          options.delay.seconds,
+          options.interval.seconds,
         ),
       )
       it.scheduleAtFixedRate({
@@ -131,7 +134,7 @@ class PayKitAnalytics constructor(
           return@scheduleAtFixedRate
         }
         startDelivery(false)
-      }, options.delay.inWholeSeconds, options.interval.inWholeSeconds, TimeUnit.SECONDS)
+      }, options.delay.seconds, options.interval.seconds, TimeUnit.SECONDS)
     }
   }
 

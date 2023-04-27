@@ -31,7 +31,7 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
-import kotlin.time.Duration.Companion.seconds
+import java.time.Duration
 
 interface CashAppPay {
 
@@ -155,7 +155,7 @@ object CashAppPayFactory {
       PayKitAnalytics(
         context = ApplicationContextHolder.applicationContext,
         options = AnalyticsOptions(
-          delay = 10.seconds,
+          delay = Duration.ofSeconds(10),
           logLevel = Log.VERBOSE,
           databaseName = dbName,
           isLoggerDisabled = !BuildConfig.DEBUG,

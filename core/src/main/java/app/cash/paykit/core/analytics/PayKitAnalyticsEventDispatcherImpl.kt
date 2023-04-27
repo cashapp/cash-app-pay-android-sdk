@@ -49,7 +49,6 @@ import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import java.util.*
 
 private const val APP_NAME = "paykitsdk-android"
@@ -63,7 +62,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkEnvironment: String,
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
-  private val moshi: Moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build(),
+  private val moshi: Moshi = Moshi.Builder().build(),
 ) : PayKitAnalyticsEventDispatcher {
 
   private var eventStreamDeliverHandler: DeliveryHandler? = null

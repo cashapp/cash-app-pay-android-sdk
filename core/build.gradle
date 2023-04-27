@@ -3,6 +3,7 @@ plugins {
   id 'org.jetbrains.kotlin.android'
   id 'project-report' // run ./gradlew htmlDependencyReport
   id "com.vanniktech.maven.publish.base"
+  id "org.jetbrains.kotlin.kapt"
 }
 
 task sourceJar(type: Jar) {
@@ -35,6 +36,8 @@ android {
   compileOptions {
     sourceCompatibility JavaVersion.VERSION_1_8
     targetCompatibility JavaVersion.VERSION_1_8
+
+    coreLibraryDesugaringEnabled true
   }
   kotlinOptions {
     jvmTarget = '1.8'
@@ -62,6 +65,7 @@ dependencies {
 
   //noinspection GradleDependency
   implementation("com.squareup.moshi:moshi-kotlin:$moshi_version")
+  kapt("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
 
   // Provides a lifecycle for the whole application process.
   implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
@@ -87,6 +91,9 @@ dependencies {
   testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_test_version"
   //Test helpers for Lifecycle runtime
   testImplementation "androidx.lifecycle:lifecycle-runtime-testing:$lifecycle_version"
+
+  //noinspection GradleDependency
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 }
 
 mavenPublishing {

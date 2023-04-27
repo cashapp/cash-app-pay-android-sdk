@@ -16,16 +16,15 @@
 package app.cash.paykit.analytics
 
 import android.util.Log
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
+import java.time.Duration
 
 data class AnalyticsOptions constructor(
 
   /** Delay in seconds to wait until we begin to deliver events. */
-  val delay: Duration = 0.seconds,
+  val delay: Duration = Duration.ofSeconds(0),
 
   /** Interval of time between uploading batches. */
-  val interval: Duration = 30.seconds,
+  val interval: Duration = Duration.ofSeconds(30),
 
   /** Number of entries to include per process. */
   val maxEntryCountPerProcess: Int = 30,
@@ -46,13 +45,13 @@ data class AnalyticsOptions constructor(
   val applicationVersionCode: Int = 0,
 ) {
   init {
-    if (!interval.isPositive()) {
+    if (interval.isNegative) {
       Log.e("PayKit", "Options interval must be > 0")
       if (BuildConfig.DEBUG) {
         throw IllegalArgumentException("Options interval must be > 0")
       }
     }
-    if (delay.isNegative()) {
+    if (delay.isNegative) {
       Log.e("PayKit", "Options delay must be >= 0")
       if (BuildConfig.DEBUG) {
         throw IllegalArgumentException("Options interval must be > 0")

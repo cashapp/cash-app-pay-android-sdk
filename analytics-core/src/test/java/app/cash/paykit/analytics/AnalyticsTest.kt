@@ -39,19 +39,19 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
+import java.time.Duration
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.time.Duration.Companion.seconds
 
 @RunWith(RobolectricTestRunner::class)
 class AnalyticsTest {
 
   private var options = AnalyticsOptions(
-    delay = 0.seconds,
-    interval = 10.seconds,
+    delay = Duration.ofSeconds(0),
+    interval = Duration.ofSeconds(10),
     maxEntryCountPerProcess = 30,
     batchSize = 10,
     databaseName = "test.db",
@@ -125,8 +125,8 @@ class AnalyticsTest {
     unmockkStatic(Executors::class)
 
     val noDelayOptions = AnalyticsOptions(
-      delay = 5.seconds,
-      interval = 10.seconds,
+      delay = Duration.ofSeconds(5),
+      interval = Duration.ofSeconds(10),
       maxEntryCountPerProcess = 30,
       batchSize = 10,
       databaseName = "test.db",

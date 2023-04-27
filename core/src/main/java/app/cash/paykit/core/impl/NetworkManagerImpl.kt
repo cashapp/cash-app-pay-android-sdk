@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalTime::class)
+
 package app.cash.paykit.core.impl
 
 import app.cash.paykit.core.NetworkManager
@@ -38,7 +40,6 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonEncodingException
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -47,6 +48,7 @@ import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.util.*
+import kotlin.time.ExperimentalTime
 
 enum class RequestType {
   GET,
@@ -160,7 +162,7 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestPayload: In?,
   ): NetworkResult<Out> {
-    val moshi: Moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+    val moshi: Moshi = Moshi.Builder().build()
     val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
     val jsonData: String = requestJsonAdapter.toJson(requestPayload)
     return executePlainNetworkRequest(
@@ -198,7 +200,7 @@ internal class NetworkManagerImpl(
       requestBuilder.addHeader("Authorization", "Client $clientId")
     }
 
-    val moshi: Moshi = Moshi.Builder().addLast(KotlinJsonAdapterFactory()).build()
+    val moshi: Moshi = Moshi.Builder().build()
 
     with(requestBuilder) {
       when (requestType) {
@@ -223,7 +225,7 @@ internal class NetworkManagerImpl(
 
             // Wait until the next retry.
             if (retryManager.shouldRetry()) {
-              Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+              Thread.sleep(retryManager.timeUntilNextRetry().seconds)
             }
             return@use
           }
@@ -264,7 +266,7 @@ internal class NetworkManagerImpl(
 
         // Wait until the next retry.
         if (retryManager.shouldRetry()) {
-          Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+          Thread.sleep(retryManager.timeUntilNextRetry().seconds)
         }
         retryException = e
       }

@@ -29,7 +29,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
-import kotlin.time.Duration.Companion.seconds
+import java.time.Duration
 
 @RunWith(RobolectricTestRunner::class)
 class SQLiteDataSourceTest {
@@ -41,8 +41,8 @@ class SQLiteDataSourceTest {
   @Before
   fun setup() {
     options = AnalyticsOptions(
-      delay = 0.seconds,
-      interval = 10.seconds,
+      delay = Duration.ofSeconds(0),
+      interval = Duration.ofSeconds(10),
       maxEntryCountPerProcess = 30,
       batchSize = 10,
       databaseName = "TEST",
