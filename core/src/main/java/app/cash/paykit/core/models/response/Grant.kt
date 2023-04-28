@@ -16,6 +16,7 @@
 package app.cash.paykit.core.models.response
 
 import app.cash.paykit.core.models.common.Action
+import app.cash.paykit.core.models.response.GrantType.UNKNOWN
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -26,7 +27,7 @@ data class Grant(
   @Json(name = "status")
   val status: String,
   @Json(name = "type")
-  val type: String,
+  val type: GrantType = UNKNOWN,
   @Json(name = "action")
   val action: Action,
   @Json(name = "channel")

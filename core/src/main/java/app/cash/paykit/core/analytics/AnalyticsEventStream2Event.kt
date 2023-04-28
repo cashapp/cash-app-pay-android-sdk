@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.analytics
+package app.cash.paykit.core.analytics
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import app.cash.paykit.analytics.core.Deliverable
 
-@JsonClass(generateAdapter = true)
-data class AnalyticsResponse(
-  @Json(name = "failure_count")
-  val failureCount: Int,
-  @Json(name = "invalid_count")
-  val invalidCount: Int,
-  @Json(name = "success_count")
-  val successCount: Int,
-)
+/**
+ * Class that represents the payload to be delivered to the ES2 API.
+ */
+internal data class AnalyticsEventStream2Event constructor(
+  override val content: String,
+) : Deliverable {
+  override val type = ESEventType
+  override val metaData = null
+
+  companion object {
+    const val ESEventType = "AnalyticsEventStream2Event"
+  }
+}

@@ -20,7 +20,9 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 const val STATUS_PENDING = "PENDING"
+const val STATUS_PROCESSING = "PROCESSING"
 const val STATUS_APPROVED = "APPROVED"
+const val STATUS_DECLINED = "DECLINED"
 
 @JsonClass(generateAdapter = true)
 data class CustomerResponseData(

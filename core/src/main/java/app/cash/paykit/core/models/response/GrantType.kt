@@ -13,20 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.analytics
+package app.cash.paykit.core.models.response
 
-import app.cash.paykit.analytics.core.Deliverable
-
-/**
- * Class that represents the payload to be delivered to the ES2 API.
- */
-internal data class EventStream2Event constructor(
-  override val content: String,
-) : Deliverable {
-  override val type = ESEventType
-  override val metaData = null
-
-  companion object {
-    const val ESEventType = "EventStream2Event"
-  }
+enum class GrantType {
+  ONE_TIME,
+  EXTENDED,
+  UNKNOWN,
 }
