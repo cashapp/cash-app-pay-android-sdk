@@ -15,11 +15,13 @@
  */
 package app.cash.paykit.core.network
 
-import java.time.Duration
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 /**
  * A [RetryManager] implementation with max number of retries and back-off strategy.
  */
+@OptIn(ExperimentalTime::class)
 internal class RetryManagerImpl(
   private val retryManagerOptions: RetryManagerOptions,
 ) : RetryManager {
@@ -37,7 +39,7 @@ internal class RetryManagerImpl(
 
   override fun networkAttemptFailed() {
     retryCount++
-    durationTillNextRetry = durationTillNextRetry.multipliedBy(2)
+    durationTillNextRetry = durationTillNextRetry.times(2)
   }
 
   override fun getRetryCount(): Int = retryCount

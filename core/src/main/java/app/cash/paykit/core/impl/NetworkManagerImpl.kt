@@ -225,7 +225,7 @@ internal class NetworkManagerImpl(
 
             // Wait until the next retry.
             if (retryManager.shouldRetry()) {
-              Thread.sleep(retryManager.timeUntilNextRetry().seconds)
+              Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
             }
             return@use
           }
@@ -266,7 +266,7 @@ internal class NetworkManagerImpl(
 
         // Wait until the next retry.
         if (retryManager.shouldRetry()) {
-          Thread.sleep(retryManager.timeUntilNextRetry().seconds)
+          Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
         }
         retryException = e
       }

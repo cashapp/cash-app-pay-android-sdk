@@ -15,9 +15,11 @@
  */
 package app.cash.paykit.core.network
 
-import java.time.Duration
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 internal class RetryManagerOptions(
   val maxRetries: Int = 4,
-  val initialDuration: Duration = Duration.ofMillis(1500),
+  val initialDuration: Duration = Duration.seconds(1.5),
 )

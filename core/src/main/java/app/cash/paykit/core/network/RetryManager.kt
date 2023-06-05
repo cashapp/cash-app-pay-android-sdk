@@ -15,11 +15,13 @@
  */
 package app.cash.paykit.core.network
 
-import java.time.Duration
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 internal interface RetryManager {
   fun shouldRetry(): Boolean
 
+  @OptIn(ExperimentalTime::class)
   fun timeUntilNextRetry(): Duration
 
   fun networkAttemptFailed()
