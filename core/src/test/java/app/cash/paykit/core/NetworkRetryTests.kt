@@ -30,10 +30,11 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Test
 import java.io.InterruptedIOException
-import java.time.Duration
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.time.Duration.Companion.milliseconds
 
+@OptIn(kotlin.time.ExperimentalTime::class)
 class NetworkRetryTests {
 
   private val MAX_RETRIES = 2
@@ -179,7 +180,7 @@ class NetworkRetryTests {
       okHttpClient = okHttpClient,
       retryManagerOptions = RetryManagerOptions(
         maxRetries = MAX_RETRIES,
-        initialDuration = Duration.ofMillis(1),
+        initialDuration = 1.milliseconds,
       ),
       analyticsBaseUrl = "",
     )
