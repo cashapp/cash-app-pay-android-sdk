@@ -50,6 +50,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 private const val APP_NAME = "paykitsdk-android"
 private const val PLATFORM = "android"
@@ -246,7 +247,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
         catalogName = catalog,
         uuid = UUID.randomUUID().toString(),
         jsonData = jsonData,
-        recordedAt = System.nanoTime() * 10,
+        recordedAt = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis()),
       )
 
     // Transform ES2 event into a JSON String.
