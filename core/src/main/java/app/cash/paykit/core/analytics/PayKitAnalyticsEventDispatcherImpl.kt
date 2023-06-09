@@ -46,11 +46,14 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.utils.Clock
+import app.cash.paykit.core.utils.ClockRealImpl
+import app.cash.paykit.core.utils.UUIDManager
+import app.cash.paykit.core.utils.UUIDManagerRealImpl
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 private const val APP_NAME = "paykitsdk-android"
 private const val PLATFORM = "android"
@@ -64,6 +67,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
   private val moshi: Moshi = Moshi.Builder().build(),
+  private val uuidManager: UUIDManager = UUIDManagerRealImpl(),
+  private val clock: Clock = ClockRealImpl(),
 ) : PayKitAnalyticsEventDispatcher {
 
   private var eventStreamDeliverHandler: DeliveryHandler? = null
@@ -245,9 +250,9 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       EventStream2Event(
         appName = APP_NAME,
         catalogName = catalog,
-        uuid = UUID.randomUUID().toString(),
+        uuid = uuidManager.generateUUID(),
         jsonData = jsonData,
-        recordedAt = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis()),
+        recordedAt = clock.currentTimeInMicroseconds(),
       )
 
     // Transform ES2 event into a JSON String.

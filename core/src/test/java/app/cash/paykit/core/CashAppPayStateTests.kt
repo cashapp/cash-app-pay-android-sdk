@@ -27,6 +27,7 @@ import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.android.ApplicationContextHolder
+import app.cash.paykit.core.fakes.FakeData
 import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import app.cash.paykit.core.impl.CashAppPayLifecycleListener
 import app.cash.paykit.core.models.common.NetworkResult

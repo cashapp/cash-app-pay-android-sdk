@@ -18,6 +18,7 @@ package app.cash.paykit.core
 import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
 import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
 import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
+import app.cash.paykit.core.fakes.FakeData
 import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
