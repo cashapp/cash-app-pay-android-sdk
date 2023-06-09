@@ -67,6 +67,9 @@ dependencies {
   //noinspection GradleDependency
   implementation("com.squareup.moshi:moshi-kotlin:$moshi_version")
 
+  // KotlinX Dates.
+  implementation "org.jetbrains.kotlinx:kotlinx-datetime:$kotlinx_date_version"
+
   // Provides a lifecycle for the whole application process.
   implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
 

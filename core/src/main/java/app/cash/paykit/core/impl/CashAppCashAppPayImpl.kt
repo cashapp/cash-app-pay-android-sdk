@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import app.cash.paykit.core.BuildConfig
 import app.cash.paykit.core.CashAppPay
+import app.cash.paykit.core.CashAppPayFactory.TOKEN_REFRESH_WINDOW
 import app.cash.paykit.core.CashAppPayLifecycleObserver
 import app.cash.paykit.core.CashAppPayListener
 import app.cash.paykit.core.CashAppPayState
@@ -65,6 +66,9 @@ internal class CashAppCashAppPayImpl(
   private var callbackListener: CashAppPayListener? = null
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
+
+  private var checkForApprovalThread: Thread? = null
+  private var refreshUnauthorizedThread: Thread? = null
 
   private var currentState: CashAppPayState = initialState
     set(value) {
@@ -136,6 +140,7 @@ internal class CashAppCashAppPayImpl(
       is Success -> {
         customerResponseData = networkResult.data.customerResponseData
         currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
+        scheduleUnauthorizedCustomerRequestRefresh(networkResult.data.customerResponseData)
       }
     }
   }
@@ -236,6 +241,13 @@ internal class CashAppCashAppPayImpl(
       return
     }
 
+    // Stop refreshing unauthorized customer request.
+    try {
+      refreshUnauthorizedThread?.interrupt()
+    } catch (e: Exception) {
+      logError("Error while interrupting threads. Exception: $e")
+    }
+
     authorizeCustomerRequest(customerData)
   }
 
@@ -286,10 +298,19 @@ internal class CashAppCashAppPayImpl(
    *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   override fun unregisterFromStateUpdates() {
+    logError("Unregistering from state updates")
     callbackListener = null
     payKitLifecycleListener.unregister(this)
     analyticsEventDispatcher.eventListenerRemoved()
     analyticsEventDispatcher.shutdown()
+
+    // Stop any polling operations that might be running.
+    try {
+      refreshUnauthorizedThread?.interrupt()
+      checkForApprovalThread?.interrupt()
+    } catch (e: Exception) {
+      logError("Error while interrupting threads. Exception: $e")
+    }
   }
 
   private fun enforceRegisteredStateUpdatesListener() {
@@ -303,7 +324,7 @@ internal class CashAppCashAppPayImpl(
   }
 
   private fun poolTransactionStatus() {
-    Thread {
+    checkForApprovalThread = Thread {
       val networkResult = networkManager.retrieveUpdatedRequestData(
         clientId,
         customerResponseData!!.id,
@@ -321,7 +342,12 @@ internal class CashAppCashAppPayImpl(
         // If status is pending, schedule to check again.
         if (customerResponseData?.status == STATUS_PENDING) {
           // TODO: Add backoff strategy for long polling. ( https://www.notion.so/cashappcash/Implement-Long-pooling-retry-logic-a9af47e2db9242faa5d64df2596fd78e )
-          Thread.sleep(500)
+          try {
+            Thread.sleep(500)
+          } catch (e: InterruptedException) {
+            return@Thread
+          }
+
           poolTransactionStatus()
           return@Thread
         }
@@ -329,7 +355,60 @@ internal class CashAppCashAppPayImpl(
         // Unsuccessful transaction.
         setStateFinished(false)
       }
-    }.start()
+    }
+    try {
+      checkForApprovalThread?.start()
+    } catch (e: Exception) {
+      logError("Could not start checkForApprovalThread. Exception: $e")
+    }
+  }
+
+  private fun refreshUnauthorizedCustomerRequest(delaySeconds: Long) {
+    refreshUnauthorizedThread = Thread {
+      try {
+        Thread.sleep(delaySeconds * 1000)
+      } catch (e: InterruptedException) {
+        return@Thread
+      }
+
+      if (currentState !is ReadyToAuthorize) {
+        logError("Not refreshing unauthorized customer request because state is not ReadyToAuthorize")
+        return@Thread
+      }
+
+      val networkResult = networkManager.retrieveUpdatedRequestData(
+        clientId,
+        customerResponseData!!.id,
+      )
+      if (networkResult is Failure) {
+        logError("Failed to refresh unauthorized customer request.")
+        // TODO : Retry ?
+        return@Thread
+      }
+      logError("Refreshed customer request with SUCCESS")
+      customerResponseData = (networkResult as Success).data.customerResponseData
+      refreshUnauthorizedCustomerRequest(delaySeconds)
+    }
+    try {
+      refreshUnauthorizedThread?.start()
+    } catch (e: Exception) {
+      logError("Could not start refreshUnauthorizedThread. Exception: $e")
+    }
+  }
+
+  /**
+   * Given a `customerResponseData` object, this function will schedule a refresh of the customer request
+   * so that the auth flow trigger is refreshed before it expires.
+   */
+  private fun scheduleUnauthorizedCustomerRequestRefresh(customerResponseData: CustomerResponseData) {
+    val ttlSeconds = customerResponseData.authFlowTriggers?.refreshesAt?.minus(customerResponseData.createdAt)
+    if (ttlSeconds == null) {
+      logError("Unable to schedule unauthorized customer request refresh. TTL is null.")
+      return
+    }
+    val refreshDelay = ttlSeconds.inWholeSeconds.minus(TOKEN_REFRESH_WINDOW.inWholeSeconds)
+    logError("Scheduling unauthorized customer request refresh in $refreshDelay seconds.")
+    refreshUnauthorizedCustomerRequest(refreshDelay)
   }
 
   private fun logError(errorMessage: String) {

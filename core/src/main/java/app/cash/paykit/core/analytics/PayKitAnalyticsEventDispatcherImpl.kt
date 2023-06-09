@@ -46,6 +46,7 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.network.MoshiProvider
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
@@ -63,7 +64,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkEnvironment: String,
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
-  private val moshi: Moshi = Moshi.Builder().build(),
+  private val moshi: Moshi = MoshiProvider.provideDefault(),
 ) : PayKitAnalyticsEventDispatcher {
 
   private var eventStreamDeliverHandler: DeliveryHandler? = null
@@ -269,8 +270,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       clientId,
       status = customerResponseData?.status,
       authMobileUrl = customerResponseData?.authFlowTriggers?.mobileUrl,
-      updatedAt = customerResponseData?.updatedAt?.toLongOrNull(),
-      createdAt = customerResponseData?.createdAt?.toLongOrNull(),
+      updatedAt = customerResponseData?.updatedAt?.toEpochMilliseconds(),
+      createdAt = customerResponseData?.createdAt?.toEpochMilliseconds(),
       originType = customerResponseData?.origin?.type,
       originId = customerResponseData?.origin?.id,
       requestChannel = CHANNEL_IN_APP,

@@ -31,6 +31,7 @@ import app.cash.paykit.core.models.request.CustomerRequestDataFactory
 import app.cash.paykit.core.models.response.ApiErrorResponse
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.network.RetryManager
 import app.cash.paykit.core.network.RetryManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
@@ -159,7 +160,7 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestPayload: In?,
   ): NetworkResult<Out> {
-    val moshi: Moshi = Moshi.Builder().build()
+    val moshi: Moshi = MoshiProvider.provideDefault()
     val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
     val jsonData: String = requestJsonAdapter.toJson(requestPayload)
     return executePlainNetworkRequest(
@@ -197,7 +198,7 @@ internal class NetworkManagerImpl(
       requestBuilder.addHeader("Authorization", "Client $clientId")
     }
 
-    val moshi: Moshi = Moshi.Builder().build()
+    val moshi: Moshi = MoshiProvider.provideDefault()
 
     with(requestBuilder) {
       when (requestType) {
