@@ -18,6 +18,7 @@ package app.cash.paykit.core.analytics
 import app.cash.paykit.core.CashAppPayState
 import app.cash.paykit.core.CashAppPayState.Approved
 import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
+import app.cash.paykit.core.PayKitMachineStates
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
@@ -45,9 +46,13 @@ internal interface PayKitAnalyticsEventDispatcher {
     apiActions: List<Action>,
   )
 
+  @Deprecated("use new state machine values or raw data")
   fun genericStateChanged(cashAppPayState: CashAppPayState, customerResponseData: CustomerResponseData?)
+  fun genericStateChanged(cashAppPayState: PayKitMachineStates, customerResponseData: CustomerResponseData?)
 
+  @Deprecated("use new state machine values or raw data")
   fun stateApproved(approved: Approved)
+  fun stateApproved(data: CustomerResponseData)
 
   fun exceptionOccurred(
     payKitExceptionState: CashAppPayExceptionState,

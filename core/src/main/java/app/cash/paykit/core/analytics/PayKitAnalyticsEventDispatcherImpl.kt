@@ -32,6 +32,10 @@ import app.cash.paykit.core.CashAppPayState.Refreshing
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
+import app.cash.paykit.core.PayKitMachineStates
+import app.cash.paykit.core.PayKitMachineStates.Authorizing.DeepLinking
+import app.cash.paykit.core.PayKitMachineStates.Authorizing.Polling
+import app.cash.paykit.core.PayKitMachineStates.DecidedState
 import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
 import app.cash.paykit.core.models.analytics.EventStream2Event
@@ -109,7 +113,14 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerAdded() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true, environment = sdkEnvironment)
+      AnalyticsEventListenerPayload(
+        sdkVersion,
+        userAgent,
+        PLATFORM,
+        clientId,
+        isAdded = true,
+        environment = sdkEnvironment
+      )
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -119,7 +130,14 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerRemoved() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false, environment = sdkEnvironment)
+      AnalyticsEventListenerPayload(
+        sdkVersion,
+        userAgent,
+        PLATFORM,
+        clientId,
+        isAdded = false,
+        environment = sdkEnvironment
+      )
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -131,7 +149,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     apiActions: List<Action>,
     redirectUri: String?,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
+    val eventPayload =
+      createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -143,7 +162,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
+    val eventPayload =
+      createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -155,17 +175,44 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     customerResponseData: CustomerResponseData?,
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(cashAppPayState))
+      eventFromCustomerResponseData(customerResponseData).copy(
+        action = stateToAnalyticsAction(
+          cashAppPayState
+        )
+      )
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
+  }
+
+  override fun genericStateChanged(
+    cashAppPayState: PayKitMachineStates,
+    customerResponseData: CustomerResponseData?
+  ) {
+    val eventPayload =
+      eventFromCustomerResponseData(customerResponseData).copy(
+        action = stateToAnalyticsAction(
+          cashAppPayState
+        )
+      )
+    val es2EventAsJsonString =
+      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
+    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
+  }
+
+  override fun stateApproved(data: CustomerResponseData) {
+    TODO("Not yet implemented")
   }
 
   override fun stateApproved(
     approved: Approved,
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(approved.responseData).copy(action = stateToAnalyticsAction(approved))
+      eventFromCustomerResponseData(approved.responseData).copy(
+        action = stateToAnalyticsAction(
+          approved
+        )
+      )
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
@@ -176,7 +223,11 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     customerResponseData: CustomerResponseData?,
   ) {
     var eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitExceptionState))
+      eventFromCustomerResponseData(customerResponseData).copy(
+        action = stateToAnalyticsAction(
+          payKitExceptionState
+        )
+      )
 
     eventPayload = if (payKitExceptionState.exception is CashAppPayApiNetworkException) {
       val apiError = payKitExceptionState.exception
@@ -306,6 +357,21 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       is ReadyToAuthorize -> "ready_to_authorize"
       RetrievingExistingCustomerRequest -> "retrieve_existing_customer_request"
       UpdatingCustomerRequest -> "update"
+    }
+  }
+
+  /**
+   * This function converts a [CashAppPayState] into a valid String action for analytics ingestion.
+   */
+  private fun stateToAnalyticsAction(state: PayKitMachineStates): String {
+    return when (state) {
+      PayKitMachineStates.NotStarted -> "not_started"
+      DecidedState.Approved -> "approved"
+      PayKitMachineStates.CreatingCustomerRequest -> "create"
+      DecidedState.Declined -> "declined"
+      DeepLinking -> "redirect"
+      Polling -> "polling"
+      PayKitMachineStates.ReadyToAuthorize -> "ready_to_authorize"
     }
   }
 }
