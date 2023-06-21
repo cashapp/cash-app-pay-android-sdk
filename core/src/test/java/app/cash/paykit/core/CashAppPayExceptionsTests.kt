@@ -16,6 +16,7 @@
 package app.cash.paykit.core
 
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
+import app.cash.paykit.core.fakes.FakeData
 import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import app.cash.paykit.core.models.common.NetworkResult
 import io.mockk.MockKAnnotations
