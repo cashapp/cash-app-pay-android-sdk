@@ -25,14 +25,19 @@ import app.cash.paykit.core.PayKitEvents.Authorize
 import app.cash.paykit.core.PayKitEvents.CreateCustomerRequest
 import app.cash.paykit.core.PayKitEvents.DeepLinkError
 import app.cash.paykit.core.PayKitEvents.DeepLinkSuccess
-import app.cash.paykit.core.PayKitEvents.GetCustomerRequest
+import app.cash.paykit.core.PayKitEvents.GetCustomerRequestEvent
 import app.cash.paykit.core.PayKitEvents.InputEvents.IllegalArguments
+import app.cash.paykit.core.PayKitEvents.UpdateCustomerRequestEvent
+import app.cash.paykit.core.PayKitEvents.UpdateCustomerRequestEvent.UpdateCustomerRequestAction
 import app.cash.paykit.core.PayKitMachineContext.CreateRequestParams
 import app.cash.paykit.core.PayKitMachineStates.Authorizing
 import app.cash.paykit.core.PayKitMachineStates.DecidedState.Approved
 import app.cash.paykit.core.PayKitMachineStates.DecidedState.Declined
-import app.cash.paykit.core.PayKitMachineStates.ErrorState.IllegalArgumentsState
+import app.cash.paykit.core.PayKitMachineStates.ErrorState.ExceptionState
+import app.cash.paykit.core.PayKitMachineStates.ReadyToAuthorize
+import app.cash.paykit.core.PayKitMachineStates.UpdatingCustomerRequest
 import app.cash.paykit.core.android.ApplicationContextHolder
+import app.cash.paykit.core.android.ApplicationContextHolder.init
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
@@ -41,10 +46,10 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.STATUS_DECLINED
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import ru.nsk.kstatemachine.DataEvent
-import ru.nsk.kstatemachine.DefaultFinalDataState
+import ru.nsk.kstatemachine.DefaultDataState
+import ru.nsk.kstatemachine.DefaultFinalState
 import ru.nsk.kstatemachine.DefaultState
 import ru.nsk.kstatemachine.Event
-import ru.nsk.kstatemachine.FinalState
 import ru.nsk.kstatemachine.State
 import ru.nsk.kstatemachine.StateMachine
 import ru.nsk.kstatemachine.addFinalState
@@ -52,7 +57,6 @@ import ru.nsk.kstatemachine.addInitialState
 import ru.nsk.kstatemachine.createStdLibStateMachine
 import ru.nsk.kstatemachine.dataTransition
 import ru.nsk.kstatemachine.defaultDataExtractor
-import ru.nsk.kstatemachine.invoke
 import ru.nsk.kstatemachine.noTransition
 import ru.nsk.kstatemachine.onEntry
 import ru.nsk.kstatemachine.onExit
@@ -85,30 +89,36 @@ data class PayKitMachineContext(
   )
 }
 
-sealed class PayKitMachineStates(name: String) : DefaultState(name) {
+sealed interface PayKitMachineStates {
 
-  object NotStarted : PayKitMachineStates("NotStarted")
-  object CreatingCustomerRequest : PayKitMachineStates("CreatingCustomerRequest")
+  object NotStarted : PayKitMachineStates, DefaultState("NotStarted")
+  object CreatingCustomerRequest : PayKitMachineStates, DefaultState("CreatingCustomerRequest")
 
-  object ReadyToAuthorize : PayKitMachineStates("ReadyToAuthorize")
+  object ReadyToAuthorize : PayKitMachineStates, DefaultState("ReadyToAuthorize")
 
-  sealed interface Authorizing {
+  sealed interface Authorizing : PayKitMachineStates {
     // object Parent : Authorizing, DefaultState("Authorizing")
-    object DeepLinking : Authorizing, PayKitMachineStates("DeepLinking")
-    object Polling : Authorizing, PayKitMachineStates("Polling")
+    object DeepLinking : Authorizing, DefaultState("DeepLinking")
+    object Polling : Authorizing, DefaultState("Polling")
   }
 
-  sealed interface ErrorState {
-    class IllegalArgumentsState : ErrorState,
-      DefaultFinalDataState<Exception>(
-        "IllegalArgumentsState",
+  object UpdatingCustomerRequest : PayKitMachineStates,
+    DefaultDataState<UpdateCustomerRequestActionData>(
+      "UpdatingCustomerRequest",
+      dataExtractor = defaultDataExtractor()
+    )
+
+  sealed interface ErrorState : PayKitMachineStates {
+    object ExceptionState : ErrorState,
+      DefaultDataState<Exception>(
+        "ExceptionState",
         dataExtractor = defaultDataExtractor()
       )
   }
 
-  sealed interface DecidedState {
-    object Approved : PayKitMachineStates("Approved"), FinalState
-    object Declined : PayKitMachineStates("Declined"), FinalState
+  sealed interface DecidedState : PayKitMachineStates {
+    object Approved : DecidedState, DefaultFinalState("Approved")
+    object Declined : DecidedState, DefaultFinalState("Declined")
   }
 }
 
@@ -123,44 +133,86 @@ internal class CashAppPayStateMachine constructor(
       Log.d(payKitMachine.name, "Updating context: $value")
     }
 
-  private fun State.poll(interval: Duration) {
+  private fun UpdatingCustomerRequest.updateCustomerRequestOnEntry() {
 
+    Log.d("CRAIG", "updateCustomerRequestOnEntry")
     val thread = Thread {
       try {
-        while (true) {
-          Thread.sleep(interval.inWholeMilliseconds)
-          val networkResult = networkManager.retrieveUpdatedRequestData(
-            clientId,
-            context.customerResponseData!!.id
-          )
-          when (networkResult) {
-            is Failure -> {
-              machine.processEventBlocking(GetCustomerRequest.Error(networkResult.exception))
-            }
+        val networkResult = networkManager.updateCustomerRequest(
+          clientId,
+          data.second,
+          data.first
+        )
+        when (networkResult) {
+          is Failure -> {
+            machine.processEventBlocking(UpdateCustomerRequestEvent.Error(networkResult.exception))
+          }
 
-            is Success -> {
-              val customerResponseData = networkResult.data.customerResponseData
+          is Success -> {
+            val customerResponseData = networkResult.data.customerResponseData
 
-              context = context.copy(
-                customerResponseData = customerResponseData
-              )
-              machine.processEventBlocking(GetCustomerRequest.Success(customerResponseData))
-            }
+            context = context.copy(
+              customerResponseData = customerResponseData
+            )
+            machine.processEventBlocking(UpdateCustomerRequestEvent.Success(customerResponseData))
           }
         }
       } catch (e: InterruptedException) {
-        Log.w("CRAIG", "InterruptedException getting customer request", e)
       }
-
     }.apply {
-      name = "polling-thread"
+      name = "update-request-thread"
     }
 
     onEntry {
+      Log.d("CRAIG", "onEntry - start")
       thread.start()
     }
     onExit {
+      Log.d("CRAIG", "onExit - interrupt")
+
       thread.interrupt()
+    }
+  }
+
+  private fun State.poll(interval: Duration) {
+
+    var thread: Thread? = null
+
+    onEntry {
+      thread = Thread {
+        try {
+          while (true) {
+            Thread.sleep(interval.inWholeMilliseconds)
+            val networkResult = networkManager.retrieveUpdatedRequestData(
+              clientId,
+              context.customerResponseData!!.id
+            )
+            when (networkResult) {
+              is Failure -> {
+                machine.processEventBlocking(GetCustomerRequestEvent.Error(networkResult.exception))
+              }
+
+              is Success -> {
+                val customerResponseData = networkResult.data.customerResponseData
+
+                context = context.copy(
+                  customerResponseData = customerResponseData
+                )
+                machine.processEventBlocking(GetCustomerRequestEvent.Success(customerResponseData))
+              }
+            }
+          }
+        } catch (e: InterruptedException) {
+          Log.w("CRAIG", "InterruptedException getting customer request", e)
+        }
+
+      }.apply {
+        name = "polling-thread"
+        start()
+      }
+    }
+    onExit {
+      thread?.interrupt()
       Log.e("CRAIG", "Stopping thread!!!")
     }
   }
@@ -182,14 +234,35 @@ internal class CashAppPayStateMachine constructor(
       Log.w(name, "ignored event ${it.event}")
     }*/
 
-    val errorState = addFinalState(IllegalArgumentsState()) {
+    addState(ExceptionState) {
+
     }
 
     dataTransition<IllegalArguments, Exception> {
-      targetState = errorState
+      targetState = ExceptionState
     }
+
+    addState(UpdatingCustomerRequest) {
+      this@addState.updateCustomerRequestOnEntry()
+
+      dataTransition<UpdateCustomerRequestEvent.Error, Exception> {
+        targetState = ExceptionState
+      }
+
+      //TODO add back in data state
+      transition<UpdateCustomerRequestEvent.Success> {
+        //TODO history state?
+        // calculate target state? (either ReadyToAuth or another?)
+        targetState = ReadyToAuthorize
+      }
+    }
+
+    dataTransition<UpdateCustomerRequestAction, Pair<List<CashAppPayPaymentAction>, String>> {
+      targetState = UpdatingCustomerRequest
+    }
+
     val authorizingState = state("Authorizing") {
-      transitionConditionally<GetCustomerRequest.Success> {
+      transitionConditionally<GetCustomerRequestEvent.Success> {
         direction = {
           if (context.customerResponseData?.grants?.isNotEmpty() == true) {
             targetState(Approved)
@@ -200,6 +273,7 @@ internal class CashAppPayStateMachine constructor(
           }
         }
       }
+
       addState(Authorizing.Polling) {
         poll(2.seconds)
       }
@@ -231,12 +305,12 @@ internal class CashAppPayStateMachine constructor(
           targetState = Authorizing.Polling
         }
         dataTransition<DeepLinkError, Exception> {
-          targetState = errorState
+          targetState = ExceptionState
         }
       }
     }
 
-    addState(PayKitMachineStates.ReadyToAuthorize) {
+    addState(ReadyToAuthorize) {
       poll(10.seconds)
 
       transition<Authorize> {
@@ -248,32 +322,36 @@ internal class CashAppPayStateMachine constructor(
     val creatingCustomerRequest =
       addState(PayKitMachineStates.CreatingCustomerRequest) {
         onEntry {
-          when (val networkResult =
-            networkManager.createCustomerRequest(
-              clientId,
-              context.createRequestParams!!.actions,
-              context.createRequestParams!!.redirectUri,
-            )
-          ) {
-            is Failure -> {
-              machine.processEventBlocking(CreateCustomerRequest.Error(networkResult.exception))
-            }
+          try {
+            when (val networkResult =
+              networkManager.createCustomerRequest(
+                clientId,
+                context.createRequestParams!!.actions,
+                context.createRequestParams!!.redirectUri,
+              )
+            ) {
+              is Failure -> {
+                machine.processEventBlocking(CreateCustomerRequest.Error(networkResult.exception))
+              }
 
-            is Success -> {
-              val customerResponseData = networkResult.data.customerResponseData
-              context = context.copy(customerResponseData = customerResponseData)
-              machine.processEventBlocking(CreateCustomerRequest.Success(customerResponseData))
+              is Success -> {
+                val customerResponseData = networkResult.data.customerResponseData
+                context = context.copy(customerResponseData = customerResponseData)
+                machine.processEventBlocking(CreateCustomerRequest.Success(customerResponseData))
+              }
             }
+          } catch (e: Exception) {
+            machine.processEventBlocking(CreateCustomerRequest.Error(e))
           }
         }
         onExit {
           // TODO cancel network request?
         }
         transition<CreateCustomerRequest.Success> {
-          targetState = PayKitMachineStates.ReadyToAuthorize
+          targetState = ReadyToAuthorize
         }
         dataTransition<CreateCustomerRequest.Error, Exception> {
-          targetState = errorState
+          targetState = ExceptionState
         }
       }
 
@@ -304,6 +382,8 @@ internal class CashAppPayStateMachine constructor(
   }
 }
 
+typealias UpdateCustomerRequestActionData = Pair<List<CashAppPayPaymentAction>, String>
+
 sealed interface PayKitEvents {
   data class CreateCustomerRequest(
     override val data: CreatingCustomerRequestDataState,
@@ -314,11 +394,23 @@ sealed interface PayKitEvents {
     data class Error(override val data: Exception) : DataEvent<Exception>
   }
 
-  sealed interface GetCustomerRequest {
+  sealed interface GetCustomerRequestEvent {
     data class Success(override val data: CustomerResponseData) : DataEvent<CustomerResponseData>,
-      GetCustomerRequest
+      GetCustomerRequestEvent
 
-    data class Error(override val data: Exception) : DataEvent<Exception>, GetCustomerRequest
+    data class Error(override val data: Exception) : DataEvent<Exception>, GetCustomerRequestEvent
+  }
+
+  sealed interface UpdateCustomerRequestEvent {
+
+    data class UpdateCustomerRequestAction(override val data: UpdateCustomerRequestActionData) :
+      UpdateCustomerRequestEvent, DataEvent<UpdateCustomerRequestActionData>
+
+    data class Success(override val data: CustomerResponseData) : UpdateCustomerRequestEvent,
+      DataEvent<CustomerResponseData>
+
+    data class Error(override val data: Exception) : DataEvent<Exception>,
+      UpdateCustomerRequestEvent
   }
 
   data class Authorize(override val data: CustomerResponseData) : DataEvent<CustomerResponseData>

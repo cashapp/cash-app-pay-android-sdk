@@ -15,8 +15,7 @@
  */
 package app.cash.paykit.core.impl
 
-import android.content.Intent
-import android.net.Uri
+import android.util.Log
 import androidx.annotation.WorkerThread
 import app.cash.paykit.core.BuildConfig
 import app.cash.paykit.core.CashAppPay
@@ -32,8 +31,6 @@ import app.cash.paykit.core.CashAppPayState.Declined
 import app.cash.paykit.core.CashAppPayState.NotStarted
 import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
-import app.cash.paykit.core.CashAppPayState.Refreshing
-import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.CashAppPayStateMachine
 import app.cash.paykit.core.NetworkManager
@@ -42,19 +39,13 @@ import app.cash.paykit.core.PayKitMachineStates
 import app.cash.paykit.core.PayKitMachineStates.Authorizing.DeepLinking
 import app.cash.paykit.core.PayKitMachineStates.Authorizing.Polling
 import app.cash.paykit.core.PayKitMachineStates.DecidedState
+import app.cash.paykit.core.PayKitMachineStates.ErrorState.ExceptionState
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.android.CAP_TAG
 import app.cash.paykit.core.android.safeStart
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
-import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.CONNECTIVITY
-import app.cash.paykit.core.exceptions.CashAppPayNetworkException
-import app.cash.paykit.core.models.common.NetworkResult.Failure
-import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.models.response.STATUS_APPROVED
-import app.cash.paykit.core.models.response.STATUS_PENDING
-import app.cash.paykit.core.models.response.STATUS_PROCESSING
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.utils.SingleThreadManager
 import app.cash.paykit.core.utils.SingleThreadManagerImpl
@@ -63,7 +54,6 @@ import app.cash.paykit.core.utils.ThreadPurpose.DEFERRED_REFRESH
 import app.cash.paykit.core.utils.ThreadPurpose.REFRESH_AUTH_TOKEN
 import app.cash.paykit.core.utils.orElse
 import ru.nsk.kstatemachine.activeStates
-import ru.nsk.kstatemachine.onDestroyed
 import ru.nsk.kstatemachine.onStateEntry
 import ru.nsk.kstatemachine.onStateExit
 import ru.nsk.kstatemachine.onStateFinished
@@ -71,11 +61,6 @@ import ru.nsk.kstatemachine.onTransitionComplete
 import ru.nsk.kstatemachine.onTransitionTriggered
 import ru.nsk.kstatemachine.processEventBlocking
 import ru.nsk.kstatemachine.startBlocking
-import ru.nsk.kstatemachine.unresolvedTargetState
-import app.cash.paykit.logging.CashAppLogger
-import kotlinx.datetime.Clock
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
@@ -144,15 +129,14 @@ internal class CashAppPayImpl(
           // instead of listening to each transition separately
           Log.d(
             name,
-            "Transition from ${it.transition.sourceState} to ${it.direction.targetState} " +
+            "Transition triggered from ${it.transition.sourceState} to ${it.direction.targetState} " +
               "on ${it.event} with argument: ${it.argument}"
           )
-          // TODO send drop analytic event
         }
         onTransitionComplete { transitionParams, activeStates ->
           Log.d(
             name,
-            "Transition from ${transitionParams.transition.sourceState}, active states: $activeStates"
+            "Transition complete from ${transitionParams.transition.sourceState}, active states: $activeStates"
           )
 
           val state = activeStates.last() as PayKitMachineStates
@@ -164,6 +148,8 @@ internal class CashAppPayImpl(
             is Polling -> PollingTransactionStatus
             DecidedState.Approved -> Approved(stateMachine.context.customerResponseData!!)
             DecidedState.Declined -> Declined
+            is ExceptionState -> CashAppPayExceptionState(error(state.data))
+            PayKitMachineStates.UpdatingCustomerRequest -> UpdatingCustomerRequest
           }
 
           // Or we could do this in the individual state nodes
@@ -211,7 +197,7 @@ internal class CashAppPayImpl(
     // Validate [paymentActions] is not empty.
     if (paymentActions.isEmpty()) {
       val exceptionText = "paymentAction should not be empty"
-      // currentState = softCrashOrStateException(CashAppPayIntegrationException(exceptionText))
+      // TODO throw?
       stateMachine.payKitMachine.processEventBlocking(
         PayKitEvents.InputEvents.IllegalArguments(CashAppPayIntegrationException(exceptionText))
       )
@@ -226,21 +212,6 @@ internal class CashAppPayImpl(
         )
       )
     )
-
-    //currentState = CreatingCustomerRequest
-
-    // Network call.
-    /* val networkResult = networkManager.createCustomerRequest(clientId, paymentActions, redirectUri)
-     when (networkResult) {
-       is Failure -> {
-         currentState = CashAppPayExceptionState(networkResult.exception)
-       }
-
-       is Success -> {
-         customerResponseData = networkResult.data.customerResponseData
-         currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
-       }
-     }*/
   }
 
   override fun updateCustomerRequest(requestId: String, paymentAction: CashAppPayPaymentAction) {
@@ -256,6 +227,7 @@ internal class CashAppPayImpl(
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
+  @Throws(IllegalArgumentException::class)
   override fun updateCustomerRequest(
     requestId: String,
     paymentActions: List<CashAppPayPaymentAction>,
@@ -263,27 +235,32 @@ internal class CashAppPayImpl(
     enforceRegisteredStateUpdatesListener()
 
     // Validate [paymentActions] is not empty.
-    // TODO convert to state machine event
-    /*if (paymentActions.isEmpty()) {
+    if (paymentActions.isEmpty()) {
       val exceptionText = "paymentAction should not be empty"
-      currentState = softCrashOrStateException(exceptionText, CashAppPayIntegrationException(exceptionText))
-      return
+      /*stateMachine.payKitMachine.processEventBlocking(
+        PayKitEvents.InputEvents.IllegalArguments(CashAppPayIntegrationException(exceptionText))
+      )*/
+      throw IllegalArgumentException(exceptionText)
     }
 
-    currentState = UpdatingCustomerRequest
-
-    // Network request.
-    val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentActions)
-    when (networkResult) {
-      is Failure -> {
-        currentState = CashAppPayExceptionState(networkResult.exception)
-      }
-
-      is Success -> {
-        customerResponseData = networkResult.data.customerResponseData
-        currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
-      }
-    }*/
+    // TODO change to when extension fun
+    if (stateMachine.payKitMachine.activeStates()
+        .any { it is PayKitMachineStates.Authorizing || it is PayKitMachineStates.ReadyToAuthorize }
+    ) {
+      stateMachine.payKitMachine.processEventBlocking(
+        PayKitEvents.UpdateCustomerRequestEvent.UpdateCustomerRequestAction(paymentActions to requestId)
+      )
+    } else {
+      // TODO should we be including the customer response data in these exceptions, so they can do something with it?
+      // stateMachine.payKitMachine.processEventBlocking(
+      //   PayKitEvents.InputEvents.IllegalArguments(CashAppPayIntegrationException("Unable to update customer request. Not in the correct state"))
+      // )
+      val exceptionText = "Unable to update customer request. Not in the correct state"
+      /*stateMachine.payKitMachine.processEventBlocking(
+        PayKitEvents.InputEvents.IllegalArguments(CashAppPayIntegrationException(exceptionText))
+      )*/
+      throw IllegalArgumentException(exceptionText)
+    }
   }
 
   @WorkerThread
@@ -336,6 +313,7 @@ internal class CashAppPayImpl(
     val readyState =
       stateMachine.payKitMachine.activeStates().last() as? PayKitMachineStates.ReadyToAuthorize
     if (readyState == null) {
+      // TODO we are throwing here... should we throw in other methods?
       logAndSoftCrash(
         "No customer data found when attempting to authorize.",
         CashAppPayIntegrationException(
