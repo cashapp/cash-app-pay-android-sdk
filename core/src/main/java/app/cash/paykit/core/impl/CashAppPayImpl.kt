@@ -308,11 +308,9 @@ internal class CashAppPayImpl(
    */
   @Throws(IllegalArgumentException::class, CashAppPayIntegrationException::class)
   override fun authorizeCustomerRequest() {
-    Log.d("CRAIG", "stateMachine.payKitMachine.states ${stateMachine.payKitMachine.activeStates()}")
-
-    val readyState =
-      stateMachine.payKitMachine.activeStates().last() as? PayKitMachineStates.ReadyToAuthorize
-    if (readyState == null) {
+    if (stateMachine.payKitMachine.activeStates()
+        .none { it is PayKitMachineStates.Authorizing || it is PayKitMachineStates.ReadyToAuthorize }
+    ) {
       // TODO we are throwing here... should we throw in other methods?
       logAndSoftCrash(
         "No customer data found when attempting to authorize.",
