@@ -134,43 +134,40 @@ internal class CashAppPayStateMachine constructor(
     }
 
   private fun UpdatingCustomerRequest.updateCustomerRequestOnEntry() {
-
-    Log.d("CRAIG", "updateCustomerRequestOnEntry")
-    val thread = Thread {
-      try {
-        val networkResult = networkManager.updateCustomerRequest(
-          clientId,
-          data.second,
-          data.first
-        )
-        when (networkResult) {
-          is Failure -> {
-            machine.processEventBlocking(UpdateCustomerRequestEvent.Error(networkResult.exception))
-          }
-
-          is Success -> {
-            val customerResponseData = networkResult.data.customerResponseData
-
-            context = context.copy(
-              customerResponseData = customerResponseData
-            )
-            machine.processEventBlocking(UpdateCustomerRequestEvent.Success(customerResponseData))
-          }
-        }
-      } catch (e: InterruptedException) {
-      }
-    }.apply {
-      name = "update-request-thread"
-    }
+    var thread: Thread? = null
 
     onEntry {
-      Log.d("CRAIG", "onEntry - start")
-      thread.start()
+      thread = Thread {
+        try {
+          val networkResult = networkManager.updateCustomerRequest(
+            clientId,
+            data.second,
+            data.first
+          )
+          when (networkResult) {
+            is Failure -> {
+              machine.processEventBlocking(UpdateCustomerRequestEvent.Error(networkResult.exception))
+            }
+
+            is Success -> {
+              val customerResponseData = networkResult.data.customerResponseData
+
+              context = context.copy(
+                customerResponseData = customerResponseData
+              )
+              machine.processEventBlocking(UpdateCustomerRequestEvent.Success(customerResponseData))
+            }
+          }
+        } catch (e: Exception) {
+          machine.processEventBlocking(UpdateCustomerRequestEvent.Error(e))
+        }
+      }.apply {
+        name = "update-request-thread"
+        start()
+      }
     }
     onExit {
-      Log.d("CRAIG", "onExit - interrupt")
-
-      thread.interrupt()
+      thread?.interrupt()
     }
   }
 
@@ -242,6 +239,19 @@ internal class CashAppPayStateMachine constructor(
       targetState = ExceptionState
     }
 
+    // TODO also listen to Create events?
+    transitionConditionally<GetCustomerRequestEvent.Success> {
+      direction = {
+        if (context.customerResponseData?.grants?.isNotEmpty() == true) {
+          targetState(Approved)
+        } else if (context.customerResponseData?.status.equals(STATUS_DECLINED)) {
+          targetState(Declined)
+        } else {
+          noTransition()
+        }
+      }
+    }
+
     addState(UpdatingCustomerRequest) {
       this@addState.updateCustomerRequestOnEntry()
 
@@ -260,22 +270,15 @@ internal class CashAppPayStateMachine constructor(
     dataTransition<UpdateCustomerRequestAction, Pair<List<CashAppPayPaymentAction>, String>> {
       targetState = UpdatingCustomerRequest
     }
-
     val authorizingState = state("Authorizing") {
-      transitionConditionally<GetCustomerRequestEvent.Success> {
-        direction = {
-          if (context.customerResponseData?.grants?.isNotEmpty() == true) {
-            targetState(Approved)
-          } else if (context.customerResponseData?.status.equals(STATUS_DECLINED)) {
-            targetState(Declined)
-          } else {
-            noTransition()
-          }
-        }
-      }
 
       addState(Authorizing.Polling) {
         poll(2.seconds)
+
+        // Let the customer deep link again
+        transition<Authorize> {
+          targetState = Authorizing.DeepLinking
+        }
       }
 
       addInitialState(Authorizing.DeepLinking) {
@@ -347,6 +350,8 @@ internal class CashAppPayStateMachine constructor(
         onExit {
           // TODO cancel network request?
         }
+
+        // TODO make this a data transition? or use context approach?
         transition<CreateCustomerRequest.Success> {
           targetState = ReadyToAuthorize
         }
