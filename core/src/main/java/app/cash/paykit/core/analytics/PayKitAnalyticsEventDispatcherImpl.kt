@@ -37,6 +37,7 @@ import app.cash.paykit.core.PayKitMachineStates.Authorizing.DeepLinking
 import app.cash.paykit.core.PayKitMachineStates.Authorizing.Polling
 import app.cash.paykit.core.PayKitMachineStates.DecidedState
 import app.cash.paykit.core.PayKitMachineStates.ErrorState.ExceptionState
+import app.cash.paykit.core.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
 import app.cash.paykit.core.models.analytics.EventStream2Event
@@ -375,6 +376,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       PayKitMachineStates.ReadyToAuthorize -> "ready_to_authorize"
       PayKitMachineStates.UpdatingCustomerRequest -> "update"
       ExceptionState -> "paykit_exception"
+      StartingWithExistingRequest -> "retrieve_existing_customer_request"
     }
   }
 }

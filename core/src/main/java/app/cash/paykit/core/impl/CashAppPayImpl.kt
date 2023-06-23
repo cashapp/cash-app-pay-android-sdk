@@ -19,7 +19,6 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import app.cash.paykit.core.BuildConfig
 import app.cash.paykit.core.CashAppPay
-import app.cash.paykit.core.CashAppPayFactory.TOKEN_REFRESH_WINDOW
 import app.cash.paykit.core.CashAppPayLifecycleObserver
 import app.cash.paykit.core.CashAppPayListener
 import app.cash.paykit.core.CashAppPayState
@@ -31,6 +30,7 @@ import app.cash.paykit.core.CashAppPayState.Declined
 import app.cash.paykit.core.CashAppPayState.NotStarted
 import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.CashAppPayStateMachine
 import app.cash.paykit.core.NetworkManager
@@ -40,18 +40,11 @@ import app.cash.paykit.core.PayKitMachineStates.Authorizing.DeepLinking
 import app.cash.paykit.core.PayKitMachineStates.Authorizing.Polling
 import app.cash.paykit.core.PayKitMachineStates.DecidedState
 import app.cash.paykit.core.PayKitMachineStates.ErrorState.ExceptionState
+import app.cash.paykit.core.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
-import app.cash.paykit.core.android.ApplicationContextHolder
-import app.cash.paykit.core.android.CAP_TAG
-import app.cash.paykit.core.android.safeStart
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.utils.SingleThreadManager
-import app.cash.paykit.core.utils.SingleThreadManagerImpl
-import app.cash.paykit.core.utils.ThreadPurpose.CHECK_APPROVAL_STATUS
-import app.cash.paykit.core.utils.ThreadPurpose.DEFERRED_REFRESH
-import app.cash.paykit.core.utils.ThreadPurpose.REFRESH_AUTH_TOKEN
 import app.cash.paykit.core.utils.orElse
 import ru.nsk.kstatemachine.activeStates
 import ru.nsk.kstatemachine.onStateEntry
@@ -66,55 +59,20 @@ import ru.nsk.kstatemachine.startBlocking
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
  * @param useSandboxEnvironment Specify what development environment should be used.
  */
-internal class CashAppPayImpl(
+internal class CashAppCashAppPayImpl(
   private val clientId: String,
   private val networkManager: NetworkManager,
   private val analyticsEventDispatcher: PayKitAnalyticsEventDispatcher,
   private val payKitLifecycleListener: CashAppPayLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
-  private val logger: CashAppLogger,
-  private val singleThreadManager: SingleThreadManager = SingleThreadManagerImpl(logger),
   initialState: CashAppPayState = NotStarted,
   initialCustomerResponseData: CustomerResponseData? = null,
 ) : CashAppPay, CashAppPayLifecycleListener {
 
   private var callbackListener: CashAppPayListener? = null
 
-  private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
-
   // TODO pass in initial state
   private val stateMachine = CashAppPayStateMachine(clientId, networkManager)
-  private var currentState: CashAppPayState = initialState
-    set(value) {
-      field = value
-      // Track Analytics for various state changes.
-      when (value) {
-        is Approved -> analyticsEventDispatcher.stateApproved(value)
-        is CashAppPayExceptionState -> analyticsEventDispatcher.exceptionOccurred(
-          value,
-          customerResponseData,
-        )
-        Authorizing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        Refreshing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        Declined -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        NotStarted -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        PollingTransactionStatus -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        is ReadyToAuthorize -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        RetrievingExistingCustomerRequest -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        CreatingCustomerRequest -> { } // Handled separately.
-        UpdatingCustomerRequest -> { } // Handled separately.
-      }
-
-      // Notify listener of State change.
-      callbackListener?.cashAppPayStateDidChange(value)
-        .orElse {
-          logger.logError(
-            CAP_TAG,
-            "State changed to ${value.javaClass.simpleName}, but no listeners were notified." +
-              "Make sure that you've used `registerForStateUpdates` to receive PayKit state updates.",
-          )
-        }
-    }
 
   init {
     // Register for process lifecycle updates.
@@ -150,6 +108,7 @@ internal class CashAppPayImpl(
             DecidedState.Declined -> Declined
             is ExceptionState -> CashAppPayExceptionState(error(state.data))
             PayKitMachineStates.UpdatingCustomerRequest -> UpdatingCustomerRequest
+            StartingWithExistingRequest -> RetrievingExistingCustomerRequest
           }
 
           // Or we could do this in the individual state nodes
@@ -176,6 +135,7 @@ internal class CashAppPayImpl(
     }.start()
   }
 
+  @Throws(IllegalStateException::class)
   override fun createCustomerRequest(paymentAction: CashAppPayPaymentAction, redirectUri: String?) {
     createCustomerRequest(listOf(paymentAction), redirectUri)
   }
@@ -188,20 +148,18 @@ internal class CashAppPayImpl(
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
+  @Throws(IllegalStateException::class)
   override fun createCustomerRequest(
     paymentActions: List<CashAppPayPaymentAction>,
     redirectUri: String?
   ) {
     enforceRegisteredStateUpdatesListener()
+    enforceMachineRunning()
 
     // Validate [paymentActions] is not empty.
     if (paymentActions.isEmpty()) {
       val exceptionText = "paymentAction should not be empty"
-      // TODO throw?
-      stateMachine.payKitMachine.processEventBlocking(
-        PayKitEvents.InputEvents.IllegalArguments(CashAppPayIntegrationException(exceptionText))
-      )
-      return
+      throw IllegalArgumentException(exceptionText)
     }
 
     stateMachine.payKitMachine.processEventBlocking(
@@ -214,6 +172,7 @@ internal class CashAppPayImpl(
     )
   }
 
+  @Throws(IllegalStateException::class)
   override fun updateCustomerRequest(requestId: String, paymentAction: CashAppPayPaymentAction) {
     updateCustomerRequest(requestId, listOf(paymentAction))
   }
@@ -227,19 +186,17 @@ internal class CashAppPayImpl(
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  @Throws(IllegalArgumentException::class)
+  @Throws(IllegalArgumentException::class, IllegalStateException::class)
   override fun updateCustomerRequest(
     requestId: String,
     paymentActions: List<CashAppPayPaymentAction>,
   ) {
     enforceRegisteredStateUpdatesListener()
+    enforceMachineRunning()
 
     // Validate [paymentActions] is not empty.
     if (paymentActions.isEmpty()) {
       val exceptionText = "paymentAction should not be empty"
-      /*stateMachine.payKitMachine.processEventBlocking(
-        PayKitEvents.InputEvents.IllegalArguments(CashAppPayIntegrationException(exceptionText))
-      )*/
       throw IllegalArgumentException(exceptionText)
     }
 
@@ -264,56 +221,34 @@ internal class CashAppPayImpl(
   }
 
   @WorkerThread
+  @Throws(IllegalStateException::class)
   override fun startWithExistingCustomerRequest(requestId: String) {
     enforceRegisteredStateUpdatesListener()
+    enforceMachineRunning()
 
-    // TODO convert to state machine event
-
-    /*currentState = RetrievingExistingCustomerRequest
-    val networkResult = networkManager.retrieveUpdatedRequestData(clientId, requestId)
-    when (networkResult) {
-      is Failure -> {
-        currentState = CashAppPayExceptionState(networkResult.exception)
-      }
-
-      is Success -> {
-        customerResponseData = networkResult.data.customerResponseData
-
-        // Determine what kind of status we got.
-        currentState = when (customerResponseData?.status) {
-          STATUS_PROCESSING -> {
-            Authorizing
-          }
-
-          STATUS_PENDING -> {
-            scheduleUnauthorizedCustomerRequestRefresh(networkResult.data.customerResponseData)
-            ReadyToAuthorize(customerResponseData!!)
-          }
-
-          STATUS_APPROVED -> {
-            Approved(networkResult.data.customerResponseData)
-          }
-
-          else -> {
-            Declined
-          }
-        }
-      }
-    }*/
+    stateMachine.payKitMachine.processEventBlocking(
+      PayKitEvents.StartWithExistingCustomerRequestEvent.Start(requestId)
+    )
   }
 
   /**
    * Authorize a customer request. This function must be called AFTER `createCustomerRequest`.
    * Not doing so will result in an Exception in sandbox mode, and a silent error log in production.
    */
-  @Throws(IllegalArgumentException::class, CashAppPayIntegrationException::class)
+  @Throws(
+    IllegalArgumentException::class,
+    CashAppPayIntegrationException::class,
+    IllegalStateException::class
+  )
   override fun authorizeCustomerRequest() {
+
+    enforceMachineRunning()
+
     if (stateMachine.payKitMachine.activeStates()
         .none { it is PayKitMachineStates.Authorizing || it is PayKitMachineStates.ReadyToAuthorize }
     ) {
       // TODO we are throwing here... should we throw in other methods?
       logAndSoftCrash(
-        "No customer data found when attempting to authorize.",
         CashAppPayIntegrationException(
           "State machine is not ready to authorize",
         ),
@@ -325,48 +260,17 @@ internal class CashAppPayImpl(
   }
 
   /**
-   * Deferred authorization of a customer request, when the auth token has expired.
-   */
-  private fun deferredAuthorizeCustomerRequest() {
-    // Stop the thread that refreshes the customer request.
-    singleThreadManager.interruptThread(REFRESH_AUTH_TOKEN)
-
-    currentState = Refreshing
-
-    logger.logVerbose(CAP_TAG, "Will refresh customer request before proceeding with authorization.")
-    singleThreadManager.createThread(DEFERRED_REFRESH) {
-      val networkResult = networkManager.retrieveUpdatedRequestData(
-        clientId,
-        customerResponseData!!.id,
-      )
-      if (networkResult is Failure) {
-        logger.logError(CAP_TAG, "Failed to refresh expired auth token customer request.", networkResult.exception)
-        currentState = CashAppPayExceptionState(networkResult.exception)
-        return@createThread
-      }
-      logger.logVerbose(CAP_TAG, "Refreshed customer request with SUCCESS")
-      customerResponseData = (networkResult as Success).data.customerResponseData
-
-      if (currentState == Refreshing) {
-        authorizeCustomerRequest(customerResponseData!!)
-      }
-    }.safeStart("Error while attempting to run deferred authorization.", logger, onError = {
-      if (currentState == Refreshing) {
-        currentState = CashAppPayExceptionState(CashAppPayNetworkException(CONNECTIVITY))
-      }
-    })
-  }
-
-  /**
    * Authorize a customer request with a previously created `customerData`.
    * This function will set this SDK instance internal state to the `customerData` provided here as a function parameter.
    *
    */
-  @Throws(IllegalArgumentException::class, RuntimeException::class)
+  @Throws(IllegalArgumentException::class, RuntimeException::class, IllegalStateException::class)
   override fun authorizeCustomerRequest(
     customerData: CustomerResponseData,
   ) {
     enforceRegisteredStateUpdatesListener()
+
+    enforceMachineRunning()
 
     if (customerData.authFlowTriggers?.mobileUrl.isNullOrEmpty()) {
       throw IllegalArgumentException("customerData is missing redirect url")
@@ -389,20 +293,15 @@ internal class CashAppPayImpl(
    *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   override fun unregisterFromStateUpdates() {
-    logger.logVerbose(CAP_TAG, "Unregistering from state updates")
     callbackListener = null
     payKitLifecycleListener.unregister(this)
     analyticsEventDispatcher.eventListenerRemoved()
     analyticsEventDispatcher.shutdown()
-
-    // Stop any polling operations that might be running.
-    singleThreadManager.interruptAllThreads()
   }
 
   private fun enforceRegisteredStateUpdatesListener() {
     if (callbackListener == null) {
       logAndSoftCrash(
-        "No listener registered for state updates.",
         CashAppPayIntegrationException(
           "Shouldn't call this function before registering for state updates via `registerForStateUpdates`.",
         ),
@@ -418,8 +317,8 @@ internal class CashAppPayImpl(
    * This function will log in production, additionally it will throw an exception in sandbox or debug mode.
    */
   @Throws
-  private fun logAndSoftCrash(msg: String, exception: Exception) {
-    logger.logError(CAP_TAG, msg, exception)
+  private fun logAndSoftCrash(exception: Exception) {
+    logError("Error occurred. E.: $exception")
     if (useSandboxEnvironment || BuildConfig.DEBUG) {
       throw exception
     }
@@ -429,12 +328,19 @@ internal class CashAppPayImpl(
    * This function will throw the provided [exception] during development, or change the SDK state to [CashAppPayExceptionState] otherwise.
    */
   @Throws
-  private fun softCrashOrStateException(msg: String, exception: Exception): CashAppPayExceptionState {
-    logger.logError(CAP_TAG, msg, exception)
+  private fun softCrashOrStateException(exception: Exception): CashAppPayExceptionState {
+    logError("Error occurred. E.: $exception")
     if (useSandboxEnvironment || BuildConfig.DEBUG) {
       throw exception
     }
     return CashAppPayExceptionState(exception)
+  }
+
+  private fun enforceMachineRunning() {
+    if (stateMachine.payKitMachine.isFinished) {
+      val exceptionText = "This SDK instance has already finished. Please start a new one."
+      throw IllegalStateException(exceptionText)
+    }
   }
 
   /**
@@ -447,6 +353,6 @@ internal class CashAppPayImpl(
   }
 
   override fun onApplicationBackgrounded() {
-    logger.logVerbose(CAP_TAG, "onApplicationBackgrounded")
+    logError("onApplicationBackgrounded")
   }
 }
