@@ -46,7 +46,7 @@ object CustomerRequestDataFactory {
     return if (isRequestUpdate) {
       CustomerRequestData(
         actions = actions,
-        channel = null,
+        channel = null, // TODO why is this null??
         redirectUri = null,
       )
     } else {

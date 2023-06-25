@@ -31,12 +31,6 @@ import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.PayKitMachineStates
-import app.cash.paykit.core.PayKitMachineStates.Authorizing.DeepLinking
-import app.cash.paykit.core.PayKitMachineStates.Authorizing.Polling
-import app.cash.paykit.core.PayKitMachineStates.DecidedState
-import app.cash.paykit.core.PayKitMachineStates.ErrorState.ExceptionState
-import app.cash.paykit.core.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
 import app.cash.paykit.core.models.analytics.EventStream2Event
@@ -52,6 +46,12 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.state.PayKitMachineStates
+import app.cash.paykit.core.state.PayKitMachineStates.Authorizing.DeepLinking
+import app.cash.paykit.core.state.PayKitMachineStates.Authorizing.Polling
+import app.cash.paykit.core.state.PayKitMachineStates.DecidedState
+import app.cash.paykit.core.state.PayKitMachineStates.ErrorState.ExceptionState
+import app.cash.paykit.core.state.PayKitMachineStates.StartingWithExistingRequest
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
