@@ -32,20 +32,25 @@ import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
-import app.cash.paykit.core.CashAppPayStateMachine
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.PayKitEvents
-import app.cash.paykit.core.PayKitMachineStates
-import app.cash.paykit.core.PayKitMachineStates.Authorizing.DeepLinking
-import app.cash.paykit.core.PayKitMachineStates.Authorizing.Polling
-import app.cash.paykit.core.PayKitMachineStates.DecidedState
-import app.cash.paykit.core.PayKitMachineStates.ErrorState.ExceptionState
-import app.cash.paykit.core.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
+import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.state.ClientEventPayload.CreatingCustomerRequestData
+import app.cash.paykit.core.state.ClientEventPayload.UpdateCustomerRequestData
+import app.cash.paykit.core.state.PayKitEvents
+import app.cash.paykit.core.state.PayKitMachine
+import app.cash.paykit.core.state.PayKitMachineStates
+import app.cash.paykit.core.state.PayKitMachineStates.Authorizing.DeepLinking
+import app.cash.paykit.core.state.PayKitMachineStates.Authorizing.Polling
+import app.cash.paykit.core.state.PayKitMachineStates.DecidedState
+import app.cash.paykit.core.state.PayKitMachineStates.ErrorState.ExceptionState
+import app.cash.paykit.core.state.PayKitMachineStates.StartingWithExistingRequest
+import app.cash.paykit.core.state.RealPayKitWorker
 import app.cash.paykit.core.utils.orElse
+import ru.nsk.kstatemachine.DefaultDataState
 import ru.nsk.kstatemachine.activeStates
 import ru.nsk.kstatemachine.onStateEntry
 import ru.nsk.kstatemachine.onStateExit
@@ -61,7 +66,7 @@ import ru.nsk.kstatemachine.startBlocking
  */
 internal class CashAppCashAppPayImpl(
   private val clientId: String,
-  private val networkManager: NetworkManager,
+  networkManager: NetworkManager,
   private val analyticsEventDispatcher: PayKitAnalyticsEventDispatcher,
   private val payKitLifecycleListener: CashAppPayLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
@@ -72,7 +77,14 @@ internal class CashAppCashAppPayImpl(
   private var callbackListener: CashAppPayListener? = null
 
   // TODO pass in initial state
-  private val stateMachine = CashAppPayStateMachine(clientId, networkManager)
+  private val payKitMachine =
+    PayKitMachine(
+      worker = RealPayKitWorker(
+        clientId = clientId,
+        networkManager = networkManager,
+        context = ApplicationContextHolder.applicationContext
+      )
+    )
 
   init {
     // Register for process lifecycle updates.
@@ -80,7 +92,7 @@ internal class CashAppCashAppPayImpl(
     analyticsEventDispatcher.sdkInitialized()
 
     Thread {
-      with(stateMachine.payKitMachine) {
+      with(payKitMachine.stateMachine) {
         startBlocking()
         onTransitionTriggered {
           // Listen to all transitions in one place
@@ -97,14 +109,14 @@ internal class CashAppCashAppPayImpl(
             "Transition complete from ${transitionParams.transition.sourceState}, active states: $activeStates"
           )
 
-          val state = activeStates.last() as PayKitMachineStates
-          val customerState = when (state) { // return the "deepest" child state
+          val state = activeStates.last() as PayKitMachineStates // return the "deepest" child state
+          val customerState = when (state) {
             PayKitMachineStates.NotStarted -> NotStarted
             PayKitMachineStates.CreatingCustomerRequest -> CreatingCustomerRequest
-            is PayKitMachineStates.ReadyToAuthorize -> ReadyToAuthorize(stateMachine.context!!.customerResponseData!!)
+            is PayKitMachineStates.ReadyToAuthorize -> ReadyToAuthorize(state.data)
             is DeepLinking -> Authorizing
             is Polling -> PollingTransactionStatus
-            DecidedState.Approved -> Approved(stateMachine.context.customerResponseData!!)
+            is DecidedState.Approved -> Approved(state.data)
             DecidedState.Declined -> Declined
             is ExceptionState -> CashAppPayExceptionState(error(state.data))
             PayKitMachineStates.UpdatingCustomerRequest -> UpdatingCustomerRequest
@@ -114,7 +126,7 @@ internal class CashAppCashAppPayImpl(
           // Or we could do this in the individual state nodes
           analyticsEventDispatcher.genericStateChanged(
             state,
-            stateMachine.context.customerResponseData
+            (state as? DefaultDataState<*>)?.data as? CustomerResponseData
           )
 
           // Notify listener of State change.
@@ -162,9 +174,9 @@ internal class CashAppCashAppPayImpl(
       throw IllegalArgumentException(exceptionText)
     }
 
-    stateMachine.payKitMachine.processEventBlocking(
+    payKitMachine.stateMachine.processEventBlocking(
       PayKitEvents.CreateCustomerRequest(
-        Pair(
+        CreatingCustomerRequestData(
           paymentActions,
           redirectUri
         )
@@ -201,11 +213,13 @@ internal class CashAppCashAppPayImpl(
     }
 
     // TODO change to when extension fun
-    if (stateMachine.payKitMachine.activeStates()
-        .any { it is PayKitMachineStates.Authorizing || it is PayKitMachineStates.ReadyToAuthorize }
+    if (payKitMachine.stateMachine.activeStates()
+        .any { it is PayKitMachineStates.Authorizing || it is PayKitMachineStates.UpdatingCustomerRequest || it is PayKitMachineStates.ReadyToAuthorize }
     ) {
-      stateMachine.payKitMachine.processEventBlocking(
-        PayKitEvents.UpdateCustomerRequestEvent.UpdateCustomerRequestAction(paymentActions to requestId)
+      payKitMachine.stateMachine.processEventBlocking(
+        PayKitEvents.UpdateCustomerRequestEvent.UpdateCustomerRequestAction(
+          UpdateCustomerRequestData(actions = paymentActions, requestId = requestId)
+        )
       )
     } else {
       // TODO should we be including the customer response data in these exceptions, so they can do something with it?
@@ -226,7 +240,7 @@ internal class CashAppCashAppPayImpl(
     enforceRegisteredStateUpdatesListener()
     enforceMachineRunning()
 
-    stateMachine.payKitMachine.processEventBlocking(
+    payKitMachine.stateMachine.processEventBlocking(
       PayKitEvents.StartWithExistingCustomerRequestEvent.Start(requestId)
     )
   }
@@ -241,10 +255,9 @@ internal class CashAppCashAppPayImpl(
     IllegalStateException::class
   )
   override fun authorizeCustomerRequest() {
-
     enforceMachineRunning()
 
-    if (stateMachine.payKitMachine.activeStates()
+    if (payKitMachine.stateMachine.activeStates()
         .none { it is PayKitMachineStates.Authorizing || it is PayKitMachineStates.ReadyToAuthorize }
     ) {
       // TODO we are throwing here... should we throw in other methods?
@@ -256,7 +269,9 @@ internal class CashAppCashAppPayImpl(
       return
     }
 
-    authorizeCustomerRequest(stateMachine.context.customerResponseData!!)
+    payKitMachine.stateMachine.processEventBlocking(
+      PayKitEvents.AuthorizeUsingExistingData
+    )
   }
 
   /**
@@ -276,7 +291,8 @@ internal class CashAppCashAppPayImpl(
       throw IllegalArgumentException("customerData is missing redirect url")
     }
 
-    stateMachine.payKitMachine.processEventBlocking(
+    // TODO reset the entire state machine using the passed data?
+    payKitMachine.stateMachine.processEventBlocking(
       PayKitEvents.Authorize(customerData)
     )
   }
@@ -337,7 +353,7 @@ internal class CashAppCashAppPayImpl(
   }
 
   private fun enforceMachineRunning() {
-    if (stateMachine.payKitMachine.isFinished) {
+    if (payKitMachine.stateMachine.isFinished) {
       val exceptionText = "This SDK instance has already finished. Please start a new one."
       throw IllegalStateException(exceptionText)
     }

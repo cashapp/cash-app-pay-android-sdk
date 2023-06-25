@@ -18,10 +18,10 @@ package app.cash.paykit.core.analytics
 import app.cash.paykit.core.CashAppPayState
 import app.cash.paykit.core.CashAppPayState.Approved
 import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
-import app.cash.paykit.core.PayKitMachineStates
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.state.PayKitMachineStates
 
 /**
  * Definition of analytics events that we want to capture.

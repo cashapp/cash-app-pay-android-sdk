@@ -32,12 +32,6 @@ import app.cash.paykit.core.CashAppPayState.Refreshing
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.PayKitMachineStates
-import app.cash.paykit.core.PayKitMachineStates.Authorizing.DeepLinking
-import app.cash.paykit.core.PayKitMachineStates.Authorizing.Polling
-import app.cash.paykit.core.PayKitMachineStates.DecidedState
-import app.cash.paykit.core.PayKitMachineStates.ErrorState.ExceptionState
-import app.cash.paykit.core.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
 import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
 import app.cash.paykit.core.models.analytics.EventStream2Event
