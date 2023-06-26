@@ -23,7 +23,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.common.NetworkResult.Failure

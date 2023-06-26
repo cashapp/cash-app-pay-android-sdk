@@ -85,10 +85,6 @@ internal data class PayKitMachine(
       Log.w(name, "ignored event ${it.event}")
     }*/
 
-      addState(ExceptionState) {
-
-      }
-
       dataTransition<IllegalArguments, Exception> {
         targetState = ExceptionState
       }
@@ -140,6 +136,7 @@ internal data class PayKitMachine(
             } else if (event.data.status == STATUS_PENDING) {
               targetState(ReadyToAuthorize)
             } else {
+              // TODO don't throw, but put the SDK in an "Internal Error" State and ensure that this event makes it to ES2.
               throw error("unknown state")
             }
           }
@@ -182,12 +179,11 @@ internal data class PayKitMachine(
         worker.poll(this, this@addState, 20.seconds)
 
         dataTransition<Authorize, CustomerResponseData> {
-          guard = { event.data.id != "bad" }
+          // guard = { event.data.id != "bad" } //  We could guard this transition if the CustomerRequest is invalid. We most likely want to validate this in the public API rather in the machine events
           targetState = authorizingState
         }
 
         transition<AuthorizeUsingExistingData> {
-          guard = { this@addState.data.id != "bad" }
           onTriggered {
             stateMachine.processEventBlocking(Authorize(this@addState.data))
           }
@@ -198,7 +194,6 @@ internal data class PayKitMachine(
         addState(CreatingCustomerRequest) {
           worker.createCustomerRequest(this)
 
-          // TODO make this a data transition? or use context approach?
           dataTransition<CreateCustomerRequest.Success, CustomerResponseData> {
             targetState = ReadyToAuthorize
           }
@@ -223,8 +218,9 @@ internal data class PayKitMachine(
 
       addFinalState(Approved) {
       }
-
       addFinalState(Declined) {
+      }
+      addState(ExceptionState) {
       }
     }
   }

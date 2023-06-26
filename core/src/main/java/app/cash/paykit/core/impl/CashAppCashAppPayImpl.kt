@@ -123,6 +123,7 @@ internal class CashAppCashAppPayImpl(
             StartingWithExistingRequest -> RetrievingExistingCustomerRequest
           }
 
+          // TODO handle exception cases
           // Or we could do this in the individual state nodes
           analyticsEventDispatcher.genericStateChanged(
             state,

@@ -166,21 +166,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun genericStateChanged(
-    cashAppPayState: CashAppPayState,
-    customerResponseData: CustomerResponseData?,
-  ) {
-    val eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(
-        action = stateToAnalyticsAction(
-          cashAppPayState
-        )
-      )
-    val es2EventAsJsonString =
-      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
-  }
-
-  override fun genericStateChanged(
     cashAppPayState: PayKitMachineStates,
     customerResponseData: CustomerResponseData?
   ) {
@@ -197,20 +182,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
   override fun stateApproved(data: CustomerResponseData) {
     TODO("Not yet implemented")
-  }
-
-  override fun stateApproved(
-    approved: Approved,
-  ) {
-    val eventPayload =
-      eventFromCustomerResponseData(approved.responseData).copy(
-        action = stateToAnalyticsAction(
-          approved
-        )
-      )
-    val es2EventAsJsonString =
-      encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun exceptionOccurred(
@@ -241,7 +212,9 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
-    payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
+    // payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
+    // TODO revert this maybe? This will ensue we always get exception events as they happen (not batch uploaded later)
+    payKitAnalytics.dispatch(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
   override fun shutdown() {

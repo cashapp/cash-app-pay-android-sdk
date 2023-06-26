@@ -46,12 +46,8 @@ internal interface PayKitAnalyticsEventDispatcher {
     apiActions: List<Action>,
   )
 
-  @Deprecated("use new state machine values or raw data")
-  fun genericStateChanged(cashAppPayState: CashAppPayState, customerResponseData: CustomerResponseData?)
   fun genericStateChanged(cashAppPayState: PayKitMachineStates, customerResponseData: CustomerResponseData?)
 
-  @Deprecated("use new state machine values or raw data")
-  fun stateApproved(approved: Approved)
   fun stateApproved(data: CustomerResponseData)
 
   fun exceptionOccurred(
