@@ -244,13 +244,6 @@ internal class CashAppCashAppPayImpl(
       return
     }
 
-    // Stop refreshing unauthorized customer request.
-    try {
-      refreshUnauthorizedThread?.interrupt()
-    } catch (e: Exception) {
-      logError("Error while interrupting threads. Exception: $e")
-    }
-
     authorizeCustomerRequest(customerData)
   }
 
