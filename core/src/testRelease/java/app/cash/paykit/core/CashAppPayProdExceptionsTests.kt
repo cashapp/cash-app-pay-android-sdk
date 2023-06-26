@@ -15,6 +15,7 @@
  */
 package app.cash.paykit.core
 
+import app.cash.paykit.core.fakes.FakeData
 import app.cash.paykit.core.impl.CashAppCashAppPayImpl
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
