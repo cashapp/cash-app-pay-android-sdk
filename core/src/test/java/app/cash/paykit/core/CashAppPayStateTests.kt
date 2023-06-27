@@ -155,6 +155,7 @@ class CashAppPayStateTests {
     payKit.registerForStateUpdates(listener)
     val customerTopLevelResponse: NetworkResult.Success<CustomerTopLevelResponse> = mockk()
     every { customerTopLevelResponse.data.customerResponseData.status } returns STATUS_PENDING
+    every { customerTopLevelResponse.data.customerResponseData.authFlowTriggers } returns null
     every {
       networkManager.retrieveUpdatedRequestData(
         any(),

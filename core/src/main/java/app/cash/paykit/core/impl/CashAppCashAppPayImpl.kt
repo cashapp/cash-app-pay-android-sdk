@@ -245,7 +245,40 @@ internal class CashAppCashAppPayImpl(
       return
     }
 
+    currentState = Authorizing
+
+    if (customerData.isAuthTokenExpired()) {
+      logInfo("Auth token expired when attempting to authenticate, refreshing before proceeding.")
+      deferredAuthorizeCustomerRequest(customerData)
+      return
+    }
+
     authorizeCustomerRequest(customerData)
+  }
+
+  /**
+   * Deferred authorization of a customer request, when the auth token has expired.
+   */
+  private fun deferredAuthorizeCustomerRequest(customerData: CustomerResponseData) {
+    // Stop the thread that refreshes the customer request.
+    try {
+      refreshUnauthorizedThread?.interrupt()
+    } catch (e: Exception) {
+      logError("Error while interrupting previous thread. Exception: $e")
+    }
+
+    val networkResult = networkManager.retrieveUpdatedRequestData(
+      clientId,
+      customerResponseData!!.id,
+    )
+    if (networkResult is Failure) {
+      logError("Failed to refresh expired auth token customer request.")
+      currentState = CashAppPayExceptionState(networkResult.exception)
+      return
+    }
+    logInfo("Refreshed customer request with SUCCESS")
+    customerResponseData = (networkResult as Success).data.customerResponseData
+    authorizeCustomerRequest(customerResponseData!!)
   }
 
   /**
@@ -274,13 +307,20 @@ internal class CashAppCashAppPayImpl(
     // Replace internal state.
     customerResponseData = customerData
 
+    currentState = Authorizing
+
+    if (customerData.isAuthTokenExpired()) {
+      logInfo("Auth token expired when attempting to authenticate, refreshing before proceeding.")
+      deferredAuthorizeCustomerRequest(customerData)
+      return
+    }
+
     try {
       ApplicationContextHolder.applicationContext.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
       currentState = CashAppPayExceptionState(CashAppPayIntegrationException("Unable to open mobileUrl: ${customerData.authFlowTriggers?.mobileUrl}"))
       return
     }
-    currentState = Authorizing
   }
 
   /**
@@ -419,11 +459,13 @@ internal class CashAppCashAppPayImpl(
    * so that the auth flow trigger is refreshed before it expires.
    */
   private fun scheduleUnauthorizedCustomerRequestRefresh(customerResponseData: CustomerResponseData) {
-    val ttlSeconds = customerResponseData.authFlowTriggers?.refreshesAt?.minus(customerResponseData.createdAt)
-    if (ttlSeconds == null) {
-      logError("Unable to schedule unauthorized customer request refresh. TTL is null.")
+    if (customerResponseData.authFlowTriggers?.refreshesAt == null) {
+      logError("Unable to schedule unauthorized customer request refresh. RefreshesAt is null.")
       return
     }
+
+    val ttlSeconds = customerResponseData.authFlowTriggers.refreshesAt.minus(customerResponseData.createdAt)
+
     val refreshDelay = ttlSeconds.inWholeSeconds.minus(TOKEN_REFRESH_WINDOW.inWholeSeconds)
     logInfo("Scheduling unauthorized customer request refresh in $refreshDelay seconds.")
     refreshUnauthorizedCustomerRequest(refreshDelay.seconds)
