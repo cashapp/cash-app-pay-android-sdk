@@ -223,7 +223,11 @@ internal class NetworkManagerImpl(
 
             // Wait until the next retry.
             if (retryManager.shouldRetry()) {
-              Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+              try {
+                Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+              } catch (e: InterruptedException) {
+                return NetworkResult.failure(CashAppPayConnectivityNetworkException(retryException))
+              }
             }
             return@use
           }
@@ -264,7 +268,11 @@ internal class NetworkManagerImpl(
 
         // Wait until the next retry.
         if (retryManager.shouldRetry()) {
-          Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+          try {
+            Thread.sleep(retryManager.timeUntilNextRetry().inWholeMilliseconds)
+          } catch (e: InterruptedException) {
+            return NetworkResult.failure(CashAppPayConnectivityNetworkException(retryException))
+          }
         }
         retryException = e
       }
