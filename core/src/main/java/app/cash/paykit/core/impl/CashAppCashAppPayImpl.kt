@@ -210,6 +210,7 @@ internal class CashAppCashAppPayImpl(
           }
 
           STATUS_PENDING -> {
+            scheduleUnauthorizedCustomerRequestRefresh(networkResult.data.customerResponseData)
             ReadyToAuthorize(customerResponseData!!)
           }
 
