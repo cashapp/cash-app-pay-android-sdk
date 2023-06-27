@@ -18,7 +18,7 @@ package app.cash.paykit.core.android
 import android.util.Log
 
 /**
- * This class is used to wrap a thread and allow it to be interrupted.
+ * This class is used to wrap a thread start operation in a way that allows for smooth degradation on exception, as well as convenient and consistent error handling.
  */
 fun Thread.safeStart(errorMessage: String?, onError: () -> Unit? = {}) {
   try {
