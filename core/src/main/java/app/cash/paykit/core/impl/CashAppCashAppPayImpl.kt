@@ -40,6 +40,7 @@ import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.android.ApplicationContextHolder
+import app.cash.paykit.core.android.LOG_TAG
 import app.cash.paykit.core.android.safeStart
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.CONNECTIVITY
@@ -478,11 +479,11 @@ internal class CashAppCashAppPayImpl(
   }
 
   private fun logError(errorMessage: String) {
-    Log.e("CAP", errorMessage)
+    Log.e(LOG_TAG, errorMessage)
   }
 
   private fun logInfo(errorMessage: String) {
-    Log.i("CAP", errorMessage)
+    Log.i(LOG_TAG, errorMessage)
   }
 
   /**

@@ -15,20 +15,4 @@
  */
 package app.cash.paykit.core.android
 
-import android.util.Log
-
-/**
- * This class is used to wrap a thread start operation in a way that allows for smooth degradation on exception, as well as convenient and consistent error handling.
- */
-fun Thread.safeStart(errorMessage: String?, onError: () -> Unit? = {}) {
-  try {
-    start()
-  } catch (e: IllegalThreadStateException) {
-    // This can happen if the thread is already started.
-    Log.e(LOG_TAG, errorMessage, e)
-    onError()
-  } catch (e: InterruptedException) {
-    Log.e(LOG_TAG, errorMessage, e)
-    onError()
-  }
-}
+const val LOG_TAG = "CashAppPay"
