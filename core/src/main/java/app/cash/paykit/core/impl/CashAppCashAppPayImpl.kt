@@ -34,11 +34,13 @@ import app.cash.paykit.core.CashAppPayState.Declined
 import app.cash.paykit.core.CashAppPayState.NotStarted
 import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.Refreshing
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.android.ApplicationContextHolder
+import app.cash.paykit.core.android.LOG_TAG
 import app.cash.paykit.core.android.safeStart
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.CONNECTIVITY
@@ -87,6 +89,7 @@ internal class CashAppCashAppPayImpl(
           customerResponseData,
         )
         Authorizing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        Refreshing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
         Declined -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
         NotStarted -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
         PollingTransactionStatus -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
@@ -248,8 +251,6 @@ internal class CashAppCashAppPayImpl(
       return
     }
 
-    currentState = Authorizing
-
     if (customerData.isAuthTokenExpired()) {
       logInfo("Auth token expired when attempting to authenticate, refreshing before proceeding.")
       deferredAuthorizeCustomerRequest()
@@ -270,6 +271,8 @@ internal class CashAppCashAppPayImpl(
       logError("Error while interrupting previous thread. Exception: $e")
     }
 
+    currentState = Refreshing
+
     logInfo("Will refresh customer request before proceeding with authorization.")
     Thread {
       val networkResult = networkManager.retrieveUpdatedRequestData(
@@ -284,11 +287,11 @@ internal class CashAppCashAppPayImpl(
       logInfo("Refreshed customer request with SUCCESS")
       customerResponseData = (networkResult as Success).data.customerResponseData
 
-      if (currentState == Authorizing) {
+      if (currentState == Refreshing) {
         authorizeCustomerRequest(customerResponseData!!)
       }
     }.safeStart("Error while attempting to run deferred authorization.", onError = {
-      if (currentState == Authorizing) {
+      if (currentState == Refreshing) {
         currentState = CashAppPayExceptionState(CashAppPayNetworkException(CONNECTIVITY))
       }
     })
@@ -320,14 +323,13 @@ internal class CashAppCashAppPayImpl(
     // Replace internal state.
     customerResponseData = customerData
 
-    currentState = Authorizing
-
     if (customerData.isAuthTokenExpired()) {
       logInfo("Auth token expired when attempting to authenticate, refreshing before proceeding.")
       deferredAuthorizeCustomerRequest()
       return
     }
 
+    currentState = Authorizing
     try {
       ApplicationContextHolder.applicationContext.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
@@ -477,11 +479,11 @@ internal class CashAppCashAppPayImpl(
   }
 
   private fun logError(errorMessage: String) {
-    Log.e("CAP", errorMessage)
+    Log.e(LOG_TAG, errorMessage)
   }
 
   private fun logInfo(errorMessage: String) {
-    Log.i("CAP", errorMessage)
+    Log.i(LOG_TAG, errorMessage)
   }
 
   /**

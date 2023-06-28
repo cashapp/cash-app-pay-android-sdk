@@ -28,6 +28,7 @@ import app.cash.paykit.core.CashAppPayState.Declined
 import app.cash.paykit.core.CashAppPayState.NotStarted
 import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.Refreshing
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
@@ -295,6 +296,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     return when (state) {
       is Approved -> "approved"
       Authorizing -> "redirect"
+      Refreshing -> "refreshing"
       CreatingCustomerRequest -> "create"
       Declined -> "declined"
       NotStarted -> "not_started"
