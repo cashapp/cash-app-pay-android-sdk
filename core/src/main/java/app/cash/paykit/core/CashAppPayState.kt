@@ -60,6 +60,13 @@ sealed interface CashAppPayState {
   object Authorizing : CashAppPayState
 
   /**
+   * This state denotes that we're in the process of refreshing the existing customer request,
+   * in case the authorization has expired. This is typically an in-between between [Authorizing]
+   * and [PollingTransactionStatus].
+   */
+  object Refreshing : CashAppPayState
+
+  /**
    * This state denotes that we're actively polling for an authorization update. This state will
    * typically transition to either [Approved] or [Declined].
    */

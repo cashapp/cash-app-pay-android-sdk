@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core
+package app.cash.paykit.core.fakes
 
 import app.cash.paykit.core.models.sdk.CashAppPayCurrency.USD
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
@@ -24,6 +24,10 @@ object FakeData {
   const val REDIRECT_URI = "fake_redirect_uri"
   const val FAKE_AMOUNT = 500
   const val REQUEST_ID = "Request-id-fake-123"
+
+  const val SDK_VERSION = "1.0.0"
+  const val USER_AGENT = "Webkit/1.0.0 (Linux; U; Android 12; en-US; Samsung Build/XYZ)"
+  const val SDK_ENVIRONMENT_SANDBOX = "SANDBOX"
 
   val oneTimePayment = OneTimeAction(USD, FAKE_AMOUNT, BRAND_ID)
 

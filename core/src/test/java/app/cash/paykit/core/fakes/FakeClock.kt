@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.response
+package app.cash.paykit.core.fakes
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-import kotlinx.datetime.Instant
+import app.cash.paykit.core.utils.Clock
 
-@JsonClass(generateAdapter = true)
-data class AuthFlowTriggers(
-  @Json(name = "mobile_url")
-  val mobileUrl: String,
-  @Json(name = "qr_code_image_url")
-  val qrCodeImageUrl: String,
-  @Json(name = "qr_code_svg_url")
-  val qrCodeSvgUrl: String,
-  @Json(name = "refreshes_at")
-  val refreshesAt: Instant,
-)
+class FakeClock : Clock {
+  companion object {
+    const val NOW = 123L
+  }
+
+  override fun currentTimeInMicroseconds(): Long {
+    return NOW
+  }
+}

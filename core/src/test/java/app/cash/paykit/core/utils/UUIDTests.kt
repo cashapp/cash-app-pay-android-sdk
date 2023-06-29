@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.response
+package app.cash.paykit.core.utils
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-import kotlinx.datetime.Instant
+import com.google.common.truth.Truth.assertThat
+import org.junit.Test
 
-@JsonClass(generateAdapter = true)
-data class AuthFlowTriggers(
-  @Json(name = "mobile_url")
-  val mobileUrl: String,
-  @Json(name = "qr_code_image_url")
-  val qrCodeImageUrl: String,
-  @Json(name = "qr_code_svg_url")
-  val qrCodeSvgUrl: String,
-  @Json(name = "refreshes_at")
-  val refreshesAt: Instant,
-)
+class UUIDTests {
+  @Test
+  fun `generateUUID should return a different valid UUID each time`() {
+    val uuidManager = UUIDManagerRealImpl()
+    val uuid = uuidManager.generateUUID()
+    assertThat(uuid).isNotEmpty()
+    assertThat(uuid).hasLength(36)
+    val secondUuid = uuidManager.generateUUID()
+    assertThat(secondUuid).isNotEqualTo(uuid)
+  }
+}
