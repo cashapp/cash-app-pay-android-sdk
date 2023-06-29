@@ -1,3 +1,13 @@
+# 2.2.0
+
+In this release of our open source SDK, we've made a significant update that involves modifying the date types within our returned payloads from string to Instant. Please note that this modification is a breaking change. Here's what has been altered:
+
+ - The dates in the models have been transitioned from `string` to `Instant`.
+ - Metrics timestamps are now accurately recorded in `Epoch usec`.
+ - In situations where the auth flow token has expired, it will now be automatically refreshed, thereby ensuring a successful request.
+ - We've added a new state: `Refreshing`. This state is triggered exclusively when the auth flow token needs a refresh during a customer authorization attempt. Typically, this state acts as a bridge between `Authorizing` and `PollingTransactionStatus` states.
+
+
 # 2.1.0
 
 This version introduces a concrete type for `GrantType` under the `Grant` class. Before this field was a `string`. 
