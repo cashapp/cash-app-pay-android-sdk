@@ -15,6 +15,7 @@
  */
 package app.cash.paykit.core.models.analytics.payloads
 
+import app.cash.paykit.core.models.pii.PiiString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -132,7 +133,7 @@ data class AnalyticsCustomerRequestPayload(
 
   // The Cashtag of the Customer Profile in the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_customer_cashtag")
-  val customerCashTag: String? = null,
+  val customerCashTag: PiiString? = null,
 
   // A string built from the metadata in the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_metadata")

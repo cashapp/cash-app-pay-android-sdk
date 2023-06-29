@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.network
+package app.cash.paykit.core.models.pii
 
-import app.cash.paykit.core.models.pii.PiiString
-import app.cash.paykit.core.network.adapters.InstantAdapter
-import app.cash.paykit.core.network.adapters.PiiStringAdapter
-import com.squareup.moshi.Moshi
-import kotlinx.datetime.Instant
+/**
+ * A string that has been redacted for being classified as Personal Identifiable Information (PII).
+ */
+class PiiString(private var value: String) {
 
-internal object MoshiProvider {
-  fun provideDefault(): Moshi {
-    return Moshi.Builder()
-      .add(Instant::class.java, InstantAdapter())
-      .add(PiiString::class.java, PiiStringAdapter())
-      .build()
+  /**
+   * Returns the un-redacted value of this PiiString. Do not log or store this value!
+   */
+  fun getUnredacted(): String {
+    return value
+  }
+
+  override fun toString(): String {
+    return "redacted"
   }
 }
