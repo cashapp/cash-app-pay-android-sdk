@@ -249,6 +249,9 @@ object CashAppPayFactory {
   private val ANALYTICS_DB_NAME_SANDBOX = "paykit-events-sandbox.db"
   private val ANALYTICS_PROD_ENVIRONMENT = "production"
   private val ANALYTICS_SANDBOX_ENVIRONMENT = "sandbox"
+
+  // This is the threshold for when in advance of a token expiring we should refresh it.
+  internal val TOKEN_REFRESH_WINDOW = 10.seconds
 }
 
 interface CashAppPayListener {

@@ -18,6 +18,8 @@ package app.cash.paykit.core.models.response
 import app.cash.paykit.core.models.common.Action
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import kotlinx.datetime.Clock.System
+import kotlinx.datetime.Instant
 
 const val STATUS_PENDING = "PENDING"
 const val STATUS_PROCESSING = "PROCESSING"
@@ -41,15 +43,21 @@ data class CustomerResponseData(
   @Json(name = "status")
   val status: String,
   @Json(name = "updated_at")
-  val updatedAt: String,
+  val updatedAt: Instant,
   @Json(name = "created_at")
-  val createdAt: String,
+  val createdAt: Instant,
   @Json(name = "expires_at")
-  val expiresAt: String,
+  val expiresAt: Instant,
   @Json(name = "customer_profile")
   val customerProfile: CustomerProfile?,
   @Json(name = "grants")
   val grants: List<Grant>?,
   @Json(name = "reference_id")
   val referenceId: String?,
-)
+) {
+  fun isAuthTokenExpired(): Boolean {
+    val now = System.now()
+    val isExpired = now > (authFlowTriggers?.refreshesAt ?: return false)
+    return isExpired
+  }
+}

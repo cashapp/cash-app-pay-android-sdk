@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.response
+package app.cash.paykit.core.android
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-import kotlinx.datetime.Instant
+import android.util.Log
 
-@JsonClass(generateAdapter = true)
-data class AuthFlowTriggers(
-  @Json(name = "mobile_url")
-  val mobileUrl: String,
-  @Json(name = "qr_code_image_url")
-  val qrCodeImageUrl: String,
-  @Json(name = "qr_code_svg_url")
-  val qrCodeSvgUrl: String,
-  @Json(name = "refreshes_at")
-  val refreshesAt: Instant,
-)
+/**
+ * This class is used to wrap a thread start operation in a way that allows for smooth degradation on exception, as well as convenient and consistent error handling.
+ */
+fun Thread.safeStart(errorMessage: String?, onError: () -> Unit? = {}) {
+  try {
+    start()
+  } catch (e: IllegalThreadStateException) {
+    // This can happen if the thread is already started.
+    Log.e(LOG_TAG, errorMessage, e)
+    onError()
+  } catch (e: InterruptedException) {
+    Log.e(LOG_TAG, errorMessage, e)
+    onError()
+  }
+}

@@ -28,6 +28,7 @@ import app.cash.paykit.core.CashAppPayState.Declined
 import app.cash.paykit.core.CashAppPayState.NotStarted
 import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.Refreshing
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
@@ -46,6 +47,7 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.utils.Clock
 import app.cash.paykit.core.utils.ClockRealImpl
 import app.cash.paykit.core.utils.UUIDManager
@@ -53,7 +55,6 @@ import app.cash.paykit.core.utils.UUIDManagerRealImpl
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import java.util.*
 
 private const val APP_NAME = "paykitsdk-android"
 private const val PLATFORM = "android"
@@ -66,7 +67,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkEnvironment: String,
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
-  private val moshi: Moshi = Moshi.Builder().build(),
+  private val moshi: Moshi = MoshiProvider.provideDefault(),
   private val uuidManager: UUIDManager = UUIDManagerRealImpl(),
   private val clock: Clock = ClockRealImpl(),
 ) : PayKitAnalyticsEventDispatcher {
@@ -274,8 +275,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       clientId,
       status = customerResponseData?.status,
       authMobileUrl = customerResponseData?.authFlowTriggers?.mobileUrl,
-      updatedAt = customerResponseData?.updatedAt?.toLongOrNull(),
-      createdAt = customerResponseData?.createdAt?.toLongOrNull(),
+      updatedAt = customerResponseData?.updatedAt?.toEpochMilliseconds(),
+      createdAt = customerResponseData?.createdAt?.toEpochMilliseconds(),
       originType = customerResponseData?.origin?.type,
       originId = customerResponseData?.origin?.id,
       requestChannel = CHANNEL_IN_APP,
@@ -295,6 +296,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     return when (state) {
       is Approved -> "approved"
       Authorizing -> "redirect"
+      Refreshing -> "refreshing"
       CreatingCustomerRequest -> "create"
       Declined -> "declined"
       NotStarted -> "not_started"

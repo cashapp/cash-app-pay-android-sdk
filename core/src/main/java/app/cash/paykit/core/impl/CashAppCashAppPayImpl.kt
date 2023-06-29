@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.annotation.WorkerThread
 import app.cash.paykit.core.BuildConfig
 import app.cash.paykit.core.CashAppPay
+import app.cash.paykit.core.CashAppPayFactory.TOKEN_REFRESH_WINDOW
 import app.cash.paykit.core.CashAppPayLifecycleObserver
 import app.cash.paykit.core.CashAppPayListener
 import app.cash.paykit.core.CashAppPayState
@@ -33,12 +34,17 @@ import app.cash.paykit.core.CashAppPayState.Declined
 import app.cash.paykit.core.CashAppPayState.NotStarted
 import app.cash.paykit.core.CashAppPayState.PollingTransactionStatus
 import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
+import app.cash.paykit.core.CashAppPayState.Refreshing
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.android.ApplicationContextHolder
+import app.cash.paykit.core.android.LOG_TAG
+import app.cash.paykit.core.android.safeStart
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
+import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.CONNECTIVITY
+import app.cash.paykit.core.exceptions.CashAppPayNetworkException
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
 import app.cash.paykit.core.models.response.CustomerResponseData
@@ -47,6 +53,9 @@ import app.cash.paykit.core.models.response.STATUS_PENDING
 import app.cash.paykit.core.models.response.STATUS_PROCESSING
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.utils.orElse
+import kotlinx.datetime.Clock
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
@@ -66,6 +75,9 @@ internal class CashAppCashAppPayImpl(
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
 
+  private var checkForApprovalThread: Thread? = null
+  private var refreshUnauthorizedThread: Thread? = null
+
   private var currentState: CashAppPayState = initialState
     set(value) {
       field = value
@@ -77,6 +89,7 @@ internal class CashAppCashAppPayImpl(
           customerResponseData,
         )
         Authorizing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+        Refreshing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
         Declined -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
         NotStarted -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
         PollingTransactionStatus -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
@@ -136,6 +149,7 @@ internal class CashAppCashAppPayImpl(
       is Success -> {
         customerResponseData = networkResult.data.customerResponseData
         currentState = ReadyToAuthorize(networkResult.data.customerResponseData)
+        scheduleUnauthorizedCustomerRequestRefresh(networkResult.data.customerResponseData)
       }
     }
   }
@@ -202,6 +216,7 @@ internal class CashAppCashAppPayImpl(
           }
 
           STATUS_PENDING -> {
+            scheduleUnauthorizedCustomerRequestRefresh(networkResult.data.customerResponseData)
             ReadyToAuthorize(customerResponseData!!)
           }
 
@@ -236,7 +251,50 @@ internal class CashAppCashAppPayImpl(
       return
     }
 
+    if (customerData.isAuthTokenExpired()) {
+      logInfo("Auth token expired when attempting to authenticate, refreshing before proceeding.")
+      deferredAuthorizeCustomerRequest()
+      return
+    }
+
     authorizeCustomerRequest(customerData)
+  }
+
+  /**
+   * Deferred authorization of a customer request, when the auth token has expired.
+   */
+  private fun deferredAuthorizeCustomerRequest() {
+    // Stop the thread that refreshes the customer request.
+    try {
+      refreshUnauthorizedThread?.interrupt()
+    } catch (e: Exception) {
+      logError("Error while interrupting previous thread. Exception: $e")
+    }
+
+    currentState = Refreshing
+
+    logInfo("Will refresh customer request before proceeding with authorization.")
+    Thread {
+      val networkResult = networkManager.retrieveUpdatedRequestData(
+        clientId,
+        customerResponseData!!.id,
+      )
+      if (networkResult is Failure) {
+        logError("Failed to refresh expired auth token customer request.")
+        currentState = CashAppPayExceptionState(networkResult.exception)
+        return@Thread
+      }
+      logInfo("Refreshed customer request with SUCCESS")
+      customerResponseData = (networkResult as Success).data.customerResponseData
+
+      if (currentState == Refreshing) {
+        authorizeCustomerRequest(customerResponseData!!)
+      }
+    }.safeStart("Error while attempting to run deferred authorization.", onError = {
+      if (currentState == Refreshing) {
+        currentState = CashAppPayExceptionState(CashAppPayNetworkException(CONNECTIVITY))
+      }
+    })
   }
 
   /**
@@ -265,13 +323,19 @@ internal class CashAppCashAppPayImpl(
     // Replace internal state.
     customerResponseData = customerData
 
+    if (customerData.isAuthTokenExpired()) {
+      logInfo("Auth token expired when attempting to authenticate, refreshing before proceeding.")
+      deferredAuthorizeCustomerRequest()
+      return
+    }
+
+    currentState = Authorizing
     try {
       ApplicationContextHolder.applicationContext.startActivity(intent)
     } catch (activityNotFoundException: ActivityNotFoundException) {
       currentState = CashAppPayExceptionState(CashAppPayIntegrationException("Unable to open mobileUrl: ${customerData.authFlowTriggers?.mobileUrl}"))
       return
     }
-    currentState = Authorizing
   }
 
   /**
@@ -286,10 +350,19 @@ internal class CashAppCashAppPayImpl(
    *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   override fun unregisterFromStateUpdates() {
+    logInfo("Unregistering from state updates")
     callbackListener = null
     payKitLifecycleListener.unregister(this)
     analyticsEventDispatcher.eventListenerRemoved()
     analyticsEventDispatcher.shutdown()
+
+    // Stop any polling operations that might be running.
+    try {
+      refreshUnauthorizedThread?.interrupt()
+      checkForApprovalThread?.interrupt()
+    } catch (e: Exception) {
+      logError("Error while interrupting threads. Exception: $e")
+    }
   }
 
   private fun enforceRegisteredStateUpdatesListener() {
@@ -303,7 +376,7 @@ internal class CashAppCashAppPayImpl(
   }
 
   private fun poolTransactionStatus() {
-    Thread {
+    checkForApprovalThread = Thread {
       val networkResult = networkManager.retrieveUpdatedRequestData(
         clientId,
         customerResponseData!!.id,
@@ -321,7 +394,12 @@ internal class CashAppCashAppPayImpl(
         // If status is pending, schedule to check again.
         if (customerResponseData?.status == STATUS_PENDING) {
           // TODO: Add backoff strategy for long polling. ( https://www.notion.so/cashappcash/Implement-Long-pooling-retry-logic-a9af47e2db9242faa5d64df2596fd78e )
-          Thread.sleep(500)
+          try {
+            Thread.sleep(500)
+          } catch (e: InterruptedException) {
+            return@Thread
+          }
+
           poolTransactionStatus()
           return@Thread
         }
@@ -329,11 +407,83 @@ internal class CashAppCashAppPayImpl(
         // Unsuccessful transaction.
         setStateFinished(false)
       }
-    }.start()
+    }
+    checkForApprovalThread?.safeStart(errorMessage = "Could not start checkForApprovalThread.")
+  }
+
+  private fun refreshUnauthorizedCustomerRequest(delay: Duration) {
+    // Before starting a new thread, cancel any previous one.
+    try {
+      refreshUnauthorizedThread?.interrupt()
+    } catch (e: Exception) {
+      logError("Error while interrupting previous thread. Exception: $e")
+    }
+
+    refreshUnauthorizedThread = Thread {
+      try {
+        Thread.sleep(delay.inWholeMilliseconds)
+      } catch (e: InterruptedException) {
+        return@Thread
+      }
+
+      // Stop refreshing if the request has expired.
+      val currentTime = Clock.System.now()
+      val hasExpired = customerResponseData?.expiresAt?.let { expiresAt -> currentTime > expiresAt } ?: false
+      if (hasExpired) {
+        logError("Customer request has expired. Stopping refresh.")
+        return@Thread
+      }
+
+      if (currentState !is ReadyToAuthorize) {
+        // In this case, we don't want to retry since we're in a state that doesn't allow it.
+        logError("Not refreshing unauthorized customer request because state is not ReadyToAuthorize")
+        return@Thread
+      }
+
+      val networkResult = networkManager.retrieveUpdatedRequestData(
+        clientId,
+        customerResponseData!!.id,
+      )
+      if (networkResult is Failure) {
+        logError("Failed to refresh expiring auth token customer request.")
+
+        // Retry refreshing unauthorized customer request.
+        refreshUnauthorizedCustomerRequest(delay)
+        return@Thread
+      }
+      logInfo("Refreshed customer request with SUCCESS")
+      customerResponseData = (networkResult as Success).data.customerResponseData
+      refreshUnauthorizedCustomerRequest(delay)
+    }
+
+    refreshUnauthorizedThread?.safeStart("Could not start refreshUnauthorizedThread.", onError = {
+      refreshUnauthorizedCustomerRequest(delay)
+    })
+  }
+
+  /**
+   * Given a `customerResponseData` object, this function will schedule a refresh of the customer request
+   * so that the auth flow trigger is refreshed before it expires.
+   */
+  private fun scheduleUnauthorizedCustomerRequestRefresh(customerResponseData: CustomerResponseData) {
+    if (customerResponseData.authFlowTriggers?.refreshesAt == null) {
+      logError("Unable to schedule unauthorized customer request refresh. RefreshesAt is null.")
+      return
+    }
+
+    val ttlSeconds = customerResponseData.authFlowTriggers.refreshesAt.minus(customerResponseData.createdAt)
+
+    val refreshDelay = ttlSeconds.inWholeSeconds.minus(TOKEN_REFRESH_WINDOW.inWholeSeconds)
+    logInfo("Scheduling unauthorized customer request refresh in $refreshDelay seconds.")
+    refreshUnauthorizedCustomerRequest(refreshDelay.seconds)
   }
 
   private fun logError(errorMessage: String) {
-    Log.e("PayKit", errorMessage)
+    Log.e(LOG_TAG, errorMessage)
+  }
+
+  private fun logInfo(errorMessage: String) {
+    Log.i(LOG_TAG, errorMessage)
   }
 
   /**
@@ -379,11 +529,11 @@ internal class CashAppCashAppPayImpl(
    */
 
   override fun onApplicationForegrounded() {
-    logError("onApplicationForegrounded")
+    logInfo("onApplicationForegrounded")
     updateStateAndPoolForTransactionStatus()
   }
 
   override fun onApplicationBackgrounded() {
-    logError("onApplicationBackgrounded")
+    logInfo("onApplicationBackgrounded")
   }
 }
