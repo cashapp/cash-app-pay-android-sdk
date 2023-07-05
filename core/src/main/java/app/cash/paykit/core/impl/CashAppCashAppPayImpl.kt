@@ -52,6 +52,11 @@ import app.cash.paykit.core.models.response.STATUS_APPROVED
 import app.cash.paykit.core.models.response.STATUS_PENDING
 import app.cash.paykit.core.models.response.STATUS_PROCESSING
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.utils.SingleThreadManager
+import app.cash.paykit.core.utils.SingleThreadManagerImpl
+import app.cash.paykit.core.utils.ThreadPurpose.CHECK_APPROVAL_STATUS
+import app.cash.paykit.core.utils.ThreadPurpose.DEFERRED_REFRESH
+import app.cash.paykit.core.utils.ThreadPurpose.REFRESH_AUTH_TOKEN
 import app.cash.paykit.core.utils.orElse
 import kotlinx.datetime.Clock
 import kotlin.time.Duration
@@ -67,6 +72,7 @@ internal class CashAppCashAppPayImpl(
   private val analyticsEventDispatcher: PayKitAnalyticsEventDispatcher,
   private val payKitLifecycleListener: CashAppPayLifecycleObserver,
   private val useSandboxEnvironment: Boolean = false,
+  private val singleThreadManager: SingleThreadManager = SingleThreadManagerImpl(),
   initialState: CashAppPayState = NotStarted,
   initialCustomerResponseData: CustomerResponseData? = null,
 ) : CashAppPay, CashAppPayLifecycleListener {
@@ -74,9 +80,6 @@ internal class CashAppCashAppPayImpl(
   private var callbackListener: CashAppPayListener? = null
 
   private var customerResponseData: CustomerResponseData? = initialCustomerResponseData
-
-  private var checkForApprovalThread: Thread? = null
-  private var refreshUnauthorizedThread: Thread? = null
 
   private var currentState: CashAppPayState = initialState
     set(value) {
@@ -265,16 +268,12 @@ internal class CashAppCashAppPayImpl(
    */
   private fun deferredAuthorizeCustomerRequest() {
     // Stop the thread that refreshes the customer request.
-    try {
-      refreshUnauthorizedThread?.interrupt()
-    } catch (e: Exception) {
-      logError("Error while interrupting previous thread. Exception: $e")
-    }
+    singleThreadManager.interruptThread(REFRESH_AUTH_TOKEN)
 
     currentState = Refreshing
 
     logInfo("Will refresh customer request before proceeding with authorization.")
-    Thread {
+    singleThreadManager.createThread(DEFERRED_REFRESH) {
       val networkResult = networkManager.retrieveUpdatedRequestData(
         clientId,
         customerResponseData!!.id,
@@ -282,7 +281,7 @@ internal class CashAppCashAppPayImpl(
       if (networkResult is Failure) {
         logError("Failed to refresh expired auth token customer request.")
         currentState = CashAppPayExceptionState(networkResult.exception)
-        return@Thread
+        return@createThread
       }
       logInfo("Refreshed customer request with SUCCESS")
       customerResponseData = (networkResult as Success).data.customerResponseData
@@ -357,12 +356,7 @@ internal class CashAppCashAppPayImpl(
     analyticsEventDispatcher.shutdown()
 
     // Stop any polling operations that might be running.
-    try {
-      refreshUnauthorizedThread?.interrupt()
-      checkForApprovalThread?.interrupt()
-    } catch (e: Exception) {
-      logError("Error while interrupting threads. Exception: $e")
-    }
+    singleThreadManager.interruptAllThreads()
   }
 
   private fun enforceRegisteredStateUpdatesListener() {
@@ -376,14 +370,14 @@ internal class CashAppCashAppPayImpl(
   }
 
   private fun poolTransactionStatus() {
-    checkForApprovalThread = Thread {
+    singleThreadManager.createThread(CHECK_APPROVAL_STATUS) {
       val networkResult = networkManager.retrieveUpdatedRequestData(
         clientId,
         customerResponseData!!.id,
       )
       if (networkResult is Failure) {
         currentState = CashAppPayExceptionState(networkResult.exception)
-        return@Thread
+        return@createThread
       }
       customerResponseData = (networkResult as Success).data.customerResponseData
 
@@ -397,33 +391,25 @@ internal class CashAppCashAppPayImpl(
           try {
             Thread.sleep(500)
           } catch (e: InterruptedException) {
-            return@Thread
+            return@createThread
           }
 
           poolTransactionStatus()
-          return@Thread
+          return@createThread
         }
 
         // Unsuccessful transaction.
         setStateFinished(false)
       }
-    }
-    checkForApprovalThread?.safeStart(errorMessage = "Could not start checkForApprovalThread.")
+    }.safeStart(errorMessage = "Could not start checkForApprovalThread.")
   }
 
   private fun refreshUnauthorizedCustomerRequest(delay: Duration) {
-    // Before starting a new thread, cancel any previous one.
-    try {
-      refreshUnauthorizedThread?.interrupt()
-    } catch (e: Exception) {
-      logError("Error while interrupting previous thread. Exception: $e")
-    }
-
-    refreshUnauthorizedThread = Thread {
+    singleThreadManager.createThread(REFRESH_AUTH_TOKEN) {
       try {
         Thread.sleep(delay.inWholeMilliseconds)
       } catch (e: InterruptedException) {
-        return@Thread
+        return@createThread
       }
 
       // Stop refreshing if the request has expired.
@@ -431,13 +417,13 @@ internal class CashAppCashAppPayImpl(
       val hasExpired = customerResponseData?.expiresAt?.let { expiresAt -> currentTime > expiresAt } ?: false
       if (hasExpired) {
         logError("Customer request has expired. Stopping refresh.")
-        return@Thread
+        return@createThread
       }
 
       if (currentState !is ReadyToAuthorize) {
         // In this case, we don't want to retry since we're in a state that doesn't allow it.
         logError("Not refreshing unauthorized customer request because state is not ReadyToAuthorize")
-        return@Thread
+        return@createThread
       }
 
       val networkResult = networkManager.retrieveUpdatedRequestData(
@@ -449,14 +435,12 @@ internal class CashAppCashAppPayImpl(
 
         // Retry refreshing unauthorized customer request.
         refreshUnauthorizedCustomerRequest(delay)
-        return@Thread
+        return@createThread
       }
       logInfo("Refreshed customer request with SUCCESS")
       customerResponseData = (networkResult as Success).data.customerResponseData
       refreshUnauthorizedCustomerRequest(delay)
-    }
-
-    refreshUnauthorizedThread?.safeStart("Could not start refreshUnauthorizedThread.", onError = {
+    }.safeStart("Could not start refreshUnauthorizedThread.", onError = {
       refreshUnauthorizedCustomerRequest(delay)
     })
   }
