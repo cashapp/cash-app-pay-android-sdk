@@ -22,15 +22,15 @@ import org.junit.Test
 class PiiStringTests {
 
   @Test
-  fun testPiiLoggingIsRedacted() {
+  fun `test PiiString can be obtained as redacted`() {
     val piiString = PiiString("1234567890")
-    assertThat(piiString.toString()).isEqualTo("redacted")
+    assertThat(piiString.getRedacted()).isEqualTo("redacted")
   }
 
   @Test
-  fun testPiiStringCanBeObtainUnredacted() {
+  fun `test PiiString can be obtained as plain text`() {
     val value = "1234567890"
     val piiString = PiiString(value)
-    assertThat(piiString.getUnredacted()).isEqualTo(value)
+    assertThat(piiString.toString()).isEqualTo(value)
   }
 }

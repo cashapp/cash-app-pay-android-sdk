@@ -16,18 +16,23 @@
 package app.cash.paykit.core.models.pii
 
 /**
- * A string that has been redacted for being classified as Personal Identifiable Information (PII).
+ * A string that has been classified as Personal Identifiable Information (PII).
+ *
  */
 class PiiString(private var value: String) {
 
   /**
-   * Returns the un-redacted value of this PiiString. Do not log or store this value!
+   * Returns the redacted value of this PiiString.
    */
-  fun getUnredacted(): String {
-    return value
+  fun getRedacted(): String {
+    return "redacted"
   }
 
+  /**
+   * Get the plain-text version of this PiiString.
+   * It is important that you do not log or store this value. Use `getRedacted()` instead if necessary.
+   */
   override fun toString(): String {
-    return "redacted"
+    return value
   }
 }

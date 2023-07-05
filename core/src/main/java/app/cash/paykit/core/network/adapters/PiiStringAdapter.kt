@@ -35,7 +35,7 @@ internal class PiiStringAdapter : JsonAdapter<PiiString>() {
     if (value == null) {
       writer.nullValue()
     } else {
-      writer.value(value.toString())
+      writer.value(value.getRedacted())
     }
   }
 }
