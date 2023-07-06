@@ -21,7 +21,10 @@ import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonReader.Token.NULL
 import com.squareup.moshi.JsonWriter
 
-internal class PiiStringAdapter : JsonAdapter<PiiString>() {
+/**
+ * This adapter will redact the value of a [PiiString] when serializing to JSON.
+ */
+internal class PiiStringRedactAdapter : JsonAdapter<PiiString>() {
 
   override fun fromJson(reader: JsonReader): PiiString? {
     if (reader.peek() == NULL) {
@@ -35,7 +38,7 @@ internal class PiiStringAdapter : JsonAdapter<PiiString>() {
     if (value == null) {
       writer.nullValue()
     } else {
-      writer.value(value.getRedacted())
+      writer.value("FILTERED")
     }
   }
 }

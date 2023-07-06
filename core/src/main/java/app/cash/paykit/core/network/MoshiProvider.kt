@@ -17,15 +17,22 @@ package app.cash.paykit.core.network
 
 import app.cash.paykit.core.models.pii.PiiString
 import app.cash.paykit.core.network.adapters.InstantAdapter
-import app.cash.paykit.core.network.adapters.PiiStringAdapter
+import app.cash.paykit.core.network.adapters.PiiStringClearTextAdapter
+import app.cash.paykit.core.network.adapters.PiiStringRedactAdapter
 import com.squareup.moshi.Moshi
 import kotlinx.datetime.Instant
 
 internal object MoshiProvider {
-  fun provideDefault(): Moshi {
-    return Moshi.Builder()
+  fun provideDefault(redactPii: Boolean = false): Moshi {
+    val builder = Moshi.Builder()
       .add(Instant::class.java, InstantAdapter())
-      .add(PiiString::class.java, PiiStringAdapter())
-      .build()
+
+    if (redactPii) {
+      builder.add(PiiString::class.java, PiiStringRedactAdapter())
+    } else {
+      builder.add(PiiString::class.java, PiiStringClearTextAdapter())
+    }
+
+    return builder.build()
   }
 }

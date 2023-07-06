@@ -16,15 +16,42 @@
 package app.cash.paykit.core
 
 import app.cash.paykit.core.models.pii.PiiString
+import app.cash.paykit.core.network.adapters.InstantAdapter
+import app.cash.paykit.core.network.adapters.PiiStringClearTextAdapter
+import app.cash.paykit.core.network.adapters.PiiStringRedactAdapter
 import com.google.common.truth.Truth.assertThat
+import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapter
+import kotlinx.datetime.Instant
 import org.junit.Test
 
 class PiiStringTests {
 
+  @OptIn(ExperimentalStdlibApi::class)
   @Test
-  fun `test PiiString can be obtained as redacted`() {
+  fun `test Redact Adapter will redact contents of PiiString`() {
     val piiString = PiiString("1234567890")
-    assertThat(piiString.getRedacted()).isEqualTo("redacted")
+    val moshi = Moshi.Builder()
+      .add(Instant::class.java, InstantAdapter())
+      .add(PiiString::class.java, PiiStringRedactAdapter())
+      .build()
+
+    val serialized: JsonAdapter<PiiString> = moshi.adapter()
+    assertThat(serialized.toJson(piiString)).isEqualTo("\"FILTERED\"")
+  }
+
+  @OptIn(ExperimentalStdlibApi::class)
+  @Test
+  fun `test Clear Text PiiString Adapter will NOT redact contents of PiiString`() {
+    val piiString = PiiString("1234567890")
+    val moshi = Moshi.Builder()
+      .add(Instant::class.java, InstantAdapter())
+      .add(PiiString::class.java, PiiStringClearTextAdapter())
+      .build()
+
+    val serialized: JsonAdapter<PiiString> = moshi.adapter()
+    assertThat(serialized.toJson(piiString)).isEqualTo("\"$piiString\"")
   }
 
   @Test

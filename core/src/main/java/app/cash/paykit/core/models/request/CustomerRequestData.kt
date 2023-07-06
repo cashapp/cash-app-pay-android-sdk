@@ -16,6 +16,7 @@
 package app.cash.paykit.core.models.request
 
 import app.cash.paykit.core.models.common.Action
+import app.cash.paykit.core.models.pii.PiiString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -26,5 +27,5 @@ data class CustomerRequestData(
   @Json(name = "channel")
   val channel: String?,
   @Json(name = "redirect_url")
-  val redirectUri: String?,
+  val redirectUri: PiiString?,
 )

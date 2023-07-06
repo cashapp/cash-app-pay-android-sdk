@@ -16,12 +16,7 @@
 package app.cash.paykit.core.models.pii
 
 /**
- * A string that has been classified as Personal Identifiable Information (PII).
- *
+ * This is a marker interface for PII content (Personal Identifiable Information). It is meant to signal to the developer that a object
+ * of this class contains PII and should be treated as such.
  */
-class PiiString(private var value: String) : PiiContent {
-
-  override fun toString(): String {
-    return value
-  }
-}
+interface PiiContent

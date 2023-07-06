@@ -61,11 +61,11 @@ data class AnalyticsCustomerRequestPayload(
 
   // The redirect URL when creating a Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_create_redirect_url")
-  val createRedirectUrl: String? = null,
+  val createRedirectUrl: PiiString? = null,
 
   // The reference ID when creating a Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_create_reference_id")
-  val createReferenceId: String? = null,
+  val createReferenceId: PiiString? = null,
 
   // A string built from the metadata when creating a Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_create_metadata")
@@ -97,7 +97,7 @@ data class AnalyticsCustomerRequestPayload(
 
   // The redirect URL of the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_redirect_url")
-  val redirectUrl: String? = null,
+  val redirectUrl: PiiString? = null,
 
   // The created at timestamp of the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_created_at")
@@ -121,7 +121,7 @@ data class AnalyticsCustomerRequestPayload(
 
   // The reference ID of the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_reference_id")
-  val referenceId: String? = null,
+  val referenceId: PiiString? = null,
 
   // The name of the Requester Profile in the Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_requester_name")
@@ -149,7 +149,7 @@ data class AnalyticsCustomerRequestPayload(
 
   // The reference ID when updating a Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_update_reference_id")
-  val updateReferenceId: String? = null,
+  val updateReferenceId: PiiString? = null,
 
   // The redirect URL when creating a Customer Request.
   @Json(name = "mobile_cap_pk_customer_request_update_metadata")
