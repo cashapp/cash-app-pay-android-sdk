@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.request
+package app.cash.paykit.core.models.pii
 
-import app.cash.paykit.core.models.common.Action
-import app.cash.paykit.core.models.pii.PiiString
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
-
-@JsonClass(generateAdapter = true)
-data class CustomerRequestData(
-  @Json(name = "actions")
-  val actions: List<Action>,
-  @Json(name = "channel")
-  val channel: String?,
-  @Json(name = "redirect_url")
-  val redirectUri: PiiString?,
-)
+/**
+ * This is a marker interface for PII content (Personal Identifiable Information). It is meant to signal to the developer that a object
+ * of this class contains PII and should be treated as such.
+ */
+interface PiiContent

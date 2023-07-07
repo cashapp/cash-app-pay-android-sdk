@@ -16,6 +16,7 @@
 package app.cash.paykit.core.models.request
 
 import app.cash.paykit.core.models.common.Action
+import app.cash.paykit.core.models.pii.PiiString
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
@@ -53,7 +54,7 @@ object CustomerRequestDataFactory {
       CustomerRequestData(
         actions = actions,
         channel = CHANNEL_IN_APP,
-        redirectUri = redirectUri,
+        redirectUri = redirectUri?.let { PiiString(redirectUri) },
       )
     }
   }

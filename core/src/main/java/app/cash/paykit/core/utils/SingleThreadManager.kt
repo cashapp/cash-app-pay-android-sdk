@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.request
+package app.cash.paykit.core.utils
 
-import app.cash.paykit.core.models.common.Action
-import app.cash.paykit.core.models.pii.PiiString
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+enum class ThreadPurpose {
+  REFRESH_AUTH_TOKEN,
+  CHECK_APPROVAL_STATUS,
+  DEFERRED_REFRESH,
+}
 
-@JsonClass(generateAdapter = true)
-data class CustomerRequestData(
-  @Json(name = "actions")
-  val actions: List<Action>,
-  @Json(name = "channel")
-  val channel: String?,
-  @Json(name = "redirect_url")
-  val redirectUri: PiiString?,
-)
+/**
+ * A manager class that is responsible for creating and managing threads, and guarantee that
+ * each [ThreadPurpose] has only one thread at any given time.
+ */
+internal interface SingleThreadManager {
+  fun createThread(purpose: ThreadPurpose, runnable: Runnable): Thread
+
+  fun interruptThread(purpose: ThreadPurpose)
+
+  fun interruptAllThreads()
+}
