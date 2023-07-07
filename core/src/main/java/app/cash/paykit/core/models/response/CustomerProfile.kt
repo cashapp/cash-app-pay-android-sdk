@@ -15,6 +15,7 @@
  */
 package app.cash.paykit.core.models.response
 
+import app.cash.paykit.core.models.pii.PiiString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -23,5 +24,5 @@ data class CustomerProfile(
   @Json(name = "id")
   val id: String,
   @Json(name = "cashtag")
-  val cashTag: String,
+  val cashTag: PiiString,
 )

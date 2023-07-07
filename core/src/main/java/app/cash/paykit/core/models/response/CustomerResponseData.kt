@@ -16,6 +16,7 @@
 package app.cash.paykit.core.models.response
 
 import app.cash.paykit.core.models.common.Action
+import app.cash.paykit.core.models.pii.PiiString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.datetime.Clock.System
@@ -53,7 +54,7 @@ data class CustomerResponseData(
   @Json(name = "grants")
   val grants: List<Grant>?,
   @Json(name = "reference_id")
-  val referenceId: String?,
+  val referenceId: PiiString?,
 ) {
   fun isAuthTokenExpired(): Boolean {
     val now = System.now()

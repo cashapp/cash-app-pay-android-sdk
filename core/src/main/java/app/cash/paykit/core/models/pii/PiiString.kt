@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.models.request
+package app.cash.paykit.core.models.pii
 
-import app.cash.paykit.core.models.common.Action
-import app.cash.paykit.core.models.pii.PiiString
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+/**
+ * A string that has been classified as Personal Identifiable Information (PII).
+ *
+ */
+class PiiString(private var value: String) : PiiContent {
 
-@JsonClass(generateAdapter = true)
-data class CustomerRequestData(
-  @Json(name = "actions")
-  val actions: List<Action>,
-  @Json(name = "channel")
-  val channel: String?,
-  @Json(name = "redirect_url")
-  val redirectUri: PiiString?,
-)
+  override fun toString(): String {
+    return value
+  }
+}

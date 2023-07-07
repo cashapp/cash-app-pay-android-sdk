@@ -42,6 +42,7 @@ import app.cash.paykit.core.models.analytics.payloads.AnalyticsInitializationPay
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.common.NetworkResult.Failure
 import app.cash.paykit.core.models.common.NetworkResult.Success
+import app.cash.paykit.core.models.pii.PiiString
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN_APP
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
@@ -67,7 +68,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkEnvironment: String,
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
-  private val moshi: Moshi = MoshiProvider.provideDefault(),
+  private val moshi: Moshi = MoshiProvider.provideDefault(redactPii = true),
   private val uuidManager: UUIDManager = UUIDManagerRealImpl(),
   private val clock: Clock = ClockRealImpl(),
 ) : PayKitAnalyticsEventDispatcher {
@@ -233,8 +234,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       action = stateToAnalyticsAction(actionType),
       createActions = apiActionsAsJson,
       createChannel = CHANNEL_IN_APP,
-      createRedirectUrl = redirectUri,
-      createReferenceId = possibleReferenceId,
+      createRedirectUrl = redirectUri?.let { PiiString(redirectUri) },
+      createReferenceId = possibleReferenceId?.let { PiiString(possibleReferenceId) },
       environment = sdkEnvironment,
     )
   }
