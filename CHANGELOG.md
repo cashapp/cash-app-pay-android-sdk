@@ -1,3 +1,12 @@
+# 2.2.1
+
+Here's what has changed on this release:
+
+ - Information that can be considered PII is now marked as such by implementing the interface `PiiContent`.
+   - This is possibly a breaking change, but in practice for the majority of people out there, these shouldn't be properties that you're using.
+  - Improved Thread management to prevent memory leaks and unexpected behavior.
+
+
 # 2.2.0
 
 In this release of our open source SDK, we've made a significant update that involves modifying the date types within our returned payloads from string to Instant. Please note that this modification is a breaking change. Here's what has been altered:
