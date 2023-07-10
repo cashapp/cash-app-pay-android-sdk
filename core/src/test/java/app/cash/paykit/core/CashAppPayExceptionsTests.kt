@@ -17,7 +17,7 @@ package app.cash.paykit.core
 
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.fakes.FakeData
-import app.cash.paykit.core.impl.CashAppCashAppPayImpl
+import app.cash.paykit.core.impl.CashAppPayImpl
 import app.cash.paykit.core.models.common.NetworkResult
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -63,7 +63,7 @@ class CashAppPayExceptionsTests {
   }
 
   private fun createPayKit(useSandboxEnvironment: Boolean) =
-    CashAppCashAppPayImpl(
+    CashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),

@@ -20,7 +20,7 @@ import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
 import app.cash.paykit.core.NetworkErrorTests.MockListener
 import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
 import app.cash.paykit.core.fakes.FakeData
-import app.cash.paykit.core.impl.CashAppCashAppPayImpl
+import app.cash.paykit.core.impl.CashAppPayImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
 import com.google.common.truth.Truth.assertThat
@@ -188,7 +188,7 @@ class NetworkRetryTests {
   }
 
   private fun createPayKit(networkManager: NetworkManager) =
-    CashAppCashAppPayImpl(
+    CashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),

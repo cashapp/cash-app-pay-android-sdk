@@ -66,7 +66,7 @@ import kotlin.time.Duration.Companion.seconds
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
  * @param useSandboxEnvironment Specify what development environment should be used.
  */
-internal class CashAppCashAppPayImpl(
+internal class CashAppPayImpl(
   private val clientId: String,
   private val networkManager: NetworkManager,
   private val analyticsEventDispatcher: PayKitAnalyticsEventDispatcher,

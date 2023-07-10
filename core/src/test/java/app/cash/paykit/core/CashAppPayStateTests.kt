@@ -28,7 +28,7 @@ import app.cash.paykit.core.CashAppPayState.ReadyToAuthorize
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.fakes.FakeData
-import app.cash.paykit.core.impl.CashAppCashAppPayImpl
+import app.cash.paykit.core.impl.CashAppPayImpl
 import app.cash.paykit.core.impl.CashAppPayLifecycleListener
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.response.CustomerResponseData
@@ -285,7 +285,7 @@ class CashAppPayStateTests {
     initialState: CashAppPayState = NotStarted,
     initialCustomerResponseData: CustomerResponseData? = null,
   ) =
-    CashAppCashAppPayImpl(
+    CashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
       payKitLifecycleListener = mockLifecycleListener,
