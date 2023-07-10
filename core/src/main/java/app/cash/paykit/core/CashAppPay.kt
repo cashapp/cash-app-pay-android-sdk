@@ -24,7 +24,7 @@ import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcherImpl
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
-import app.cash.paykit.core.impl.CashAppCashAppPayImpl
+import app.cash.paykit.core.impl.CashAppPayImpl
 import app.cash.paykit.core.impl.CashAppPayLifecycleObserverImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.models.response.CustomerResponseData
@@ -185,7 +185,7 @@ object CashAppPayFactory {
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_PROD_ENVIRONMENT)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
-    return CashAppCashAppPayImpl(
+    return CashAppPayImpl(
       clientId = clientId,
       networkManager = networkManager,
       analyticsEventDispatcher = analyticsEventDispatcher,
@@ -212,7 +212,7 @@ object CashAppPayFactory {
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_SANDBOX_ENVIRONMENT)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
-    return CashAppCashAppPayImpl(
+    return CashAppPayImpl(
       clientId = clientId,
       networkManager = networkManager,
       analyticsEventDispatcher = analyticsEventDispatcher,

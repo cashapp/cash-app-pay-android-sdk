@@ -16,10 +16,10 @@
 package app.cash.paykit.core
 
 import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
-import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
+import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
 import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
 import app.cash.paykit.core.fakes.FakeData
-import app.cash.paykit.core.impl.CashAppCashAppPayImpl
+import app.cash.paykit.core.impl.CashAppPayImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
 import com.google.common.truth.Truth.assertThat
@@ -107,11 +107,11 @@ class NetworkErrorTests {
     // Verify that all the appropriate exception wrapping has occurred for a 400 error.
     assertThat(mockListener.state).isInstanceOf(CashAppPayExceptionState::class.java)
     assertThat((mockListener.state as CashAppPayExceptionState).exception).isInstanceOf(
-      CashAppCashAppPayApiNetworkException::class.java,
+      CashAppPayApiNetworkException::class.java,
     )
 
     // Verify that all the API error details have been deserialized correctly.
-    val apiError = (mockListener.state as CashAppPayExceptionState).exception as CashAppCashAppPayApiNetworkException
+    val apiError = (mockListener.state as CashAppPayExceptionState).exception as CashAppPayApiNetworkException
     assertThat(apiError.code).isEqualTo("MISSING_REQUIRED_PARAMETER")
     assertThat(apiError.category).isEqualTo("INVALID_REQUEST_ERROR")
     assertThat(apiError.field_value).isEqualTo("request.action.amount")
@@ -235,7 +235,7 @@ class NetworkErrorTests {
   }
 
   private fun createPayKit(networkManager: NetworkManager) =
-    CashAppCashAppPayImpl(
+    CashAppPayImpl(
       clientId = FakeData.CLIENT_ID,
       networkManager = networkManager,
       payKitLifecycleListener = mockk(relaxed = true),

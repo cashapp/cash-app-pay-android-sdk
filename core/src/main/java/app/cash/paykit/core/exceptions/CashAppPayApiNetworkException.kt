@@ -20,7 +20,7 @@ import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.API
 /**
  * This exception encapsulates all of the metadata provided by an API error.
  */
-data class CashAppCashAppPayApiNetworkException(
+data class CashAppPayApiNetworkException(
   val category: String,
   val code: String,
   val detail: String?,
