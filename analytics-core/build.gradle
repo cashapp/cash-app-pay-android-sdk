@@ -4,6 +4,9 @@ plugins {
   id "com.vanniktech.maven.publish.base"
 }
 
+//https://issuetracker.google.com/issues/226095015
+com.android.tools.analytics.AnalyticsSettings.optedIn = false
+
 android {
   namespace 'app.cash.paykit.analytics'
   compileSdk versions.compileSdk
