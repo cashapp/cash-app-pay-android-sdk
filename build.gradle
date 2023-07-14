@@ -9,9 +9,9 @@ buildscript {
     lifecycle_version = '2.5.1'
     mockk_version = '1.13.3'
     coroutines_test_version = '1.6.4'
-    robolectric_version = '4.10'
+    robolectric_version = '4.10.3'
     mockwebserver_version = '4.10.0'
-    google_truth_version = '1.1.3'
+    google_truth_version = '1.1.5'
     startup_version = '1.1.1'
     okhttp_version = '4.10.0'
     kotlinx_date_version = '0.4.0'
@@ -52,11 +52,11 @@ subprojects { subproject ->
   }
 }
 
-def NEXT_VERSION = "2.2.2-SNAPSHOT"
+def NEXT_VERSION = "2.3.1-SNAPSHOT"
 
 allprojects {
   group = 'app.cash.paykit'
-  version = '2.2.1'
+  version = '2.3.0-SNAPSHOT'
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     mavenPublishing {
