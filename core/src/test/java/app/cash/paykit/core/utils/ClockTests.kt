@@ -24,7 +24,7 @@ class ClockTests {
   fun `currentTimeInMicroseconds should return current time in microseconds`() {
     val clock = ClockRealImpl()
     val currentTimeInMicroseconds = clock.currentTimeInMicroseconds()
-    assertThat(currentTimeInMicroseconds).isGreaterThan(0)
+    assertThat(currentTimeInMicroseconds).isGreaterThan(0L)
 
     // Microseconds of when the test was written.
     assertThat(currentTimeInMicroseconds).isAtLeast(1686318558468000)
