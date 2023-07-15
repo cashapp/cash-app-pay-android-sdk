@@ -1,21 +1,10 @@
 import com.vanniktech.maven.publish.SonatypeHost
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-  extra.apply {
-    set("junit_androidx_version", "1.1.5")
-    set("junit_version", "4.13.2")
-    set("moshi_version", "1.13.0")
-    set("lifecycle_version", "2.5.1")
-    set("mockk_version", "1.13.3")
-    set("coroutines_test_version", "1.6.4")
-    set("robolectric_version", "4.10.3")
-    set("mockwebserver_version", "4.10.0")
-    set("google_truth_version", "1.1.5")
-    set("startup_version", "1.1.1")
-    set("okhttp_version", "4.10.0")
-    set("kotlinx_date_version", "0.4.0")
 
+buildscript {
+
+  extra.apply {
     set("versions", mapOf(
         "minSdk" to 21,
         "compileSdk" to 31,
