@@ -194,6 +194,7 @@ object CashAppPayFactory {
       analyticsEventDispatcher = analyticsEventDispatcher,
       payKitLifecycleListener = cashAppPayLifecycleObserver,
       useSandboxEnvironment = false,
+      logger = cashAppPayLogger,
     )
   }
 
@@ -221,6 +222,7 @@ object CashAppPayFactory {
       analyticsEventDispatcher = analyticsEventDispatcher,
       payKitLifecycleListener = cashAppPayLifecycleObserver,
       useSandboxEnvironment = true,
+      logger = cashAppPayLogger,
     )
   }
 

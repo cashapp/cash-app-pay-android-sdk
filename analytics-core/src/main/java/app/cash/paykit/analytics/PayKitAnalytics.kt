@@ -43,6 +43,7 @@ class PayKitAnalytics constructor(
   val entriesDataSource: EntriesDataSource = AnalyticsSQLiteDataSource(
     sqLiteHelper = sqLiteHelper,
     options = options,
+    cashAppLogger = cashAppLogger,
   ),
   private val logger: AnalyticsLogger = AnalyticsLogger(options = options, cashAppLogger = cashAppLogger),
   vararg initialDeliveryHandlers: DeliveryHandler,

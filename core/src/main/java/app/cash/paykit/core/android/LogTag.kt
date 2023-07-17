@@ -15,4 +15,4 @@
  */
 package app.cash.paykit.core.android
 
-const val LOG_TAG = "CashAppPay"
+const val CAP_TAG = "CashAppPay"
