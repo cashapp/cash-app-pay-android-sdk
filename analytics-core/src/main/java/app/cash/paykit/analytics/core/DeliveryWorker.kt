@@ -28,39 +28,39 @@ internal class DeliveryWorker(
   private val logger: AnalyticsLogger,
 ) : Callable<Unit> {
   init {
-    logger.d(TAG, "DeliveryWorker initialized.")
+    logger.v(TAG, "DeliveryWorker initialized.")
   }
 
   @Throws(Exception::class)
   override fun call() {
-    logger.d(TAG, "Starting delivery [$this]")
+    logger.v(TAG, "Starting delivery [$this]")
     for (deliveryHandler in handlers) {
       val entryType = deliveryHandler.deliverableType
       val processId: String = dataSource.generateProcessId(entryType)
       var entries: List<AnalyticEntry> =
         dataSource.getEntriesForDelivery(processId, entryType)
       if (entries.isNotEmpty()) {
-        logger.d(
+        logger.v(
           TAG,
           "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId),
         )
       }
       while (entries.isNotEmpty()) {
-        logger.d(TAG, "DELIVERY_IN_PROGRESS for ids[" + entries.toCommaSeparatedListIds() + "]")
+        logger.v(TAG, "DELIVERY_IN_PROGRESS for ids[" + entries.toCommaSeparatedListIds() + "]")
         dataSource.updateStatuses(entries, AnalyticEntry.STATE_DELIVERY_IN_PROGRESS)
         deliveryHandler.deliver(entries, deliveryHandler.deliveryListener)
 
         // get the next batch of events to send
         entries = dataSource.getEntriesForDelivery(processId, entryType)
         if (entries.isNotEmpty()) {
-          logger.d(
+          logger.v(
             TAG,
             "Processing %s[%d] | processId=%s".format(Locale.US, entries, entries.size, processId),
           )
         }
       }
     }
-    logger.d(TAG, "Delivery finished. [$this]")
+    logger.v(TAG, "Delivery finished. [$this]")
   }
 
   companion object {

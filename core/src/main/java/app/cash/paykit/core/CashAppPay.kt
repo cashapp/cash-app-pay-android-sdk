@@ -31,6 +31,8 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
+import app.cash.paykit.logging.CashAppLogger
+import app.cash.paykit.logging.CashAppLoggerImpl
 import kotlin.time.Duration.Companion.seconds
 
 interface CashAppPay {
@@ -135,7 +137,7 @@ object CashAppPayFactory {
 
   private val cashAppPayLifecycleObserver: CashAppPayLifecycleObserver = CashAppPayLifecycleObserverImpl()
 
-  private fun buildPayKitAnalytics(isSandbox: Boolean) =
+  private fun buildPayKitAnalytics(isSandbox: Boolean, cashAppLogger: CashAppLogger) =
     with(ApplicationContextHolder.applicationContext) {
       val info = packageManager.getPackageInfo(packageName, 0)
 
@@ -161,6 +163,7 @@ object CashAppPayFactory {
           isLoggerDisabled = !BuildConfig.DEBUG,
           applicationVersionCode = versionCode!!.toInt(), // casting as int gives us the "legacy" version code
         ),
+        cashAppLogger = cashAppLogger,
       )
     }
 
@@ -180,7 +183,7 @@ object CashAppPayFactory {
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
-    val analytics = buildPayKitAnalytics(isSandbox = false)
+    val analytics = buildPayKitAnalytics(isSandbox = false, cashAppPayLogger)
     val analyticsEventDispatcher =
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_PROD_ENVIRONMENT)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
@@ -207,7 +210,7 @@ object CashAppPayFactory {
       okHttpClient = defaultOkHttpClient,
     )
 
-    val analytics = buildPayKitAnalytics(isSandbox = true)
+    val analytics = buildPayKitAnalytics(isSandbox = true, cashAppPayLogger)
     val analyticsEventDispatcher =
       buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_SANDBOX_ENVIRONMENT)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
@@ -240,6 +243,8 @@ object CashAppPayFactory {
   }
 
   private val defaultOkHttpClient = OkHttpProvider.provideOkHttpClient()
+
+  private val cashAppPayLogger: CashAppLogger = CashAppLoggerImpl()
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
   private val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"

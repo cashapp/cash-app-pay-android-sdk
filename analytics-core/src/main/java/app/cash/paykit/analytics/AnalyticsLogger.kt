@@ -16,43 +16,27 @@
 package app.cash.paykit.analytics
 
 import android.util.Log
+import app.cash.paykit.logging.CashAppLogger
 
 class AnalyticsLogger(
   private val options: AnalyticsOptions,
+  private val cashAppLogger: CashAppLogger,
 ) {
   fun v(tag: String, msg: String) {
     if (options.logLevel <= Log.VERBOSE) {
-      log(Log.VERBOSE, tag, msg)
-    }
-  }
-
-  fun d(tag: String, msg: String) {
-    if (options.logLevel <= Log.DEBUG) {
-      log(Log.DEBUG, tag, msg)
-    }
-  }
-
-  fun i(tag: String, msg: String) {
-    if (options.logLevel <= Log.INFO) {
-      log(Log.INFO, tag, msg)
+      cashAppLogger.logVerbose(tag, msg)
     }
   }
 
   fun w(tag: String, msg: String) {
     if (options.logLevel <= Log.WARN) {
-      log(Log.WARN, tag, msg)
+      cashAppLogger.logWarning(tag, msg)
     }
   }
 
-  fun e(tag: String, msg: String) {
+  fun e(tag: String, msg: String, throwable: Throwable? = null) {
     if (options.logLevel <= Log.ERROR) {
-      log(Log.ERROR, tag, msg)
-    }
-  }
-
-  private fun log(priority: Int, tag: String, msg: String) {
-    if (!options.isLoggerDisabled) {
-      Log.println(priority, tag, msg)
+      cashAppLogger.logError(tag, msg, throwable)
     }
   }
 }
