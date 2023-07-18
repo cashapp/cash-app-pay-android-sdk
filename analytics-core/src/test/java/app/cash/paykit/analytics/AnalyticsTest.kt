@@ -23,6 +23,7 @@ import app.cash.paykit.analytics.core.DeliveryListener
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSqLiteHelper
+import app.cash.paykit.logging.CashAppLogger
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
@@ -58,6 +59,7 @@ class AnalyticsTest {
   )
 
   private val analyticsSqLiteHelper: AnalyticsSqLiteHelper = mockk(relaxed = true)
+  private val cashAppLogger: CashAppLogger = mockk(relaxed = true)
   private val entriesDataSource: EntriesDataSource = mockk(relaxed = true)
   private val app = RuntimeEnvironment.getApplication()
 
@@ -265,6 +267,7 @@ class AnalyticsTest {
     context = app,
     options = testOptions,
     sqLiteHelper = analyticsSqLiteHelper,
+    cashAppLogger = cashAppLogger,
     entriesDataSource = entriesDataSource,
   )
 }

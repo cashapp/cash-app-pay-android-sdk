@@ -38,7 +38,9 @@ import kotlin.time.toDuration
 
 class NetworkRetryTests {
 
-  private val MAX_RETRIES = 2
+  companion object {
+    private const val MAX_RETRIES = 2
+  }
 
   @Test
   fun `failed network request will be retried and succeed`() {
@@ -194,5 +196,6 @@ class NetworkRetryTests {
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = true,
       analyticsEventDispatcher = mockk(relaxed = true),
+      logger = mockk(relaxed = true),
     )
 }
