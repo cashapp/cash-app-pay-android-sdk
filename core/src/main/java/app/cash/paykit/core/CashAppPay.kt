@@ -158,7 +158,7 @@ object CashAppPayFactory {
         context = ApplicationContextHolder.applicationContext,
         options = AnalyticsOptions(
           delay = 10.seconds,
-          logLevel = Log.VERBOSE,
+          logLevel = Log.WARN,
           databaseName = dbName,
           isLoggerDisabled = !BuildConfig.DEBUG,
           applicationVersionCode = versionCode!!.toInt(), // casting as int gives us the "legacy" version code
