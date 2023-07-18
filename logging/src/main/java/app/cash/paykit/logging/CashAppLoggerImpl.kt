@@ -20,23 +20,37 @@ import android.util.Log
 class CashAppLoggerImpl : CashAppLogger {
 
   private val history = CashAppLoggerHistory()
+  private var listener: CashAppLoggerListener? = null
 
   override fun logVerbose(tag: String, msg: String) {
     history.log(CashAppLogEntry(Log.VERBOSE, tag, msg))
+
+    // We purposely don't reuse the same CashAppLogEntry instance here to avoid leaking.
+    listener?.onNewLog(CashAppLogEntry(Log.VERBOSE, tag, msg))
     Log.v(tag, msg)
   }
 
   override fun logWarning(tag: String, msg: String) {
     history.log(CashAppLogEntry(Log.WARN, tag, msg))
+    listener?.onNewLog(CashAppLogEntry(Log.WARN, tag, msg))
     Log.w(tag, msg)
   }
 
   override fun logError(tag: String, msg: String, throwable: Throwable?) {
     history.log(CashAppLogEntry(Log.ERROR, tag, msg, throwable))
+    listener?.onNewLog(CashAppLogEntry(Log.ERROR, tag, msg, throwable))
     Log.e(tag, msg, throwable)
   }
 
   override fun retrieveLogs(): List<CashAppLogEntry> {
     return history.retrieveLogs()
+  }
+
+  override fun addListener(listener: CashAppLoggerListener) {
+    this.listener = listener
+  }
+
+  override fun removeListener() {
+    this.listener = null
   }
 }
