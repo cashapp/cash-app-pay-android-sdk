@@ -13,6 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.android
+package app.cash.paykit.logging
 
-const val CAP_TAG = "CashAppPay"
+import java.util.LinkedList
+
+internal class CashAppLoggerHistory {
+  companion object {
+    private const val HISTORY_MAX_SIZE = 200
+  }
+
+  private val history = LinkedList<CashAppLogEntry>()
+
+  fun log(entry: CashAppLogEntry) {
+    history.add(entry)
+    if (history.size > HISTORY_MAX_SIZE) {
+      history.removeFirst()
+    }
+  }
+
+  fun retrieveLogs(): List<CashAppLogEntry> {
+    return history.toList()
+  }
+}

@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.android
+package app.cash.paykit.logging
 
-const val CAP_TAG = "CashAppPay"
+data class CashAppLogEntry(
+  val level: Int,
+  val tag: String,
+  val msg: String,
+  val throwable: Throwable? = null,
+)

@@ -26,7 +26,7 @@ import java.lang.reflect.Field
 
 internal object Utils {
 
-  fun getPrivateField(obj: Any, fieldName: String?): Any? {
+  fun getPrivateField(obj: Any, fieldName: String): Any? {
     try {
       val field: Field = obj.javaClass.getDeclaredField(fieldName)
       field.isAccessible = true

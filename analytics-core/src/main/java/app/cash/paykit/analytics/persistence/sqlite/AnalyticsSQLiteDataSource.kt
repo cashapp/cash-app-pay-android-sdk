@@ -17,15 +17,18 @@ package app.cash.paykit.analytics.persistence.sqlite
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import android.util.Log
+import app.cash.paykit.analytics.AnalyticsLogger
 import app.cash.paykit.analytics.AnalyticsOptions
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.EntriesDataSource
 import app.cash.paykit.analytics.persistence.toCommaSeparatedListIds
+import app.cash.paykit.logging.CashAppLogger
 
 class AnalyticsSQLiteDataSource(
   private val sqLiteHelper: AnalyticsSqLiteHelper,
   options: AnalyticsOptions,
+  private val cashAppLogger: CashAppLogger,
+  private val analyticsLogger: AnalyticsLogger = AnalyticsLogger(options, cashAppLogger),
 ) : EntriesDataSource(options) {
 
   @Synchronized
@@ -43,10 +46,10 @@ class AnalyticsSQLiteDataSource(
       values.put(COLUMN_VERSION, options.applicationVersionCode.toString())
       insertId = sqLiteHelper.database.insert(TABLE_SYNC_ENTRIES, null, values)
       if (insertId < 0) {
-        Log.e(TAG, "Unable to insert record into the $TABLE_SYNC_ENTRIES, values: $content")
+        analyticsLogger.e(TAG, "Unable to insert record into the $TABLE_SYNC_ENTRIES, values: $content")
       }
     } catch (e: Exception) {
-      Log.e("", "", e)
+      analyticsLogger.e(TAG, "Exception when trying to insert record into the $TABLE_SYNC_ENTRIES, values: $content", e)
     }
     return insertId
   }
@@ -58,7 +61,7 @@ class AnalyticsSQLiteDataSource(
       val whereClauseForDelete = "$COLUMN_ID IN (${entries.toCommaSeparatedListIds()})"
       database.delete(TABLE_SYNC_ENTRIES, whereClauseForDelete, null)
     } catch (e: Exception) {
-      Log.e("", "", e)
+      analyticsLogger.e(TAG, "Unable to delete entries", e)
     }
   }
 
@@ -95,7 +98,7 @@ class AnalyticsSQLiteDataSource(
         }
       }
     } catch (e: Exception) {
-      Log.e("", "", e)
+      analyticsLogger.e(TAG, "Unable to mark entries for delivery", e)
     }
   }
 
@@ -127,7 +130,7 @@ class AnalyticsSQLiteDataSource(
         }
       }
     } catch (e: Exception) {
-      Log.e("", "", e)
+      analyticsLogger.e(TAG, "Unable to get entries with process id $processId, entryType $entryType and $state state", e)
     }
     return entries
   }
@@ -140,7 +143,7 @@ class AnalyticsSQLiteDataSource(
         "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=$status WHERE id IN (" + entries.toCommaSeparatedListIds() + ");"
       database.execSQL(query)
     } catch (e: Exception) {
-      Log.e("", "", e)
+      analyticsLogger.e(TAG, "Unable to update statuses", e)
     }
   }
 
@@ -152,12 +155,12 @@ class AnalyticsSQLiteDataSource(
         """UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=${AnalyticEntry.STATE_NEW}, $COLUMN_PROCESS_ID=NULL;"""
       database.execSQL(query)
     } catch (e: Exception) {
-      Log.e("", "", e)
+      analyticsLogger.e(TAG, "Unable to reset entries", e)
     }
   }
 
   companion object {
-    private const val TAG = "EntriesDataSource"
+    private const val TAG = "AnalyticsSQLiteDataSource"
     const val TABLE_SYNC_ENTRIES = "entries"
     const val COLUMN_ID = "id"
     const val COLUMN_TYPE = "type"

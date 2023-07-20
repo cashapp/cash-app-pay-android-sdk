@@ -20,6 +20,8 @@ import app.cash.paykit.analytics.Utils.insertSyncEntry
 import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSQLiteDataSource
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSqLiteHelper
+import app.cash.paykit.logging.CashAppLogger
+import io.mockk.mockk
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assert.assertEquals
@@ -36,6 +38,7 @@ class SQLiteDataSourceTest {
 
   private lateinit var options: AnalyticsOptions
   private lateinit var helper: AnalyticsSqLiteHelper
+  private val cashAppLogger: CashAppLogger = mockk(relaxed = true)
   private val app = RuntimeEnvironment.getApplication()
 
   @Before
@@ -58,7 +61,7 @@ class SQLiteDataSourceTest {
 
   @Test
   fun testInsertEntries() {
-    val dataSource = AnalyticsSQLiteDataSource(helper, options)
+    val dataSource = AnalyticsSQLiteDataSource(helper, options, cashAppLogger)
     val entryId: Long =
       dataSource.insertEntry("TYPE_1", "load.testInsertEntry", "metadata.testInsertEntry")
     assertTrue(entryId > 0)
@@ -79,7 +82,7 @@ class SQLiteDataSourceTest {
 
   @Test
   fun testDeleteEntries() {
-    val dataSource = AnalyticsSQLiteDataSource(helper, options)
+    val dataSource = AnalyticsSQLiteDataSource(helper, options, cashAppLogger)
     val pkgId1: Long =
       dataSource.insertEntry("TYPE_1", "load.testInsertEntry.1", "metadata.testInsertEntry.1")
     val pkgId2: Long =
@@ -97,94 +100,16 @@ class SQLiteDataSourceTest {
 
   @Test
   fun testGetEntriesByProcessIdAndState() {
-    val dataSource = AnalyticsSQLiteDataSource(helper, options)
+    val dataSource = AnalyticsSQLiteDataSource(helper, options, cashAppLogger)
     // @formatter:off
     val p1 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
     val p2 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
     val p3 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p4 = insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p5: Long =
-      insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p6: Long =
-      insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p7: Long =
-      insertSyncEntry(helper, "PROCESS_1", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p8: Long =
-      insertSyncEntry(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p9: Long =
-      insertSyncEntry(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p10: Long = insertSyncEntry(
-      helper,
-      "PROCESS_1",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_PENDING,
-      "",
-      "",
-      "",
-    )
-    val p11: Long = insertSyncEntry(
-      helper,
-      "PROCESS_1",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
-    val p12: Long = insertSyncEntry(
-      helper,
-      "PROCESS_1",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_FAILED,
-      "",
-      "",
-      "",
-    )
-    val p13: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p14: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p15: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p16: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p17: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p18: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p19: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+
     val p20 =
       insertSyncEntry(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
     val p21 =
       insertSyncEntry(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p22 = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_PENDING,
-      "",
-      "",
-      "",
-    )
-    val p23 = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
-    val p24 = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_FAILED,
-      "",
-      "",
-      "",
-    )
     // @formatter:on
 
     var entries = dataSource.getEntriesByProcessIdAndState(
@@ -215,46 +140,16 @@ class SQLiteDataSourceTest {
 
   @Test
   fun testMarkEntriesForSynchronization() {
-    val dataSource = AnalyticsSQLiteDataSource(helper, options)
+    val dataSource = AnalyticsSQLiteDataSource(helper, options, cashAppLogger)
     // @formatter:off
     // entries that are unassigned to sync process (2 types of entries, one entry for every possible state)
     val p1: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
     val p2: Long =
       insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p3: Long = insertSyncEntry(
-      helper,
-      null,
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
     val p4: Long = insertSyncEntry(
       helper,
       null,
       "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_PENDING,
-      "",
-      "",
-      "",
-    )
-    val p5: Long = insertSyncEntry(helper, null, "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p6: Long =
-      insertSyncEntry(helper, null, "TYPE_2", AnalyticEntry.STATE_DELIVERY_FAILED, "", "", "")
-    val p7: Long = insertSyncEntry(
-      helper,
-      null,
-      "TYPE_2",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
-    val p8: Long = insertSyncEntry(
-      helper,
-      null,
-      "TYPE_2",
       AnalyticEntry.STATE_DELIVERY_PENDING,
       "",
       "",
@@ -272,48 +167,10 @@ class SQLiteDataSourceTest {
       "",
       "",
     )
-    val p11: Long = insertSyncEntry(
-      helper,
-      "PROCESS_1",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
     val p12: Long = insertSyncEntry(
       helper,
       "PROCESS_1",
       "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_PENDING,
-      "",
-      "",
-      "",
-    )
-    val p13: Long =
-      insertSyncEntry(helper, "PROCESS_1", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p14: Long = insertSyncEntry(
-      helper,
-      "PROCESS_1",
-      "TYPE_2",
-      AnalyticEntry.STATE_DELIVERY_FAILED,
-      "",
-      "",
-      "",
-    )
-    val p15: Long = insertSyncEntry(
-      helper,
-      "PROCESS_1",
-      "TYPE_2",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
-    val p16: Long = insertSyncEntry(
-      helper,
-      "PROCESS_1",
-      "TYPE_2",
       AnalyticEntry.STATE_DELIVERY_PENDING,
       "",
       "",
@@ -327,53 +184,6 @@ class SQLiteDataSourceTest {
       "PROCESS_2",
       "TYPE_1",
       AnalyticEntry.STATE_DELIVERY_FAILED,
-      "",
-      "",
-      "",
-    )
-    val p19: Long = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
-    val p20: Long = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_1",
-      AnalyticEntry.STATE_DELIVERY_PENDING,
-      "",
-      "",
-      "",
-    )
-    val p21: Long =
-      insertSyncEntry(helper, "PROCESS_2", "TYPE_2", AnalyticEntry.STATE_NEW, "", "", "")
-    val p22: Long = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_2",
-      AnalyticEntry.STATE_DELIVERY_FAILED,
-      "",
-      "",
-      "",
-    )
-    val p23: Long = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_2",
-      AnalyticEntry.STATE_DELIVERY_IN_PROGRESS,
-      "",
-      "",
-      "",
-    )
-    val p24: Long = insertSyncEntry(
-      helper,
-      "PROCESS_2",
-      "TYPE_2",
-      AnalyticEntry.STATE_DELIVERY_PENDING,
       "",
       "",
       "",
@@ -403,7 +213,7 @@ class SQLiteDataSourceTest {
 
   @Test
   fun testUpdateStatuses() {
-    val dataSource = AnalyticsSQLiteDataSource(helper, options)
+    val dataSource = AnalyticsSQLiteDataSource(helper, options, cashAppLogger)
     // @formatter:off
     val p1: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
     val p2: Long = insertSyncEntry(
@@ -453,10 +263,10 @@ class SQLiteDataSourceTest {
 
   @Test
   fun testResetEntries() {
-    val dataSource = AnalyticsSQLiteDataSource(helper, options)
+    val dataSource = AnalyticsSQLiteDataSource(helper, options, cashAppLogger)
     // @formatter:off
-    val p1: Long = insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
-    val p2: Long = insertSyncEntry(
+    insertSyncEntry(helper, null, "TYPE_1", AnalyticEntry.STATE_NEW, "", "", "")
+    insertSyncEntry(
       helper,
       "PROCESS_1",
       "TYPE_1",
@@ -465,7 +275,7 @@ class SQLiteDataSourceTest {
       "",
       "",
     )
-    val p3: Long = insertSyncEntry(
+    insertSyncEntry(
       helper,
       "PROCESS_1",
       "TYPE_1",
@@ -474,7 +284,7 @@ class SQLiteDataSourceTest {
       "",
       "",
     )
-    val p4: Long = insertSyncEntry(
+    insertSyncEntry(
       helper,
       "PROCESS_1",
       "TYPE_1",

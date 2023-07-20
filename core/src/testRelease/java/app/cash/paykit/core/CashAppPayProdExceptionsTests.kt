@@ -48,5 +48,6 @@ class CashAppPayProdExceptionsTests {
       payKitLifecycleListener = mockk(relaxed = true),
       useSandboxEnvironment = useSandboxEnvironment,
       analyticsEventDispatcher = mockk(relaxed = true),
+      logger = mockk(relaxed = true),
     )
 }

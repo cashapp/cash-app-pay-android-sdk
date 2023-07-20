@@ -293,6 +293,7 @@ class CashAppPayStateTests {
       initialState = initialState,
       initialCustomerResponseData = initialCustomerResponseData,
       analyticsEventDispatcher = mockk(relaxed = true),
+      logger = mockk(relaxed = true),
     )
 
   /**

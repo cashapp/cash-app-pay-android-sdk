@@ -15,10 +15,9 @@
  */
 package app.cash.paykit.core.utils
 
-import android.util.Log
-import app.cash.paykit.core.android.LOG_TAG
+import app.cash.paykit.logging.CashAppLogger
 
-internal class SingleThreadManagerImpl : SingleThreadManager {
+internal class SingleThreadManagerImpl(private val logger: CashAppLogger) : SingleThreadManager {
 
   private val threads: MutableMap<ThreadPurpose, Thread?> = mutableMapOf()
 
@@ -35,7 +34,7 @@ internal class SingleThreadManagerImpl : SingleThreadManager {
     try {
       threads[purpose]?.interrupt()
     } catch (e: Exception) {
-      Log.e(LOG_TAG, "Failed to interrupt thread: ${purpose.name}", e)
+      logger.logError(TAG, "Failed to interrupt thread: ${purpose.name}", e)
     } finally {
       threads[purpose] = null
     }
@@ -43,5 +42,9 @@ internal class SingleThreadManagerImpl : SingleThreadManager {
 
   override fun interruptAllThreads() {
     threads.keys.forEach { interruptThread(it) }
+  }
+
+  companion object {
+    private const val TAG = "SingleThreadManager"
   }
 }

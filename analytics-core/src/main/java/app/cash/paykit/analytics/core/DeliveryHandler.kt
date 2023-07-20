@@ -32,7 +32,7 @@ abstract class DeliveryHandler {
 
   private val listener = object : DeliveryListener {
     override fun onSuccess(entries: List<AnalyticEntry>) {
-      logger?.d(
+      logger?.v(
         TAG,
         "successful delivery, deleting $deliverableType[" + entries.toCommaSeparatedListIds() + "]",
       )
@@ -40,7 +40,7 @@ abstract class DeliveryHandler {
     }
 
     override fun onError(entries: List<AnalyticEntry>) {
-      logger?.d(
+      logger?.v(
         TAG,
         "DELIVERY_FAILED for $deliverableType[" + entries.toCommaSeparatedListIds() + "]",
       )
