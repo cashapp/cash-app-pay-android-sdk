@@ -46,7 +46,7 @@ class CashAppLoggerImpl : CashAppLogger {
     return history.retrieveLogs()
   }
 
-  override fun addListener(listener: CashAppLoggerListener) {
+  override fun setListener(listener: CashAppLoggerListener) {
     this.listener = listener
   }
 

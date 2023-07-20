@@ -38,9 +38,9 @@ interface CashAppLogger {
   fun retrieveLogs(): List<CashAppLogEntry>
 
   /**
-   * Add a listener to be notified when a new log is added.
+   * Set a listener to be notified when a new log is added.
    */
-  fun addListener(listener: CashAppLoggerListener)
+  fun setListener(listener: CashAppLoggerListener)
 
   /**
    * Remove the currently registered listener, if any.
