@@ -34,6 +34,8 @@ class CashAppLoggerImplTests {
 
   @Before
   fun setUp() {
+    // ShadowLog.stream = System.out redirects all logs to standard output.
+    // On the below tests ShadowLog.getLogs() gets all the logs sent to LogCat.
     ShadowLog.stream = System.out
     logger = CashAppLoggerImpl()
     logEntries = mutableListOf()
