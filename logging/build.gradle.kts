@@ -45,10 +45,12 @@ android {
 
 val junit_version = rootProject.extra["junit_version"] as String
 val google_truth_version = rootProject.extra["google_truth_version"] as String
+val robolectric_version = rootProject.extra["robolectric_version"] as String
 
 dependencies {
   testImplementation("junit:junit:$junit_version")
   testImplementation("com.google.truth:truth:$google_truth_version")
+  testImplementation("org.robolectric:robolectric:$robolectric_version")
 }
 
 mavenPublishing {
