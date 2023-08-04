@@ -26,8 +26,8 @@ import com.squareup.moshi.JsonClass
 data class AnalyticsCustomerRequestPayload(
 
   /*
-  * Common fields.
-  */
+   * Common fields.
+   */
   @Json(name = "mobile_cap_pk_customer_request_sdk_version")
   override val sdkVersion: String,
 
@@ -44,8 +44,8 @@ data class AnalyticsCustomerRequestPayload(
   override val environment: String,
 
   /*
-  * Create Request.
-  */
+   * Create Request.
+   */
 
   // This represents the SDK State.
   @Json(name = "mobile_cap_pk_customer_request_action")
@@ -72,7 +72,7 @@ data class AnalyticsCustomerRequestPayload(
   val createMetadata: String? = null,
 
   /*
-  * Generic Event properties.
+   * Generic Event properties.
    */
 
   // The status of the Customer Request.
