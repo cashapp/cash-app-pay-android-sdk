@@ -44,6 +44,36 @@
 # However, since in this case they will not be used, we can disable these warnings
 -dontwarn kotlinx.serialization.internal.ClassValueReferences
 
+# Serializer for classes with named companion objects are retrieved using `getDeclaredClasses`.
+# If you have any, replace classes with those containing named companion objects.
+-keepattributes InnerClasses # Needed for `getDeclaredClasses`.
+
+-if @kotlinx.serialization.Serializable class
+kotlinx.datetime.Instant$Companion, # <-- List serializable classes with named companions.
+kotlinx.datetime.Instant$Companion$serializer
+{
+    static **$* *;
+}
+-keepnames class <1>$$serializer { # -keepnames suffices; class is kept when serializer() is kept.
+    static <1>$$serializer INSTANCE;
+}
+
+# Keep both serializer and serializable classes to save the attribute InnerClasses
+-keepclasseswithmembers, allowshrinking, allowobfuscation, allowaccessmodification class
+kotlinx.datetime.Instant$Companion, # <-- List serializable classes with named companions.
+kotlinx.datetime.Instant$Companion$serializer
+{
+    *;
+}
+
+-dontwarn kotlinx.serialization.KSerializer
+-dontwarn kotlinx.serialization.Serializable
+-dontwarn kotlinx.serialization.descriptors.PrimitiveKind$STRING
+-dontwarn kotlinx.serialization.descriptors.PrimitiveKind
+-dontwarn kotlinx.serialization.descriptors.SerialDescriptor
+-dontwarn kotlinx.serialization.descriptors.SerialDescriptorsKt
+-dontwarn kotlinx.serialization.internal.AbstractPolymorphicSerializer
+
 
 # OkHttp related. Can be removed after OkHttp is updated.
 -dontwarn org.bouncycastle.jsse.BCSSLParameters
