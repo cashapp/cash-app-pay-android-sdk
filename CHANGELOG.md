@@ -1,8 +1,8 @@
-# 2.3.0
+# UPCOMING - 2.3.0
 
-Class `CashAppPayInitializer` was made open, so that androidx.startup can be manually overridden.
-
-This version contains change to the bundled Cash App Pay button.
+ - The class `CashAppPayInitializer` was made open, so that androidx.startup can be manually overridden.
+ - This version bundles fixes for minify enabled builds.
+ - This version contains change to the bundled Cash App Pay button.
 Previously, `light` and `dark` variants of the button were made possible by using 2 different
 views, respectively `CashAppPayButtonLight` an `CashAppPayButtonDark`. As of this version, the
 there will only be a single `CashAppPayButton` view, which has been updated to support both variants.
