@@ -5,7 +5,9 @@
  - Updated internal dependency on `OkHttp` to version `4.11.0`.
  
 ## Breaking Changes
-
+ 
+ - Renamed class `CashAppCashAppPayApiNetworkException` to `CashAppPayApiNetworkException`
+ - Renamed class `CashAppCashAppPayApiNetworkException` to `CashAppPayApiNetworkException`
  - This version contains a change to the bundled Cash App Pay button.
 Previously, `light` and `dark` variants of the button were made possible by using 2 different
 views, respectively `CashAppPayButtonLight` an `CashAppPayButtonDark`. As of this version, the
