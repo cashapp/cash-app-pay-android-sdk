@@ -2,7 +2,11 @@
 
  - The class `CashAppPayInitializer` was made open, so that androidx.startup can be manually overridden.
  - This version bundles fixes for minify enabled builds.
- - This version contains change to the bundled Cash App Pay button.
+ - Updated internal dependency on `OkHttp` to version `4.11.0`.
+ 
+## Breaking Changes
+
+ - This version contains a change to the bundled Cash App Pay button.
 Previously, `light` and `dark` variants of the button were made possible by using 2 different
 views, respectively `CashAppPayButtonLight` an `CashAppPayButtonDark`. As of this version, the
 there will only be a single `CashAppPayButton` view, which has been updated to support both variants.
@@ -27,6 +31,8 @@ Dark Variant:
 
 This change makes it possible for developer to use the button in a more flexible way, such as using
 a style that changes accordingly to the OS theme.
+
+You should migrate any instances of `CashAppPayButtonLight` and `CashAppPayButtonDark` to `CashAppPayButton`.
 
 # 2.2.1
 
