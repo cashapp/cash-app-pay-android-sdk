@@ -1,4 +1,4 @@
-# UPCOMING - 2.3.0
+# 2.3.0
 
  - The class `CashAppPayInitializer` was made open, so that androidx.startup can be manually overridden.
  - This version bundles fixes for minify enabled builds.
