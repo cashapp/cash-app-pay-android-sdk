@@ -17,7 +17,7 @@ package app.cash.paykit.core.impl
 
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
-import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
+import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
 import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
 import app.cash.paykit.core.impl.RequestType.GET
 import app.cash.paykit.core.impl.RequestType.PATCH
@@ -249,7 +249,7 @@ internal class NetworkManagerImpl(
 
               is Success -> {
                 val apiError = apiErrorResponse.data.apiErrors.first()
-                val apiException = CashAppCashAppPayApiNetworkException(
+                val apiException = CashAppPayApiNetworkException(
                   apiError.category,
                   apiError.code,
                   apiError.detail,

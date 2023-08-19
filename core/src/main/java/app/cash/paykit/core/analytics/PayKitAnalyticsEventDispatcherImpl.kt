@@ -33,7 +33,7 @@ import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
-import app.cash.paykit.core.exceptions.CashAppCashAppPayApiNetworkException
+import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
 import app.cash.paykit.core.models.analytics.EventStream2Event
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
@@ -178,7 +178,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     var eventPayload =
       eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitExceptionState))
 
-    eventPayload = if (payKitExceptionState.exception is CashAppCashAppPayApiNetworkException) {
+    eventPayload = if (payKitExceptionState.exception is CashAppPayApiNetworkException) {
       val apiError = payKitExceptionState.exception
       eventPayload.copy(
         errorCode = apiError.code,

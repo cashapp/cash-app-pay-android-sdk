@@ -22,6 +22,7 @@ import app.cash.paykit.analytics.core.DeliveryWorker
 import app.cash.paykit.analytics.persistence.EntriesDataSource
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSQLiteDataSource
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSqLiteHelper
+import app.cash.paykit.logging.CashAppLogger
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.ExecutorService
@@ -34,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class PayKitAnalytics constructor(
   private val context: Context,
   private val options: AnalyticsOptions,
+  private val cashAppLogger: CashAppLogger,
   private val sqLiteHelper: AnalyticsSqLiteHelper = AnalyticsSqLiteHelper(
     context = context,
     options = options,
@@ -41,11 +43,14 @@ class PayKitAnalytics constructor(
   val entriesDataSource: EntriesDataSource = AnalyticsSQLiteDataSource(
     sqLiteHelper = sqLiteHelper,
     options = options,
+    cashAppLogger = cashAppLogger,
   ),
-  private val logger: AnalyticsLogger = AnalyticsLogger(options = options),
+  private val logger: AnalyticsLogger = AnalyticsLogger(options = options, cashAppLogger = cashAppLogger),
   vararg initialDeliveryHandlers: DeliveryHandler,
 ) {
-  private val TAG = "PayKitAnalytics"
+  companion object {
+    private const val TAG = "PayKitAnalytics"
+  }
 
   /** Collection of FutureTasks that perform the delivery work. */
   private var deliveryTasks = mutableListOf<FutureTask<Unit>>()
@@ -71,7 +76,7 @@ class PayKitAnalytics constructor(
     entriesDataSource.resetEntries()
     ensureExecutorIsUpAndRunning()
     ensureSchedulerIsUpAndRunning()
-    logger.i(TAG, "Initialization completed.")
+    logger.v(TAG, "Initialization completed.")
   }
 
   /**
@@ -87,7 +92,7 @@ class PayKitAnalytics constructor(
         initializeScheduledExecutorService()
       }
     } ?: run {
-      logger.d(TAG, "Creating scheduler service.")
+      logger.v(TAG, "Creating scheduler service.")
       initializeScheduledExecutorService()
     }
   }
@@ -105,7 +110,7 @@ class PayKitAnalytics constructor(
         executor = Executors.newSingleThreadExecutor()
       }
     } ?: run {
-      logger.d(TAG, "Creating executor service.")
+      logger.v(TAG, "Creating executor service.")
       executor = Executors.newSingleThreadExecutor()
     }
   }
@@ -117,7 +122,7 @@ class PayKitAnalytics constructor(
   private fun initializeScheduledExecutorService() {
     shouldShutdown.set(false)
     scheduler = Executors.newSingleThreadScheduledExecutor().also {
-      logger.d(
+      logger.v(
         TAG,
         "Initializing scheduled executor service | delay:%ds, interval:%ds".format(
           Locale.US,
@@ -143,7 +148,7 @@ class PayKitAnalytics constructor(
     while (itr.hasNext()) {
       itr.next().run {
         if (isCancelled || isDone) {
-          logger.d(
+          logger.v(
             TAG,
             "Removing task from queue: ${toString()} (canceled=$isCancelled, done=$isDone)",
           )
@@ -187,25 +192,25 @@ class PayKitAnalytics constructor(
 
   fun scheduleShutdown() {
     shouldShutdown.set(true)
-    logger.i(TAG, "Scheduled shutdown.")
+    logger.v(TAG, "Scheduled shutdown.")
   }
 
   private fun shutdown() {
     executor?.run {
       shutdown()
-      logger.i(TAG, "Executor service shutdown.")
+      logger.v(TAG, "Executor service shutdown.")
     }
     scheduler?.run {
       shutdown()
-      logger.i(TAG, "Scheduled executor service shutdown.")
+      logger.v(TAG, "Scheduled executor service shutdown.")
     }
     if (deliveryTasks.isNotEmpty()) {
       deliveryTasks.clear()
-      logger.i(TAG, "FutureTask list cleared.")
+      logger.v(TAG, "FutureTask list cleared.")
     }
 
     sqLiteHelper.close()
-    logger.i(TAG, "Shutdown completed.")
+    logger.v(TAG, "Shutdown completed.")
   }
 
   @Synchronized
@@ -214,7 +219,7 @@ class PayKitAnalytics constructor(
     if (existingHandler == null) {
       handler.setDependencies(entriesDataSource, logger)
       deliveryHandlers.add(handler)
-      logger.i(
+      logger.v(
         TAG,
         "Registering %s as delivery handler for %s".format(
           Locale.US,
@@ -237,7 +242,7 @@ class PayKitAnalytics constructor(
   @Synchronized
   fun unregisterDeliveryHandler(handler: DeliveryHandler) {
     deliveryHandlers.remove(handler)
-    logger.i(
+    logger.v(
       TAG,
       "Unregistering %s as delivery handler for %s".format(
         Locale.US,
@@ -273,7 +278,7 @@ class PayKitAnalytics constructor(
     ensureExecutorIsUpAndRunning()
     val handler: DeliveryHandler? = getDeliveryHandler(type)
     return if (handler != null && handler.deliverableType.equals(type, ignoreCase = true)) {
-      logger.i(TAG, "Scheduling $type for delivery --- $content")
+      logger.v(TAG, "Scheduling $type for delivery --- $content")
       ScheduleDeliverableTask(type, content, metaData).also {
         executor!!.execute(it)
       }
@@ -294,7 +299,7 @@ class PayKitAnalytics constructor(
       if (type != null && content != null) {
         val entryId: Long = entriesDataSource.insertEntry(type, content, metaData)
         if (entryId > 0) {
-          logger.d(
+          logger.v(
             TAG,
             String.format("%s scheduled for delivery. id: %d", type, entryId),
           )

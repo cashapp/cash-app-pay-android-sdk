@@ -22,6 +22,7 @@ import app.cash.paykit.analytics.persistence.AnalyticEntry
 import app.cash.paykit.analytics.persistence.AnalyticEntry.Companion.STATE_DELIVERY_FAILED
 import app.cash.paykit.analytics.persistence.AnalyticEntry.Companion.STATE_DELIVERY_IN_PROGRESS
 import app.cash.paykit.analytics.persistence.sqlite.AnalyticsSQLiteDataSource
+import app.cash.paykit.logging.CashAppLogger
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -34,12 +35,14 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 class DeliveryWorkerTest {
 
+  private val cashAppLogger: CashAppLogger = mockk(relaxed = true)
+
   @Test
   fun testNoDeliveryHandlers() {
     val dataSource: AnalyticsSQLiteDataSource = mockk(relaxed = true)
     val analyticsOptions: AnalyticsOptions = mockk(relaxed = true)
     val handlers = ArrayList<DeliveryHandler>()
-    val worker = DeliveryWorker(dataSource, handlers, AnalyticsLogger(analyticsOptions))
+    val worker = DeliveryWorker(dataSource, handlers, AnalyticsLogger(analyticsOptions, cashAppLogger))
     worker.call()
 
     verify(inverse = true) { dataSource.generateProcessId(any()) }

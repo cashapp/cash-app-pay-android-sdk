@@ -24,8 +24,8 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 class AnalyticsInitializationPayload(
   /*
-  * Common fields.
-  */
+   * Common fields.
+   */
   @Json(name = "mobile_cap_pk_initialization_sdk_version")
   sdkVersion: String,
 

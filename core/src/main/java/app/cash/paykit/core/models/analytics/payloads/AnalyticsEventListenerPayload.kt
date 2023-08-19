@@ -24,8 +24,8 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 class AnalyticsEventListenerPayload(
   /*
-  * Common fields.
-  */
+   * Common fields.
+   */
   @Json(name = "mobile_cap_pk_event_listener_sdk_version")
   sdkVersion: String,
 
@@ -42,7 +42,7 @@ class AnalyticsEventListenerPayload(
   override val environment: String,
 
   /*
-  * Event Specific fields.
+   * Event Specific fields.
    */
 
   /**

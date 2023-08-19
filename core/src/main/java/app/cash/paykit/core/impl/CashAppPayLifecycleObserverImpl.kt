@@ -38,7 +38,7 @@ internal class CashAppPayLifecycleObserverImpl(
   private var mainHandler: Handler = Handler(Looper.getMainLooper())
 
   /*
-  * Functions to register & unregister instances of [PayKitLifecycleListener].
+   * Functions to register & unregister instances of [PayKitLifecycleListener].
    */
 
   override fun register(newInstance: CashAppPayLifecycleListener) {
@@ -78,7 +78,7 @@ internal class CashAppPayLifecycleObserverImpl(
   }
 
   /*
-  * Callback functions from [DefaultLifecycleObserver].
+   * Callback functions from [DefaultLifecycleObserver].
    */
 
   override fun onStart(owner: LifecycleOwner) {

@@ -20,10 +20,10 @@ import androidx.annotation.Keep
 import androidx.startup.Initializer
 import app.cash.paykit.core.android.ApplicationContextHolder
 
-internal interface CashAppPayInitializerStub
+interface CashAppPayInitializerStub
 
 @Keep
-internal class CashAppPayInitializer : Initializer<CashAppPayInitializerStub> {
+class CashAppPayInitializer : Initializer<CashAppPayInitializerStub> {
   override fun create(context: Context): CashAppPayInitializerStub {
     ApplicationContextHolder.init(context.applicationContext)
     return object : CashAppPayInitializerStub {}

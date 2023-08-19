@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package app.cash.paykit.core.exceptions
+package app.cash.paykit.logging
 
-import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.API
-
-/**
- * This exception encapsulates all of the metadata provided by an API error.
- */
-data class CashAppCashAppPayApiNetworkException(
-  val category: String,
-  val code: String,
-  val detail: String?,
-  val field_value: String?,
-) :
-  CashAppPayNetworkException(API)
+data class CashAppLogEntry(
+  val level: Int,
+  val tag: String,
+  val msg: String,
+  val throwable: Throwable? = null,
+)
