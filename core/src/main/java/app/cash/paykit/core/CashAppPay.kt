@@ -160,7 +160,7 @@ object CashAppPayFactory {
           delay = 10.seconds,
           logLevel = Log.WARN,
           databaseName = dbName,
-          isLoggerDisabled = !BuildConfig.DEBUG,
+          // isLoggerDisabled = !BuildConfig.DEBUG,
           applicationVersionCode = versionCode!!.toInt(), // casting as int gives us the "legacy" version code
         ),
         cashAppLogger = cashAppLogger,

@@ -16,3 +16,12 @@ rootProject.name = "Pay Kit SDK"
 include ':core'
 include ':analytics-core'
 include ':logging'
+include ':PayKitLib'
+
+//enableFeaturePreview("GRADLE_METADATA")
+
+includeBuild("../android-cash-paykit-sdk-history"){
+  dependencySubstitution {
+    substitute(module("app.cash.paykit.state:paykit")).using(project(":PayKitLib"))
+  }
+}

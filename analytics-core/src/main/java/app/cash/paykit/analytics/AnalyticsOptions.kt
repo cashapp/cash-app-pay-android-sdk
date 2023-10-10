@@ -48,15 +48,15 @@ data class AnalyticsOptions constructor(
   init {
     if (!interval.isPositive()) {
       Log.e("PayKit", "Options interval must be > 0")
-      if (BuildConfig.DEBUG) {
+      // if (BuildConfig.DEBUG) {
         throw IllegalArgumentException("Options interval must be > 0")
-      }
+      // }
     }
     if (delay.isNegative()) {
       Log.e("PayKit", "Options delay must be >= 0")
-      if (BuildConfig.DEBUG) {
+      // if (BuildConfig.DEBUG) {
         throw IllegalArgumentException("Options interval must be > 0")
-      }
+      // }
     }
   }
 }

@@ -1,14 +1,17 @@
 plugins {
   id 'com.android.library'
   id 'org.jetbrains.kotlin.android'
-  id("com.google.devtools.ksp").version("1.6.21-1.0.5")
+  id("com.google.devtools.ksp").version("1.8.22-1.0.11")
   id 'project-report' // run ./gradlew htmlDependencyReport
   id "com.vanniktech.maven.publish.base"
 }
 
+//https://issuetracker.google.com/issues/226095015
+com.android.tools.analytics.AnalyticsSettings.setOptedIn(false)
+
 task sourceJar(type: Jar) {
   from android.sourceSets.main.java.srcDirs
-  classifier "sources"
+//  classifier "sources"
 }
 
 android {
@@ -34,13 +37,15 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
   }
   kotlinOptions {
-    jvmTarget = '1.8'
+    jvmTarget = JavaVersion.VERSION_17.toString()
   }
-
+//  kotlin {
+//    jvmToolchain(17)
+//  }
   resourcePrefix 'cap_'
 
   lintOptions {
@@ -60,6 +65,11 @@ android {
 }
 
 dependencies {
+  implementation('app.cash.paykit.state:paykit:+')
+//  implementation project(":PayKitLib")
+//  implementation project(path: ':PayKitLib')
+
+    implementation("io.github.nsk90:kstatemachine:+") // this is not coming in transitively?
 
   // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
   //noinspection GradleDependency
