@@ -20,7 +20,7 @@ include ':PayKitLib'
 
 //enableFeaturePreview("GRADLE_METADATA")
 
-includeBuild("../android-cash-paykit-sdk-history"){
+includeBuild("../cash-mobile-paykit-kmp"){
   dependencySubstitution {
     substitute(module("app.cash.paykit.state:paykit")).using(project(":PayKitLib"))
   }
