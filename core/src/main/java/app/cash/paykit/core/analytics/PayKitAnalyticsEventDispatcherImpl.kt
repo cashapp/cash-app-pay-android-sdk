@@ -15,6 +15,12 @@
  */
 package app.cash.paykit.core.analytics
 
+import app.cash.paykit.PayKitMachineStates
+import app.cash.paykit.PayKitMachineStates.Authorizing.DeepLinking
+import app.cash.paykit.PayKitMachineStates.Authorizing.Polling
+import app.cash.paykit.PayKitMachineStates.DecidedState
+import app.cash.paykit.PayKitMachineStates.ErrorState.ExceptionState
+import app.cash.paykit.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.analytics.PayKitAnalytics
 import app.cash.paykit.analytics.core.DeliveryHandler
 import app.cash.paykit.analytics.core.DeliveryListener
@@ -33,29 +39,26 @@ import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
-import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
-import app.cash.paykit.core.models.analytics.EventStream2Event
-import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
-import app.cash.paykit.core.models.analytics.payloads.AnalyticsCustomerRequestPayload
-import app.cash.paykit.core.models.analytics.payloads.AnalyticsEventListenerPayload
-import app.cash.paykit.core.models.analytics.payloads.AnalyticsInitializationPayload
-import app.cash.paykit.core.models.common.Action
-import app.cash.paykit.core.models.common.NetworkResult.Failure
-import app.cash.paykit.core.models.common.NetworkResult.Success
-import app.cash.paykit.core.models.pii.PiiString
+import app.cash.paykit.models.analytics.EventStream2Event
+import app.cash.paykit.models.analytics.payloads.AnalyticsBasePayload
+import app.cash.paykit.models.analytics.payloads.AnalyticsCustomerRequestPayload
+import app.cash.paykit.models.analytics.payloads.AnalyticsEventListenerPayload
+import app.cash.paykit.models.analytics.payloads.AnalyticsInitializationPayload
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN_APP
-import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.models.response.Grant
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
-import app.cash.paykit.core.network.MoshiProvider
+import kotlinx.serialization.json.Json
 import app.cash.paykit.core.utils.Clock
 import app.cash.paykit.core.utils.ClockRealImpl
 import app.cash.paykit.core.utils.UUIDManager
 import app.cash.paykit.core.utils.UUIDManagerRealImpl
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapter
+import app.cash.paykit.exceptions.CashAppPayApiNetworkException
+import app.cash.paykit.models.common.Action
+import app.cash.paykit.models.common.NetworkResult.Failure
+import app.cash.paykit.models.common.NetworkResult.Success
+import app.cash.paykit.models.pii.PiiString
+import app.cash.paykit.models.response.CustomerResponseData
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction.OnFileAction
+import kotlinx.serialization.encodeToString
 
 private const val APP_NAME = "paykitsdk-android"
 private const val PLATFORM = "android"
@@ -68,7 +71,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private val sdkEnvironment: String,
   private val payKitAnalytics: PayKitAnalytics,
   private val networkManager: NetworkManager,
-  private val moshi: Moshi = MoshiProvider.provideDefault(redactPii = true),
+  // private val moshi: Moshi = MoshiProvider.provideDefault(redactPii = true), // TODO redact PII
   private val uuidManager: UUIDManager = UUIDManagerRealImpl(),
   private val clock: Clock = ClockRealImpl(),
 ) : PayKitAnalyticsEventDispatcher {
@@ -109,7 +112,14 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerAdded() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true, environment = sdkEnvironment)
+      AnalyticsEventListenerPayload(
+        sdkVersion,
+        userAgent,
+        PLATFORM,
+        clientId,
+        isAdded = true,
+        environment = sdkEnvironment
+      )
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -119,7 +129,14 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerRemoved() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false, environment = sdkEnvironment)
+      AnalyticsEventListenerPayload(
+        sdkVersion,
+        userAgent,
+        PLATFORM,
+        clientId,
+        isAdded = false,
+        environment = sdkEnvironment
+      )
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -131,7 +148,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     apiActions: List<Action>,
     redirectUri: String?,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
+    val eventPayload =
+      createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -143,7 +161,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
+    val eventPayload =
+      createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -151,11 +170,15 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun genericStateChanged(
-    cashAppPayState: CashAppPayState,
-    customerResponseData: CustomerResponseData?,
+    cashAppPayState: PayKitMachineStates,
+    customerResponseData: CustomerResponseData?
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(cashAppPayState))
+      eventFromCustomerResponseData(customerResponseData).copy(
+        action = stateToAnalyticsAction(
+          cashAppPayState
+        )
+      )
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
@@ -165,7 +188,11 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     approved: Approved,
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(approved.responseData).copy(action = stateToAnalyticsAction(approved))
+      eventFromCustomerResponseData(approved.responseData).copy(
+        action = stateToAnalyticsAction(
+          approved
+        )
+      )
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
@@ -176,7 +203,11 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     customerResponseData: CustomerResponseData?,
   ) {
     var eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitExceptionState))
+      eventFromCustomerResponseData(customerResponseData).copy(
+        action = stateToAnalyticsAction(
+          payKitExceptionState
+        )
+      )
 
     eventPayload = if (payKitExceptionState.exception is CashAppPayApiNetworkException) {
       val apiError = payKitExceptionState.exception
@@ -215,8 +246,9 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       CreatingCustomerRequest
     }
 
-    val moshiAdapter: JsonAdapter<List<Action>> = moshi.adapter()
-    val apiActionsAsJson: String = moshiAdapter.toJson(apiActions)
+    // val moshiAdapter: JsonAdapter<List<Action>> = moshi.adapter()
+    // val apiActionsAsJson: String = moshiAdapter.toJson(apiActions)
+    val apiActionsAsJson = Json.encodeToString(arrayOf(apiActions))
 
     // Inner payload of the ES2 event.
     var possibleReferenceId: String? = null
@@ -244,8 +276,9 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     payload: In,
     catalog: String,
   ): String {
-    val moshiAdapter: JsonAdapter<In> = moshi.adapter()
-    val jsonData: String = moshiAdapter.toJson(payload)
+    // val moshiAdapter: JsonAdapter<In> = moshi.adapter()
+    // val jsonData: String = moshiAdapter.toJson(payload)
+    val jsonData = Json.encodeToString(payload)
 
     // ES2 event data class.
     val eventStream2Event =
@@ -258,15 +291,17 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       )
 
     // Transform ES2 event into a JSON String.
-    val es2EventAdapter: JsonAdapter<EventStream2Event> = moshi.adapter()
-    return es2EventAdapter.toJson(eventStream2Event)
+    // val es2EventAdapter: JsonAdapter<EventStream2Event> = moshi.adapter()
+    // return es2EventAdapter.toJson(eventStream2Event)
+    return jsonData
   }
 
   private fun eventFromCustomerResponseData(customerResponseData: CustomerResponseData?): AnalyticsCustomerRequestPayload {
     var grantsPayload: String? = null
     if (customerResponseData?.grants != null) {
-      val moshiAdapter: JsonAdapter<List<Grant>> = moshi.adapter()
-      grantsPayload = moshiAdapter.toJson(customerResponseData.grants)
+      // val moshiAdapter: JsonAdapter<List<Grant>> = moshi.adapter()
+      // grantsPayload = moshiAdapter.toJson(customerResponseData.grants)
+      grantsPayload = Json.encodeToString(customerResponseData.grants)
     }
 
     return AnalyticsCustomerRequestPayload(
@@ -306,6 +341,24 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       is ReadyToAuthorize -> "ready_to_authorize"
       RetrievingExistingCustomerRequest -> "retrieve_existing_customer_request"
       UpdatingCustomerRequest -> "update"
+    }
+  }
+
+  /**
+   * This function converts a [CashAppPayState] into a valid String action for analytics ingestion.
+   */
+  private fun stateToAnalyticsAction(state: PayKitMachineStates): String {
+    return when (state) {
+      PayKitMachineStates.NotStarted -> "not_started"
+      DecidedState.Approved -> "approved"
+      PayKitMachineStates.CreatingCustomerRequest -> "create"
+      DecidedState.Declined -> "declined"
+      DeepLinking -> "redirect"
+      Polling -> "polling"
+      PayKitMachineStates.ReadyToAuthorize -> "ready_to_authorize"
+      ExceptionState -> "paykit_exception"
+      StartingWithExistingRequest -> "retrieve_existing_customer_request"
+      PayKitMachineStates.UpdatingCustomerRequest -> "update"
     }
   }
 }

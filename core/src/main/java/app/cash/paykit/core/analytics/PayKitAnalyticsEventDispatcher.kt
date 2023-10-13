@@ -15,12 +15,13 @@
  */
 package app.cash.paykit.core.analytics
 
+import app.cash.paykit.PayKitMachineStates
 import app.cash.paykit.core.CashAppPayState
 import app.cash.paykit.core.CashAppPayState.Approved
 import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
-import app.cash.paykit.core.models.common.Action
-import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.models.common.Action
+import app.cash.paykit.models.response.CustomerResponseData
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction
 
 /**
  * Definition of analytics events that we want to capture.
@@ -45,7 +46,7 @@ internal interface PayKitAnalyticsEventDispatcher {
     apiActions: List<Action>,
   )
 
-  fun genericStateChanged(cashAppPayState: CashAppPayState, customerResponseData: CustomerResponseData?)
+  fun genericStateChanged(cashAppPayState: PayKitMachineStates, customerResponseData: CustomerResponseData?)
 
   fun stateApproved(approved: Approved)
 

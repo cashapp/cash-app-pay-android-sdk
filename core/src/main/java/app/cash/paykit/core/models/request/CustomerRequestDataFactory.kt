@@ -15,11 +15,12 @@
  */
 package app.cash.paykit.core.models.request
 
-import app.cash.paykit.core.models.common.Action
-import app.cash.paykit.core.models.pii.PiiString
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
+import app.cash.paykit.models.common.Action
+import app.cash.paykit.models.pii.PiiString
+import app.cash.paykit.models.request.CustomerRequestData
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction.OneTimeAction
 
 /**
  * Factory that will create a [CreateCustomerRequest] from a [CashAppPayPaymentAction].
@@ -54,7 +55,8 @@ object CustomerRequestDataFactory {
       CustomerRequestData(
         actions = actions,
         channel = CHANNEL_IN_APP,
-        redirectUri = redirectUri?.let { PiiString(redirectUri) },
+        // redirectUri = redirectUri?.let { PiiString(redirectUri) },
+        redirectUri = redirectUri,
       )
     }
   }

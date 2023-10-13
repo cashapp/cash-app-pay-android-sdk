@@ -17,28 +17,26 @@ package app.cash.paykit.core.impl
 
 import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
-import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
-import app.cash.paykit.core.exceptions.CashAppPayConnectivityNetworkException
 import app.cash.paykit.core.impl.RequestType.GET
 import app.cash.paykit.core.impl.RequestType.PATCH
 import app.cash.paykit.core.impl.RequestType.POST
-import app.cash.paykit.core.models.analytics.EventStream2Response
-import app.cash.paykit.core.models.common.NetworkResult
-import app.cash.paykit.core.models.common.NetworkResult.Failure
-import app.cash.paykit.core.models.common.NetworkResult.Success
-import app.cash.paykit.core.models.request.CreateCustomerRequest
+import app.cash.paykit.models.analytics.EventStream2Response
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory
-import app.cash.paykit.core.models.response.ApiErrorResponse
-import app.cash.paykit.core.models.response.CustomerTopLevelResponse
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.network.RetryManager
 import app.cash.paykit.core.network.RetryManagerImpl
 import app.cash.paykit.core.network.RetryManagerOptions
-import com.squareup.moshi.JsonAdapter
-import com.squareup.moshi.JsonEncodingException
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapter
+import app.cash.paykit.exceptions.CashAppPayApiNetworkException
+import app.cash.paykit.exceptions.CashAppPayConnectivityNetworkException
+import app.cash.paykit.models.common.NetworkResult
+import app.cash.paykit.models.common.NetworkResult.Failure
+import app.cash.paykit.models.common.NetworkResult.Success
+import app.cash.paykit.models.request.CreateCustomerRequest
+import app.cash.paykit.models.response.ApiErrorResponse
+import app.cash.paykit.models.response.CustomerTopLevelResponse
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -82,14 +80,19 @@ internal class NetworkManagerImpl(
     paymentActions: List<CashAppPayPaymentAction>,
     redirectUri: String?,
   ): NetworkResult<CustomerTopLevelResponse> {
-    val customerRequestData = CustomerRequestDataFactory.build(clientId, redirectUri, paymentActions)
+    val customerRequestData =
+      CustomerRequestDataFactory.build(clientId, redirectUri, paymentActions)
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
       customerRequestData = customerRequestData,
     )
 
     // Record analytics.
-    analyticsEventDispatcher?.createdCustomerRequest(paymentActions, customerRequestData.actions, redirectUri)
+    analyticsEventDispatcher?.createdCustomerRequest(
+      paymentActions,
+      customerRequestData.actions,
+      redirectUri
+    )
 
     return executeNetworkRequest(
       POST,
@@ -112,7 +115,11 @@ internal class NetworkManagerImpl(
     )
 
     // Record analytics.
-    analyticsEventDispatcher?.updatedCustomerRequest(requestId, paymentActions, customerRequestData.actions)
+    analyticsEventDispatcher?.updatedCustomerRequest(
+      requestId,
+      paymentActions,
+      customerRequestData.actions
+    )
 
     return executeNetworkRequest(
       PATCH,
@@ -160,9 +167,11 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestPayload: In?,
   ): NetworkResult<Out> {
-    val moshi: Moshi = MoshiProvider.provideDefault()
-    val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
-    val jsonData: String = requestJsonAdapter.toJson(requestPayload)
+
+    val jsonData: String = requestPayload?.let {
+      Json.encodeToString(requestPayload)
+    } ?: "{}"
+    // println(jsonData)
     return executePlainNetworkRequest(
       requestType,
       endpointUrl,
@@ -198,7 +207,6 @@ internal class NetworkManagerImpl(
       requestBuilder.addHeader("Authorization", "Client $clientId")
     }
 
-    val moshi: Moshi = MoshiProvider.provideDefault()
 
     with(requestBuilder) {
       when (requestType) {
@@ -241,7 +249,7 @@ internal class NetworkManagerImpl(
             //
             // So as a result our logic here is : use the payload if it exists, otherwise simply propagate the error code.
             val apiErrorResponse: NetworkResult<ApiErrorResponse> =
-              deserializeResponse(response.body?.string() ?: "", moshi)
+              deserializeResponse(response.body?.string() ?: "")
             return when (apiErrorResponse) {
               is Failure -> NetworkResult.failure(
                 CashAppPayConnectivityNetworkException(apiErrorResponse.exception),
@@ -261,7 +269,7 @@ internal class NetworkManagerImpl(
           }
 
           // Success continues here.
-          return deserializeResponse(response.body!!.string(), moshi)
+          return deserializeResponse(response.body!!.string())
         }
       } catch (e: Exception) {
         retryManager.networkAttemptFailed()
@@ -283,19 +291,18 @@ internal class NetworkManagerImpl(
   @OptIn(ExperimentalStdlibApi::class)
   private inline fun <reified Out : Any> deserializeResponse(
     responseString: String,
-    moshi: Moshi,
   ): NetworkResult<Out> {
     try {
-      val jsonAdapterResponse: JsonAdapter<Out> = moshi.adapter()
-
-      val responseModel = jsonAdapterResponse.fromJson(responseString)
+      val responseModel = Json { ignoreUnknownKeys = true }.decodeFromString<Out>(responseString)
       if (responseModel != null) {
         return NetworkResult.success(responseModel)
       }
       return NetworkResult.failure(IOException("Failed to deserialize response data."))
     } catch (e: SocketTimeoutException) {
       return NetworkResult.failure(CashAppPayConnectivityNetworkException(e))
-    } catch (e: JsonEncodingException) {
+    } catch (e: SerializationException) {
+      return NetworkResult.failure(e)
+    } catch (e: IllegalArgumentException) {
       return NetworkResult.failure(e)
     } catch (e: Exception) {
       return NetworkResult.failure(e)

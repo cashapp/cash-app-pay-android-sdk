@@ -23,16 +23,16 @@ import app.cash.paykit.analytics.PayKitAnalytics
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcherImpl
 import app.cash.paykit.core.android.ApplicationContextHolder
-import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.impl.CashAppPayImpl
 import app.cash.paykit.core.impl.CashAppPayLifecycleObserverImpl
 import app.cash.paykit.core.impl.NetworkManagerImpl
-import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
+import app.cash.paykit.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.logging.CashAppLogger
 import app.cash.paykit.logging.CashAppLoggerImpl
+import app.cash.paykit.models.response.CustomerResponseData
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction
 import kotlin.time.Duration.Companion.seconds
 
 interface CashAppPay {

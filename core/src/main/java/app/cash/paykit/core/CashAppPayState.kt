@@ -15,7 +15,8 @@
  */
 package app.cash.paykit.core
 
-import app.cash.paykit.core.models.response.CustomerResponseData
+import app.cash.paykit.exceptions.CashAppPayException
+import app.cash.paykit.models.response.CustomerResponseData
 
 /**
  * Various states Cash App Pay SDK might be in depending the stage of the transaction process.
@@ -88,5 +89,5 @@ sealed interface CashAppPayState {
    * This state is typically unrecoverable, and it is advised to restart the process from scratch in
    * case it is met.
    */
-  class CashAppPayExceptionState(val exception: Exception) : CashAppPayState
+  class CashAppPayExceptionState(val exception: CashAppPayException) : CashAppPayState
 }

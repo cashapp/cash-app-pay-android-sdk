@@ -15,10 +15,10 @@
  */
 package app.cash.paykit.core
 
-import app.cash.paykit.core.models.analytics.EventStream2Response
-import app.cash.paykit.core.models.common.NetworkResult
-import app.cash.paykit.core.models.response.CustomerTopLevelResponse
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.models.analytics.EventStream2Response
+import app.cash.paykit.models.common.NetworkResult
+import app.cash.paykit.models.response.CustomerTopLevelResponse
+import app.cash.paykit.models.sdk.CashAppPayPaymentAction
 import java.io.IOException
 
 internal interface NetworkManager {

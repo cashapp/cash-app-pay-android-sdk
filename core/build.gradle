@@ -69,16 +69,11 @@ dependencies {
 //  implementation project(":PayKitLib")
 //  implementation project(path: ':PayKitLib')
 
-    implementation("io.github.nsk90:kstatemachine:+") // this is not coming in transitively?
-
-  // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
-  //noinspection GradleDependency
-  ksp("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
-  //noinspection GradleDependency
-  implementation("com.squareup.moshi:moshi-kotlin:$moshi_version")
+  implementation("io.github.nsk90:kstatemachine:+") // this is not coming in transitively?
 
   // KotlinX Dates.
   implementation "org.jetbrains.kotlinx:kotlinx-datetime:$kotlinx_date_version"
+  implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // TODO why didn't this dep from PayKitLib get picked up transitively?
 
   // Provides a lifecycle for the whole application process.
   implementation "androidx.lifecycle:lifecycle-process:$lifecycle_version"
