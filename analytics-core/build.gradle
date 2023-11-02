@@ -39,6 +39,10 @@ android {
     warningsAsErrors true
     baseline file("lint-baseline.xml")
   }
+
+  buildFeatures {
+    buildConfig = true
+  }
 }
 
 dependencies {
