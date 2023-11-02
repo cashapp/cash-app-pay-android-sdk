@@ -1,3 +1,7 @@
+# 2.4.0 - UPCOMING
+
+ - Update Android target SDK version to API 33 
+
 # 2.3.0
 
  - The class `CashAppPayInitializer` was made open, so that androidx.startup can be manually overridden.

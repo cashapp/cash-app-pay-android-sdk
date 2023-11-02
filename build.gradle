@@ -18,15 +18,15 @@ buildscript {
 
     versions = [
         'minSdk': 21,
-        'compileSdk': 31,
-        'targetSdk': 31,
+        'compileSdk': 33,
+        'targetSdk': 33,
     ]
   }
 }
 
 plugins {
-  id 'com.android.application' version '7.4.2' apply false
-  id 'com.android.library' version '7.4.2' apply false
+  id 'com.android.application' version '8.1.2' apply false
+  id 'com.android.library' version '8.1.2' apply false
   id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
   id "com.diffplug.spotless" version "6.20.0"
   id "com.vanniktech.maven.publish.base" version "0.25.1"
@@ -52,11 +52,11 @@ subprojects { subproject ->
   }
 }
 
-def NEXT_VERSION = "2.3.4-SNAPSHOT"
+def NEXT_VERSION = "2.4.1-SNAPSHOT"
 
 allprojects {
   group = 'app.cash.paykit'
-  version = '2.3.0'
+  version = '2.4.0-SNAPSHOT'
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     mavenPublishing {
