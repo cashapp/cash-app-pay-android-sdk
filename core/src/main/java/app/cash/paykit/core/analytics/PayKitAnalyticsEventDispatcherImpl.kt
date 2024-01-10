@@ -49,6 +49,7 @@ import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
 import app.cash.paykit.core.network.MoshiProvider
+import app.cash.paykit.core.state.PayKitMachineStates
 import app.cash.paykit.core.utils.Clock
 import app.cash.paykit.core.utils.ClockRealImpl
 import app.cash.paykit.core.utils.UUIDManager
@@ -335,15 +336,15 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   private fun stateToAnalyticsAction(state: PayKitMachineStates): String {
     return when (state) {
       PayKitMachineStates.NotStarted -> "not_started"
-      DecidedState.Approved -> "approved"
+      PayKitMachineStates.DecidedState.Approved -> "approved"
       PayKitMachineStates.CreatingCustomerRequest -> "create"
-      DecidedState.Declined -> "declined"
-      DeepLinking -> "redirect"
-      Polling -> "polling"
+      PayKitMachineStates.DecidedState.Declined -> "declined"
+      PayKitMachineStates.Authorizing.DeepLinking -> "redirect"
+      PayKitMachineStates.Authorizing.Polling -> "polling"
       PayKitMachineStates.ReadyToAuthorize -> "ready_to_authorize"
       PayKitMachineStates.UpdatingCustomerRequest -> "update"
-      ExceptionState -> "paykit_exception"
-      StartingWithExistingRequest -> "retrieve_existing_customer_request"
+      PayKitMachineStates.ErrorState.ExceptionState -> "paykit_exception"
+      PayKitMachineStates.StartingWithExistingRequest -> "retrieve_existing_customer_request"
     }
   }
 }
