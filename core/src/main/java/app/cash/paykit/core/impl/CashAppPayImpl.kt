@@ -51,7 +51,6 @@ import app.cash.paykit.core.state.PayKitMachineStates.StartingWithExistingReques
 import app.cash.paykit.core.state.RealPayKitWorker
 import app.cash.paykit.core.utils.orElse
 import ru.nsk.kstatemachine.DefaultDataState
-import ru.nsk.kstatemachine.Stay
 import ru.nsk.kstatemachine.activeStates
 import ru.nsk.kstatemachine.onStateEntry
 import ru.nsk.kstatemachine.onStateExit
@@ -60,6 +59,7 @@ import ru.nsk.kstatemachine.onTransitionComplete
 import ru.nsk.kstatemachine.onTransitionTriggered
 import ru.nsk.kstatemachine.processEventBlocking
 import ru.nsk.kstatemachine.startBlocking
+import ru.nsk.kstatemachine.stay
 
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
@@ -105,7 +105,8 @@ internal class CashAppPayImpl(
           )
         }
         onTransitionComplete { transitionParams, activeStates ->
-          if (transitionParams.direction is Stay) {
+
+          if (transitionParams.direction::class.simpleName == "Stay") {// TODO better way to check this? Stay is internal...
             return@onTransitionComplete
           }
           Log.d(
