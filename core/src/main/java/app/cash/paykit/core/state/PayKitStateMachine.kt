@@ -45,26 +45,36 @@ import app.cash.paykit.core.state.PayKitMachineStates.NotStarted
 import app.cash.paykit.core.state.PayKitMachineStates.ReadyToAuthorize
 import app.cash.paykit.core.state.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.core.state.PayKitMachineStates.UpdatingCustomerRequest
+import ru.nsk.kstatemachine.ConditionalTransitionBuilder
+import ru.nsk.kstatemachine.DataState
+import ru.nsk.kstatemachine.EventAndArgument
+import ru.nsk.kstatemachine.IState
 import ru.nsk.kstatemachine.StateMachine
+import ru.nsk.kstatemachine.TransitionDirection
+import ru.nsk.kstatemachine.TransitionType
 import ru.nsk.kstatemachine.addFinalState
 import ru.nsk.kstatemachine.addInitialState
 import ru.nsk.kstatemachine.createStdLibStateMachine
 import ru.nsk.kstatemachine.dataState
 import ru.nsk.kstatemachine.dataTransition
+import ru.nsk.kstatemachine.dataTransitionOn
 import ru.nsk.kstatemachine.noTransition
 import ru.nsk.kstatemachine.onTriggered
 import ru.nsk.kstatemachine.processEventBlocking
+import ru.nsk.kstatemachine.stay
 import ru.nsk.kstatemachine.targetState
 import ru.nsk.kstatemachine.transition
 import ru.nsk.kstatemachine.transitionConditionally
 import ru.nsk.kstatemachine.visitors.exportToPlantUmlBlocking
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+
 
 internal data class PayKitMachine(
   private val worker: PayKitWorker,
 ) {
   val stateMachine = createPayKitMachine().apply {
-    Log.d("CRAIG", exportToPlantUmlBlocking())
+//    Log.d("CRAIG", exportToPlantUmlBlocking())
   }
 
   private fun createPayKitMachine(): StateMachine {
@@ -91,20 +101,10 @@ internal data class PayKitMachine(
 
       // This captures our polling get events. (in both Polling and ReadyToAuth states)
       // TODO also listen to Create events? may want to de-scope this into a child scope.
-      transitionConditionally<GetCustomerRequestEvent.Success> {
-        direction = {
-          with(event.data) {
-            if (grants?.isNotEmpty() == true && status == STATUS_APPROVED
-            ) {
-              targetState(Approved)
-            } else if (status == STATUS_DECLINED) {
-              targetState(Declined)
-            } else {
-              noTransition()
-            }
-          }
-        }
-      }
+//      dataTransitionOn<GetCustomerRequestEvent.Success, CustomerResponseData> {
+
+//      }
+
 
       addState(UpdatingCustomerRequest) {
         worker.updateCustomerRequest(this)
@@ -149,7 +149,27 @@ internal data class PayKitMachine(
         targetState = UpdatingCustomerRequest
       }
 
-      val authorizingState = dataState<CustomerResponseData> {
+      val authorizingState = dataState<CustomerResponseData>(name = "Authorizing") {
+
+          transitionConditionally<GetCustomerRequestEvent.Success> {
+              onTriggered {
+                  Log.w("CRAIG", "transitionConditionally triggered from within Authorizing event=${it.event.data.authFlowTriggers}, direction= ${it.direction.targetState}")
+              }
+              direction = {
+                  with(event.data) {
+                      if (grants?.isNotEmpty() == true && status == STATUS_APPROVED
+                      ) {
+                          targetState(Approved)
+                      } else if (status == STATUS_DECLINED) {
+                          targetState(Declined)
+                      } else {
+                          Log.w("CRAIG", "transitionConditionally triggered from within Polling ${event.data.authFlowTriggers}")
+
+                          targetState(this@dataState)// This updates the state data with the new auth triggers
+                      }
+                  }
+              }
+          }
 
         addState(Polling) {
           worker.poll(this, this@dataState, 2.seconds)
@@ -158,6 +178,7 @@ internal data class PayKitMachine(
           transition<Authorize> {
             targetState = DeepLinking
           }
+            // PROBLEM: this transition uses the state from the auth state, not the polling state
           transition<AuthorizeUsingExistingData> {
             targetState = DeepLinking
           }
@@ -188,6 +209,28 @@ internal data class PayKitMachine(
             stateMachine.processEventBlocking(Authorize(this@addState.data))
           }
         }
+
+          transitionConditionally<GetCustomerRequestEvent.Success> {
+//              onTriggered {
+//                  Log.w("CRAIG", "transitionConditionally triggered from within ReadyToAuthorize event=${it.event.data.authFlowTriggers}, direction= ${it.direction.targetState}")
+//              }
+//              type = TransitionType.EXTERNAL // this causes the workers to restart
+              direction =  {
+                  with(event.data) {
+                      if (grants?.isNotEmpty() == true && status == STATUS_APPROVED
+                      ) {
+                          targetState(Approved)
+                      } else if (status == STATUS_DECLINED) {
+                          targetState(Declined)
+                      } else {
+//                          Log.w("CRAIG", "staying put within ReadyToAuthorize ${event.data.authFlowTriggers}")
+                          targetState(this@addState)// This updates the state data with the new auth triggers
+                      }
+                  }
+              }
+          }
+
+
       }
 
       val creatingCustomerRequest =

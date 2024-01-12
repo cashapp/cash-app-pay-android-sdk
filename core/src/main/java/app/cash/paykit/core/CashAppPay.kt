@@ -101,6 +101,7 @@ interface CashAppPay {
    * @param requestId ID of the request we intent do retrieve.
    */
   @WorkerThread
+  // TODO should we throw here as well?
   fun startWithExistingCustomerRequest(
     requestId: String,
   )

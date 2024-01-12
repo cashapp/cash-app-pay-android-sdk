@@ -36,6 +36,7 @@ import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
+import app.cash.paykit.core.exceptions.CashAppPayNetworkException
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.state.ClientEventPayload.CreatingCustomerRequestData
@@ -118,7 +119,7 @@ internal class CashAppPayImpl(
             is Polling -> PollingTransactionStatus
             is DecidedState.Approved -> Approved(state.data)
             DecidedState.Declined -> Declined
-            is ExceptionState -> CashAppPayExceptionState(error(state.data))
+            is ExceptionState -> CashAppPayExceptionState(state.data)
             PayKitMachineStates.UpdatingCustomerRequest -> UpdatingCustomerRequest
             StartingWithExistingRequest -> RetrievingExistingCustomerRequest
           }
@@ -167,11 +168,14 @@ internal class CashAppPayImpl(
     redirectUri: String?
   ) {
     enforceRegisteredStateUpdatesListener()
+
+    // TODO What do we do if someone calls this when we are in a terminal state? (Approved)
     enforceMachineRunning()
 
     // Validate [paymentActions] is not empty.
     if (paymentActions.isEmpty()) {
       val exceptionText = "paymentAction should not be empty"
+      // TODO safeThrow?
       throw IllegalArgumentException(exceptionText)
     }
 
@@ -205,6 +209,8 @@ internal class CashAppPayImpl(
     paymentActions: List<CashAppPayPaymentAction>,
   ) {
     enforceRegisteredStateUpdatesListener()
+
+    // TODO What do we do if someone calls this when we are in a terminal state? (Approved)
     enforceMachineRunning()
 
     // Validate [paymentActions] is not empty.
@@ -239,6 +245,8 @@ internal class CashAppPayImpl(
   @Throws(IllegalStateException::class)
   override fun startWithExistingCustomerRequest(requestId: String) {
     enforceRegisteredStateUpdatesListener()
+
+    // TODO should we reset the state machine here? what if this instance has already reached a terminal state?
     enforceMachineRunning()
 
     payKitMachine.stateMachine.processEventBlocking(
@@ -258,6 +266,7 @@ internal class CashAppPayImpl(
   override fun authorizeCustomerRequest() {
     enforceMachineRunning()
 
+    //     check(machine.requireState("State2") in machine.activeStates())
     if (payKitMachine.stateMachine.activeStates()
         .none { it is PayKitMachineStates.Authorizing || it is PayKitMachineStates.ReadyToAuthorize }
     ) {
@@ -344,6 +353,8 @@ internal class CashAppPayImpl(
   /**
    * This function will throw the provided [exception] during development, or change the SDK state to [CashAppPayExceptionState] otherwise.
    */
+  // TODO we'll have to reconsider how we use this as it relates to the state machine. Maybe we can just send all events into the machine, and if the machine can't handle those calls, then we transition it to the exception state?.
+  // or we keep it as is, and throw an exception in the public function...
   @Throws
   private fun softCrashOrStateException(exception: Exception): CashAppPayExceptionState {
     logError("Error occurred. E.: $exception")
@@ -356,7 +367,7 @@ internal class CashAppPayImpl(
   private fun enforceMachineRunning() {
     if (payKitMachine.stateMachine.isFinished) {
       val exceptionText = "This SDK instance has already finished. Please start a new one."
-      throw IllegalStateException(exceptionText)
+      softCrashOrStateException(IllegalStateException(exceptionText))
     }
   }
 

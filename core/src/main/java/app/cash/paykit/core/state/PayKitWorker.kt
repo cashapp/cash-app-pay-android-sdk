@@ -194,22 +194,23 @@ internal class RealPayKitWorker(
               }
             }
           } catch (e: InterruptedException) {
-            Log.w("CRAIG", "InterruptedException getting customer request", e)
+            Log.i("CRAIG", "InterruptedException on polling thread")
           }
         }.apply {
+          name = "polling-${interval.inWholeSeconds}-seconds-thread"
           onExit(once = true) {
             interrupt()
-            Log.i("CRAIG", "Stopping ${getName()} thread!!!")
+            Log.i("CRAIG", "Exiting: Stopping ${getName()} thread!!!")
           }
-          name = "polling-thread"
+          Log.i("CRAIG", "Entering: Starting $name thread!!!")
           start()
         }
       }
     }
   }
 
-  override fun startWithExistingRequest(startingWithExistingRequest: StartingWithExistingRequest) {
-    with(startingWithExistingRequest) {
+  override fun startWithExistingRequest(state: StartingWithExistingRequest) {
+    with(state) {
       onEntry {
         Thread {
           try {
