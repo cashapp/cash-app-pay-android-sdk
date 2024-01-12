@@ -28,17 +28,6 @@ The Sandbox App can be particularly helpful for those who do not possess a Cash 
 
 The latest version of the SDK can be found here: https://search.maven.org/search?q=g:app.cash.paykit
 
-
-# NOTES FOR KSTATEMACHINE
-
-When I bring in the dependency, I got a kotlin stdlib error...
-
-/Users/cpetzel/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.8.10/a61b182458550492c12aee66157d7b524a63a5ec/kotlin-stdlib-common-1.8.10.jar!/META-INF/kotlin-stdlib-common.kotlin_module: Module was compiled with an incompatible version of Kotlin. The binary version of its metadata is 1.8.0, expected version is 1.6.0.
-
-it looks like we are using kotlin 1.6, but this lib is using 1.8...
-
-So I brought over the entire source for now until we figure it out
-
 License
 =======
 
