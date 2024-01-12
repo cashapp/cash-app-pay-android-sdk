@@ -27,7 +27,7 @@ import app.cash.paykit.core.state.ClientEventPayload.CreatingCustomerRequestData
 import app.cash.paykit.core.state.ClientEventPayload.UpdateCustomerRequestData
 import app.cash.paykit.core.state.PayKitEvents.Authorize
 import app.cash.paykit.core.state.PayKitEvents.AuthorizeUsingExistingData
-import app.cash.paykit.core.state.PayKitEvents.CreateCustomerRequest
+import app.cash.paykit.core.state.PayKitEvents.CreateCustomerRequestEvent
 import app.cash.paykit.core.state.PayKitEvents.DeepLinkError
 import app.cash.paykit.core.state.PayKitEvents.DeepLinkSuccess
 import app.cash.paykit.core.state.PayKitEvents.GetCustomerRequestEvent
@@ -45,36 +45,65 @@ import app.cash.paykit.core.state.PayKitMachineStates.NotStarted
 import app.cash.paykit.core.state.PayKitMachineStates.ReadyToAuthorize
 import app.cash.paykit.core.state.PayKitMachineStates.StartingWithExistingRequest
 import app.cash.paykit.core.state.PayKitMachineStates.UpdatingCustomerRequest
-import ru.nsk.kstatemachine.ConditionalTransitionBuilder
-import ru.nsk.kstatemachine.DataState
-import ru.nsk.kstatemachine.EventAndArgument
-import ru.nsk.kstatemachine.IState
+import ru.nsk.kstatemachine.State
 import ru.nsk.kstatemachine.StateMachine
-import ru.nsk.kstatemachine.TransitionDirection
-import ru.nsk.kstatemachine.TransitionType
 import ru.nsk.kstatemachine.addFinalState
 import ru.nsk.kstatemachine.addInitialState
 import ru.nsk.kstatemachine.createStdLibStateMachine
-import ru.nsk.kstatemachine.dataState
-import ru.nsk.kstatemachine.dataTransition
-import ru.nsk.kstatemachine.dataTransitionOn
-import ru.nsk.kstatemachine.noTransition
 import ru.nsk.kstatemachine.onTriggered
 import ru.nsk.kstatemachine.processEventBlocking
+import ru.nsk.kstatemachine.state
 import ru.nsk.kstatemachine.stay
 import ru.nsk.kstatemachine.targetState
 import ru.nsk.kstatemachine.transition
 import ru.nsk.kstatemachine.transitionConditionally
 import ru.nsk.kstatemachine.visitors.exportToPlantUmlBlocking
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+/** Mutable context ("extended state") used by the state machine */
+data class PayKitContext(
+  var createCustomerRequestData: CreatingCustomerRequestData? = null,
+  var updateCustomerRequestData: UpdateCustomerRequestData? = null,
+  var startWithExistingId: String? = null,
+
+  /** The latest customer request data */
+  var customerResponseData: CustomerResponseData? = null,
+
+  /** the exception */
+  var error: Exception? = null,
+)
 
 internal data class PayKitMachine(
   private val worker: PayKitWorker,
 ) {
+  val context = PayKitContext()
   val stateMachine = createPayKitMachine().apply {
-//    Log.d("CRAIG", exportToPlantUmlBlocking())
+    Log.d("CRAIG", exportToPlantUmlBlocking())
+  }
+
+  /**
+   * Used in both [ReadyToAuthorize] and Authorizing
+   */
+  private fun State.onGetSuccessUpdateContextAndTerminal() {
+
+    transitionConditionally<GetCustomerRequestEvent.Success> {
+      onTriggered {
+        // store the latest CR in the context
+        context.customerResponseData = it.event.data
+      }
+      direction = {
+        with(event.data) {
+          if (grants?.isNotEmpty() == true && status == STATUS_APPROVED
+          ) {
+            targetState(Approved)
+          } else if (status == STATUS_DECLINED) {
+            targetState(Declined)
+          } else {
+            stay()
+          }
+        }
+      }
+    }
   }
 
   private fun createPayKitMachine(): StateMachine {
@@ -95,34 +124,37 @@ internal data class PayKitMachine(
       Log.w(name, "ignored event ${it.event}")
     }*/
 
-      dataTransition<IllegalArguments, Exception> {
+      transition<IllegalArguments> {
         targetState = ExceptionState
+        onTriggered {
+          context.error = it.event.data // TODO clear this when it is complete?
+        }
       }
-
-      // This captures our polling get events. (in both Polling and ReadyToAuth states)
-      // TODO also listen to Create events? may want to de-scope this into a child scope.
-//      dataTransitionOn<GetCustomerRequestEvent.Success, CustomerResponseData> {
-
-//      }
 
 
       addState(UpdatingCustomerRequest) {
-        worker.updateCustomerRequest(this)
+        worker.updateCustomerRequest(this, context)
 
-        dataTransition<UpdateCustomerRequestEvent.Error, Exception> {
+        transition<UpdateCustomerRequestEvent.Error> {
           targetState = ExceptionState
+          onTriggered {
+            context.error = it.event.data // TODO clear this when it is complete?
+          }
         }
 
-        dataTransition<UpdateCustomerRequestEvent.Success, CustomerResponseData> {
+        transition<UpdateCustomerRequestEvent.Success> {
           targetState = ReadyToAuthorize
         }
       }
 
       addState(StartingWithExistingRequest) {
-        worker.startWithExistingRequest(this)
+        worker.startWithExistingRequest(this, context)
 
-        dataTransition<StartWithExistingCustomerRequestEvent.Error, Exception> {
+        transition<StartWithExistingCustomerRequestEvent.Error> {
           targetState = ExceptionState
+          onTriggered {
+            context.error = it.event.data // TODO clear this when it is complete?
+          }
         }
 
         transitionConditionally<StartWithExistingCustomerRequestEvent.Success> {
@@ -143,118 +175,112 @@ internal data class PayKitMachine(
         }
       }
 
-      dataTransition<UpdateCustomerRequestAction, UpdateCustomerRequestData> {
+      // TODO only allow this in certain states...
+      transition<UpdateCustomerRequestAction> {
         // TODO guard this? or should the public api protect us here?
         // guard = {machine.activeStates()}
         targetState = UpdatingCustomerRequest
+        onTriggered {
+          // check(it.argument is CustomerResponseData) { "bad data returned" }
+          Log.w(
+            "CRAIG",
+            "UpdateCustomerRequestAction event=${it.event.data}"
+          )
+          // context.customerResponseData = it.argument // old way
+          context.updateCustomerRequestData = it.event.data // TODO clear this when it is complete?
+        }
       }
 
-      val authorizingState = dataState<CustomerResponseData>(name = "Authorizing") {
+      val authorizingState = state(name = "Authorizing") {
 
-          transitionConditionally<GetCustomerRequestEvent.Success> {
-              onTriggered {
-                  Log.w("CRAIG", "transitionConditionally triggered from within Authorizing event=${it.event.data.authFlowTriggers}, direction= ${it.direction.targetState}")
-              }
-              direction = {
-                  with(event.data) {
-                      if (grants?.isNotEmpty() == true && status == STATUS_APPROVED
-                      ) {
-                          targetState(Approved)
-                      } else if (status == STATUS_DECLINED) {
-                          targetState(Declined)
-                      } else {
-                          Log.w("CRAIG", "transitionConditionally triggered from within Polling ${event.data.authFlowTriggers}")
-
-                          targetState(this@dataState)// This updates the state data with the new auth triggers
-                      }
-                  }
-              }
-          }
+        onGetSuccessUpdateContextAndTerminal()
 
         addState(Polling) {
-          worker.poll(this, this@dataState, 2.seconds)
+          worker.poll(this, context, 2.seconds)
 
           // Let the customer deep link again
           transition<Authorize> {
             targetState = DeepLinking
           }
-            // PROBLEM: this transition uses the state from the auth state, not the polling state
           transition<AuthorizeUsingExistingData> {
             targetState = DeepLinking
           }
         }
-        addInitialState(DeepLinking) {
 
-          worker.deepLinkToCashApp(this, this@dataState)
+        addInitialState(DeepLinking) {
+          worker.deepLinkToCashApp(this, context)
 
           transition<DeepLinkSuccess> {
             targetState = Polling
           }
-          dataTransition<DeepLinkError, Exception> {
+          transition<DeepLinkError> {
             targetState = ExceptionState
+            onTriggered {
+              context.error = it.event.data // TODO clear this when it is complete?
+            }
           }
         }
       }
 
       addState(ReadyToAuthorize) {
-        worker.poll(this, this@addState, 20.seconds)
+        worker.poll(this, context, 20.seconds)
 
-        dataTransition<Authorize, CustomerResponseData> {
+        onGetSuccessUpdateContextAndTerminal()
+
+        // TODO fix event data? include CR here?
+        transition<Authorize> {
           // guard = { event.data.id != "bad" } //  We could guard this transition if the CustomerRequest is invalid. We most likely want to validate this in the public API rather in the machine events
           targetState = authorizingState
+          onTriggered {
+            // Log.w(
+            //   "CRAIG",
+            //   "transitionConditionally triggered from within ReadyToAuthorize event=${it.event.data.authFlowTriggers}"
+            // )
+            context.customerResponseData = it.event.data // TODO verify this data?
+          }
         }
 
         transition<AuthorizeUsingExistingData> {
           onTriggered {
-            stateMachine.processEventBlocking(Authorize(this@addState.data))
+            stateMachine.processEventBlocking(Authorize(context.customerResponseData!!))
           }
         }
-
-          transitionConditionally<GetCustomerRequestEvent.Success> {
-//              onTriggered {
-//                  Log.w("CRAIG", "transitionConditionally triggered from within ReadyToAuthorize event=${it.event.data.authFlowTriggers}, direction= ${it.direction.targetState}")
-//              }
-//              type = TransitionType.EXTERNAL // this causes the workers to restart
-              direction =  {
-                  with(event.data) {
-                      if (grants?.isNotEmpty() == true && status == STATUS_APPROVED
-                      ) {
-                          targetState(Approved)
-                      } else if (status == STATUS_DECLINED) {
-                          targetState(Declined)
-                      } else {
-//                          Log.w("CRAIG", "staying put within ReadyToAuthorize ${event.data.authFlowTriggers}")
-                          targetState(this@addState)// This updates the state data with the new auth triggers
-                      }
-                  }
-              }
-          }
-
-
       }
 
-      val creatingCustomerRequest =
-        addState(CreatingCustomerRequest) {
-          worker.createCustomerRequest(this)
+      val creatingCustomerRequest = addState(CreatingCustomerRequest) {
+        worker.createCustomerRequest(this, context)
 
-          dataTransition<CreateCustomerRequest.Success, CustomerResponseData> {
-            targetState = ReadyToAuthorize
+        transition<CreateCustomerRequestEvent.Success> {
+          onTriggered {
+            // check(it.argument is CustomerResponseData) { "bad data returned" }
+            context.customerResponseData = it.event.data
           }
-          dataTransition<CreateCustomerRequest.Error, Exception> {
-            targetState = ExceptionState
+          targetState = ReadyToAuthorize
+        }
+
+        transition<CreateCustomerRequestEvent.Error> {
+          onTriggered {
+            context.error = it.event.data // TODO clear this when it is complete?
           }
         }
+      }
 
       addInitialState(NotStarted) {
 
         // TODO should we allow clients to create a customer request while in any state?
-        dataTransition<CreateCustomerRequest, CreatingCustomerRequestData> {
+        transition<CreateCustomerRequestEvent.CreateCustomerRequest> {
+          onTriggered {
+            // check(it.argument !== null) { "create customer request data not provided" }
+            // it.argument as CreatingCustomerRequestData
+            context.createCustomerRequestData = it.event.data
+          }
           targetState = creatingCustomerRequest
         }
 
-        dataTransition<StartWithExistingCustomerRequestEvent.Start, String> {
-          // TODO guard this? or should the public api protect us here?
-          // guard = {machine.activeStates()}
+        transition<StartWithExistingCustomerRequestEvent.Start> {
+          onTriggered {
+            context.startWithExistingId = it.event.data
+          }
           targetState = StartingWithExistingRequest
         }
       }

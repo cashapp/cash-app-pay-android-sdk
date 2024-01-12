@@ -31,14 +31,9 @@ sealed interface PayKitMachineStates {
 
   object NotStarted : PayKitMachineStates, DefaultState("NotStarted")
   object CreatingCustomerRequest : PayKitMachineStates,
-    DefaultDataState<CreatingCustomerRequestData>(
-      "CreatingCustomerRequest",
-      dataExtractor = defaultDataExtractor()
-    )
+    DefaultState("CreatingCustomerRequest")
 
-  object ReadyToAuthorize : PayKitMachineStates, DefaultDataState<CustomerResponseData>(
-    "ReadyToAuthorize", dataExtractor = defaultDataExtractor()
-  )
+  object ReadyToAuthorize : PayKitMachineStates, DefaultState("ReadyToAuthorize")
 
   sealed interface Authorizing : PayKitMachineStates {
     object DeepLinking : Authorizing, DefaultState("DeepLinking")
@@ -47,30 +42,18 @@ sealed interface PayKitMachineStates {
   }
 
   object UpdatingCustomerRequest : PayKitMachineStates,
-    DefaultDataState<UpdateCustomerRequestData>(
-      "UpdatingCustomerRequest",
-      dataExtractor = defaultDataExtractor()
-    )
+    DefaultState("UpdatingCustomerRequest")
 
   object StartingWithExistingRequest : PayKitMachineStates,
-    DefaultDataState<String>(
-      "StartingWithExistingRequest",
-      dataExtractor = defaultDataExtractor()
-    )
+    DefaultState("StartingWithExistingRequest")
 
   sealed interface ErrorState : PayKitMachineStates {
     object ExceptionState : ErrorState,
-      DefaultDataState<Exception>(
-        "ExceptionState",
-        dataExtractor = defaultDataExtractor()
-      )
+      DefaultState("ExceptionState")
   }
 
   sealed interface DecidedState : PayKitMachineStates {
-    object Approved : PayKitMachineStates, DefaultFinalDataState<CustomerResponseData>(
-      "Approved", dataExtractor = defaultDataExtractor()
-    )
-
+    object Approved : PayKitMachineStates, DefaultFinalState("Approved")
     object Declined : DecidedState, DefaultFinalState("Declined")
   }
 }

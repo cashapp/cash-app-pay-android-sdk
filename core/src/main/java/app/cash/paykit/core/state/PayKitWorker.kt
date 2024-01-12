@@ -26,17 +26,12 @@ import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.common.NetworkResult.Failure
-import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.state.PayKitEvents.CreateCustomerRequest
+import app.cash.paykit.core.state.PayKitEvents.CreateCustomerRequestEvent
 import app.cash.paykit.core.state.PayKitEvents.DeepLinkError
 import app.cash.paykit.core.state.PayKitEvents.DeepLinkSuccess
 import app.cash.paykit.core.state.PayKitEvents.GetCustomerRequestEvent
 import app.cash.paykit.core.state.PayKitEvents.StartWithExistingCustomerRequestEvent
 import app.cash.paykit.core.state.PayKitEvents.UpdateCustomerRequestEvent
-import app.cash.paykit.core.state.PayKitMachineStates.CreatingCustomerRequest
-import app.cash.paykit.core.state.PayKitMachineStates.StartingWithExistingRequest
-import app.cash.paykit.core.state.PayKitMachineStates.UpdatingCustomerRequest
-import ru.nsk.kstatemachine.DataState
 import ru.nsk.kstatemachine.IState
 import ru.nsk.kstatemachine.onEntry
 import ru.nsk.kstatemachine.onExit
@@ -44,27 +39,21 @@ import ru.nsk.kstatemachine.processEventBlocking
 import kotlin.time.Duration
 
 interface PayKitWorker {
-  fun startWithExistingRequest(state: StartingWithExistingRequest)
+  fun startWithExistingRequest(state: IState, context: PayKitContext)
 
   /**
    * @param state - the IState node to attach the lifecycle events to
-   * @param dataStateProvider - The DataState where the worker can get data from
    * @param interval - the interval duration frequency at which we should poll
    */
-  fun poll(
-    state: IState,
-    dataStateProvider: DataState<CustomerResponseData>,
-    interval: Duration
-  )
+  fun poll(state: IState, context: PayKitContext, interval: Duration)
 
-  fun createCustomerRequest(state: CreatingCustomerRequest)
-  fun updateCustomerRequest(state: UpdatingCustomerRequest)
+  fun createCustomerRequest(state: IState, context: PayKitContext)
+  fun updateCustomerRequest(state: IState, context: PayKitContext)
 
   /**
    * @param state - the IState node to attach the lifecycle events to
-   * @param dataStateProvider - The DataState where the worker can get data from
    */
-  fun deepLinkToCashApp(state: IState, dataStateProvider: DataState<CustomerResponseData>)
+  fun deepLinkToCashApp(state: IState, context: PayKitContext)
 }
 
 internal class RealPayKitWorker(
@@ -74,7 +63,7 @@ internal class RealPayKitWorker(
 ) : PayKitWorker {
   override fun deepLinkToCashApp(
     state: IState,
-    dataStateProvider: DataState<CustomerResponseData>
+    paykitContext: PayKitContext
   ) {
     with(state) {
       onEntry {
@@ -82,8 +71,9 @@ internal class RealPayKitWorker(
           // Open Mobile URL provided by backend response.
           val intent = Intent(Intent.ACTION_VIEW)
           intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+          val mobileUrl = paykitContext.customerResponseData!!.authFlowTriggers?.mobileUrl
           intent.data = try {
-            Uri.parse(dataStateProvider.data.authFlowTriggers?.mobileUrl)
+            Uri.parse(mobileUrl)
           } catch (error: NullPointerException) {
             machine.processEventBlocking(DeepLinkError(IllegalArgumentException("Cannot parse redirect url")))
             return@Thread
@@ -93,7 +83,7 @@ internal class RealPayKitWorker(
             context.startActivity(intent)
             machine.processEventBlocking(DeepLinkSuccess)
           } catch (activityNotFoundException: ActivityNotFoundException) {
-            machine.processEventBlocking(DeepLinkError(CashAppPayIntegrationException("Unable to open mobileUrl: ${dataStateProvider.data.authFlowTriggers?.mobileUrl}")))
+            machine.processEventBlocking(DeepLinkError(CashAppPayIntegrationException("Unable to open mobileUrl: ${mobileUrl}")))
           }
 
         }.start()
@@ -101,25 +91,33 @@ internal class RealPayKitWorker(
     }
   }
 
-  override fun updateCustomerRequest(state: UpdatingCustomerRequest) {
+  override fun updateCustomerRequest(state: IState, context: PayKitContext) {
     with(state) {
       onEntry {
         Thread {
           try {
             val networkResult = networkManager.updateCustomerRequest(
               clientId = clientId,
-              requestId = data.requestId,
-              data.actions,
+              requestId = context.updateCustomerRequestData!!.requestId,
+              context.updateCustomerRequestData!!.actions,
             )
             when (networkResult) {
               is Failure -> {
-                machine.processEventBlocking(UpdateCustomerRequestEvent.Error(networkResult.exception))
+                machine.processEventBlocking(
+                  UpdateCustomerRequestEvent.Error(
+                    networkResult.exception
+                  )
+                )
               }
 
               is NetworkResult.Success -> {
                 val customerResponseData = networkResult.data.customerResponseData
 
-                machine.processEventBlocking(UpdateCustomerRequestEvent.Success(customerResponseData))
+                machine.processEventBlocking(
+                  UpdateCustomerRequestEvent.Success(
+                    customerResponseData
+                  )
+                )
               }
             }
           } catch (e: Exception) {
@@ -137,28 +135,33 @@ internal class RealPayKitWorker(
     }
   }
 
-  override fun createCustomerRequest(state: CreatingCustomerRequest) {
+  override fun createCustomerRequest(state: IState, context: PayKitContext) {
     with(state) {
       onEntry {
         try {
           when (val networkResult =
             networkManager.createCustomerRequest(
               clientId = clientId,
-              paymentActions = data.actions,
-              redirectUri = data.redirectUri,
+              paymentActions = context.createCustomerRequestData!!.actions, // TODO validate context
+              redirectUri = context.createCustomerRequestData!!.redirectUri,
             )
           ) {
             is Failure -> {
-              machine.processEventBlocking(CreateCustomerRequest.Error(networkResult.exception))
+              machine.processEventBlocking(
+                CreateCustomerRequestEvent.Error(networkResult.exception)
+
+              )
             }
 
             is NetworkResult.Success -> {
               val customerResponseData = networkResult.data.customerResponseData
-              machine.processEventBlocking(CreateCustomerRequest.Success(customerResponseData))
+              machine.processEventBlocking(
+                CreateCustomerRequestEvent.Success(customerResponseData),
+              )
             }
           }
         } catch (e: Exception) {
-          machine.processEventBlocking(CreateCustomerRequest.Error(e))
+          machine.processEventBlocking(CreateCustomerRequestEvent.Error(e))
         }
       }
       onExit {
@@ -169,8 +172,8 @@ internal class RealPayKitWorker(
 
   override fun poll(
     state: IState,
-    dataState: DataState<CustomerResponseData>,
-    interval: Duration
+    context: PayKitContext,
+    interval: Duration,
   ) {
     with(state) {
       onEntry {
@@ -180,16 +183,24 @@ internal class RealPayKitWorker(
               Thread.sleep(interval.inWholeMilliseconds)
               val networkResult = networkManager.retrieveUpdatedRequestData(
                 clientId,
-                dataState.data.id
+                context.customerResponseData!!.id
               )
               when (networkResult) {
                 is Failure -> {
-                  machine.processEventBlocking(GetCustomerRequestEvent.Error(networkResult.exception))
+                  machine.processEventBlocking(
+                    GetCustomerRequestEvent.Error(
+                      networkResult.exception
+                    )
+                  )
                 }
 
                 is NetworkResult.Success -> {
                   val customerResponseData = networkResult.data.customerResponseData
-                  machine.processEventBlocking(GetCustomerRequestEvent.Success(customerResponseData))
+                  machine.processEventBlocking(
+                    GetCustomerRequestEvent.Success(
+                      customerResponseData
+                    )
+                  )
                 }
               }
             }
@@ -209,14 +220,14 @@ internal class RealPayKitWorker(
     }
   }
 
-  override fun startWithExistingRequest(state: StartingWithExistingRequest) {
+  override fun startWithExistingRequest(state: IState, context: PayKitContext) {
     with(state) {
       onEntry {
         Thread {
           try {
             val networkResult = networkManager.retrieveUpdatedRequestData(
               clientId,
-              data,
+              context.startWithExistingId!!,
             )
             when (networkResult) {
               is Failure -> {
@@ -229,7 +240,9 @@ internal class RealPayKitWorker(
                 val customerResponseData = networkResult.data.customerResponseData
 
                 machine.processEventBlocking(
-                  StartWithExistingCustomerRequestEvent.Success(customerResponseData)
+                  StartWithExistingCustomerRequestEvent.Success(
+                    customerResponseData
+                  )
                 )
               }
             }

@@ -36,7 +36,6 @@ import app.cash.paykit.core.NetworkManager
 import app.cash.paykit.core.analytics.PayKitAnalyticsEventDispatcher
 import app.cash.paykit.core.android.ApplicationContextHolder
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
-import app.cash.paykit.core.exceptions.CashAppPayNetworkException
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.state.ClientEventPayload.CreatingCustomerRequestData
@@ -52,6 +51,7 @@ import app.cash.paykit.core.state.PayKitMachineStates.StartingWithExistingReques
 import app.cash.paykit.core.state.RealPayKitWorker
 import app.cash.paykit.core.utils.orElse
 import ru.nsk.kstatemachine.DefaultDataState
+import ru.nsk.kstatemachine.Stay
 import ru.nsk.kstatemachine.activeStates
 import ru.nsk.kstatemachine.onStateEntry
 import ru.nsk.kstatemachine.onStateExit
@@ -105,23 +105,27 @@ internal class CashAppPayImpl(
           )
         }
         onTransitionComplete { transitionParams, activeStates ->
+          if (transitionParams.direction is Stay) {
+            return@onTransitionComplete
+          }
           Log.d(
             name,
             "Transition complete from ${transitionParams.transition.sourceState}, active states: $activeStates"
           )
-
-          val state = activeStates.last() as PayKitMachineStates // return the "deepest" child state
+          val state =
+            activeStates.last() as PayKitMachineStates // return the "deepest" child state
           val customerState = when (state) {
             PayKitMachineStates.NotStarted -> NotStarted
             PayKitMachineStates.CreatingCustomerRequest -> CreatingCustomerRequest
-            is PayKitMachineStates.ReadyToAuthorize -> ReadyToAuthorize(state.data)
-            is DeepLinking -> Authorizing
+            is PayKitMachineStates.ReadyToAuthorize -> ReadyToAuthorize(payKitMachine.context.customerResponseData!!)
+            is DeepLinking -> Authorizing// TODO maybe not send this state update to client?
             is Polling -> PollingTransactionStatus
-            is DecidedState.Approved -> Approved(state.data)
+            is DecidedState.Approved -> Approved(payKitMachine.context.customerResponseData!!)
             DecidedState.Declined -> Declined
-            is ExceptionState -> CashAppPayExceptionState(state.data)
+            is ExceptionState -> CashAppPayExceptionState(payKitMachine.context.error!!)
             PayKitMachineStates.UpdatingCustomerRequest -> UpdatingCustomerRequest
             StartingWithExistingRequest -> RetrievingExistingCustomerRequest
+            is PayKitMachineStates.Authorizing -> TODO()
           }
 
           // TODO handle exception cases
@@ -150,7 +154,10 @@ internal class CashAppPayImpl(
   }
 
   @Throws(IllegalStateException::class)
-  override fun createCustomerRequest(paymentAction: CashAppPayPaymentAction, redirectUri: String?) {
+  override fun createCustomerRequest(
+    paymentAction: CashAppPayPaymentAction,
+    redirectUri: String?
+  ) {
     createCustomerRequest(listOf(paymentAction), redirectUri)
   }
 
@@ -180,7 +187,7 @@ internal class CashAppPayImpl(
     }
 
     payKitMachine.stateMachine.processEventBlocking(
-      PayKitEvents.CreateCustomerRequest(
+      event = PayKitEvents.CreateCustomerRequestEvent.CreateCustomerRequest(
         CreatingCustomerRequestData(
           paymentActions,
           redirectUri

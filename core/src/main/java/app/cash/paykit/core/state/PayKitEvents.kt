@@ -18,6 +18,7 @@
 package app.cash.paykit.core.state
 
 import app.cash.paykit.core.exceptions.CashAppPayIntegrationException
+import app.cash.paykit.core.models.request.CustomerRequestData
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.state.ClientEventPayload.CreatingCustomerRequestData
@@ -42,20 +43,24 @@ sealed interface ClientEventPayload {
 }
 
 sealed interface PayKitEvents {
-  data class CreateCustomerRequest(
-    override val data: CreatingCustomerRequestData,
-  ) : DataEvent<CreatingCustomerRequestData> {
-    data class Success(override val data: CustomerResponseData) :
-      DataEvent<CustomerResponseData>
+  sealed interface CreateCustomerRequestEvent {
+    data class CreateCustomerRequest(override val data: CreatingCustomerRequestData) :
+      DataEvent<CreatingCustomerRequestData>, CreateCustomerRequestEvent
 
-    data class Error(override val data: Exception) : DataEvent<Exception>
+    data class Success(override val data: CustomerResponseData) : DataEvent<CustomerResponseData>,
+      CreateCustomerRequestEvent
+
+    data class Error(override val data: Exception) : DataEvent<Exception>,
+      CreateCustomerRequestEvent
   }
 
   sealed interface GetCustomerRequestEvent {
-    data class Success(override val data: CustomerResponseData) : DataEvent<CustomerResponseData>,
+    data class Success(override val data: CustomerResponseData) :
+      DataEvent<CustomerResponseData>,
       GetCustomerRequestEvent
 
-    data class Error(override val data: Exception) : DataEvent<Exception>, GetCustomerRequestEvent
+    data class Error(override val data: Exception) : DataEvent<Exception>,
+      GetCustomerRequestEvent
   }
 
   sealed interface StartWithExistingCustomerRequestEvent {
