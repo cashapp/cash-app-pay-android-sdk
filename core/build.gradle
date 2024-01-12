@@ -1,7 +1,7 @@
 plugins {
   id 'com.android.library'
   id 'org.jetbrains.kotlin.android'
-  id("com.google.devtools.ksp").version("1.6.21-1.0.5")
+  id("com.google.devtools.ksp").version("1.8.21-1.0.11")
   id 'project-report' // run ./gradlew htmlDependencyReport
   id "com.vanniktech.maven.publish.base"
 }
@@ -34,11 +34,11 @@ android {
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_11
+    targetCompatibility JavaVersion.VERSION_11
   }
-  kotlinOptions {
-    jvmTarget = '1.8'
+  kotlin {
+    jvmToolchain(11)
   }
 
   resourcePrefix 'cap_'
@@ -92,7 +92,7 @@ dependencies {
   testImplementation "io.mockk:mockk:$mockk_version"
   testImplementation "com.google.truth:truth:$google_truth_version"
   androidTestImplementation "androidx.test.ext:junit-ktx:$junit_androidx_version"
-  testImplementation "com.squareup.okhttp3:mockwebserver:$mockwebserver_version"
+  testImplementation "com.squareup.okhttp3:mockwebserver:$okhttp_version"
   // Robolectric environment.
   testImplementation "org.robolectric:robolectric:$robolectric_version"
   // Coroutines test support.
