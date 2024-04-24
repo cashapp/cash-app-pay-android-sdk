@@ -3,7 +3,7 @@
 # About
 
 Cash App Pay Android SDK is a wrapper library around our public APIs that allows merchants to easily
-integrate payments with Cash on their native Android checkout flows. Similar SDK projects existing
+integrate payments with Cash on their native Android checkout flows. Similar SDK projects exist
 for Web and iOS.
 
 # Integrate the SDK
