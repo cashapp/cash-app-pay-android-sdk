@@ -37,6 +37,7 @@ internal interface PayKitAnalyticsEventDispatcher {
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
     redirectUri: String?,
+    referenceId: String?,
   )
 
   fun updatedCustomerRequest(

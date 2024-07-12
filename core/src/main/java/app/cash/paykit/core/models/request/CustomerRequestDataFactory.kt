@@ -34,8 +34,9 @@ object CustomerRequestDataFactory {
     clientId: String,
     redirectUri: String?,
     paymentActions: List<CashAppPayPaymentAction>,
+    referenceId: String?,
     isRequestUpdate: Boolean = false,
-  ): CustomerRequestData {
+    ): CustomerRequestData {
     val actions = ArrayList<Action>(paymentActions.size)
     for (paymentAction in paymentActions) {
       when (paymentAction) {
@@ -49,12 +50,14 @@ object CustomerRequestDataFactory {
         actions = actions,
         channel = null,
         redirectUri = null,
+        referenceId = null
       )
     } else {
       CustomerRequestData(
         actions = actions,
         channel = CHANNEL_IN_APP,
         redirectUri = redirectUri?.let { PiiString(redirectUri) },
+        referenceId = referenceId?.let { PiiString(referenceId) },
       )
     }
   }

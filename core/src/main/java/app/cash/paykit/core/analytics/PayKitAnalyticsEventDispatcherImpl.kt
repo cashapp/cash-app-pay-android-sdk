@@ -130,8 +130,9 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
     redirectUri: String?,
+    referenceId: String?,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
+    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri, referenceId)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -143,7 +144,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
+    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions,  requestId, null, null)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -207,6 +208,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     apiActions: List<Action>,
     requestId: String?,
     redirectUri: String?,
+    referenceId: String?,
   ): AnalyticsCustomerRequestPayload {
     val isUpdate = requestId != null
     val actionType = if (isUpdate) {
@@ -236,6 +238,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       createChannel = CHANNEL_IN_APP,
       createRedirectUrl = redirectUri?.let { PiiString(redirectUri) },
       createReferenceId = possibleReferenceId?.let { PiiString(possibleReferenceId) },
+      referenceId = referenceId?.let { PiiString(referenceId) },
       environment = sdkEnvironment,
     )
   }

@@ -28,7 +28,8 @@ internal interface NetworkManager {
     clientId: String,
     paymentActions: List<CashAppPayPaymentAction>,
     redirectUri: String?,
-  ): NetworkResult<CustomerTopLevelResponse>
+    referenceId: String?,
+    ): NetworkResult<CustomerTopLevelResponse>
 
   @Throws(IOException::class)
   fun updateCustomerRequest(
