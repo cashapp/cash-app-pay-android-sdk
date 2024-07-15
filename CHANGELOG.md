@@ -1,6 +1,7 @@
 # 2.4.0 - UPCOMING
 
  - Update Android target SDK version to API 33 
+ - Fix: `OnFileAction` param `accountReferenceId` is now properly being sent over the network
 
 # 2.3.0
 
