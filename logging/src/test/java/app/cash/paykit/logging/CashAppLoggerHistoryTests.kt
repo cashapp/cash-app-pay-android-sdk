@@ -40,7 +40,7 @@ class CashAppLoggerHistoryTests {
     val newEntry = CashAppLogEntry(2, "tag2", "message2")
 
     loggerHistory.log(oldEntry)
-    repeat(200) {
+    repeat(5000) {
       // this should remove the first "oldEntry" added above.
       loggerHistory.log(newEntry)
     }
