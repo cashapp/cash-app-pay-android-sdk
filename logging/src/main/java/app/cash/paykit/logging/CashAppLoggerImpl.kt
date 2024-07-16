@@ -47,15 +47,15 @@ class CashAppLoggerImpl : CashAppLogger {
   }
 
   override fun logsAsString(): String {
-    val sb = StringBuilder()
-    for (log in history.retrieveLogs()) {
-      sb.append(logLevelToString(log.level)).append(": ").append(log.msg)
-      if (log.throwable != null) {
-        sb.append("\n").append("  Exception: ").append(log.throwable.cause).append(": ").append(log.throwable.message)
+    return buildString {
+      for (log in history.retrieveLogs()) {
+        append(logLevelToString(log.level)).append(": ").append(log.msg)
+        if (log.throwable != null) {
+          append("\n").append("  Exception: ").append(log.throwable.cause).append(": ").append(log.throwable.message)
+        }
+        append("\n\n")
       }
-      sb.append("\n\n")
     }
-    return sb.toString()
   }
 
   private fun logLevelToString(level: Int): String {

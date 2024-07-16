@@ -39,7 +39,7 @@ interface CashAppLogger {
 
   /**
    * Retrieves all logs, compiled as a single string.
-   * Each log entry is separated by a couple of newline characters.
+   * Each log entry is separated by two newline characters.
    * The format of each log entry is: "LEVEL: MESSAGE".
    *
    * If you need more control over the format, use [retrieveLogs] instead.
