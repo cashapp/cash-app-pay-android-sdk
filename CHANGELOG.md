@@ -1,13 +1,14 @@
 # 2.4.0 - UPCOMING
 
- - Update Android target SDK version to API 33 
  - Fix: `OnFileAction` param `accountReferenceId` is now properly being sent over the network
+ - Update Android target SDK version to API 33
+ - Update internal dependencies to recent versions, ensuring strong backward compatibility support
 
 # 2.3.0
 
  - The class `CashAppPayInitializer` was made open, so that androidx.startup can be manually overridden.
  - This version bundles fixes for minify enabled builds.
- - Updated internal dependency on `OkHttp` to version `4.11.0`.
+ - Update internal dependency on `OkHttp` to version `4.11.0`.
  
 ## Breaking Changes
  
