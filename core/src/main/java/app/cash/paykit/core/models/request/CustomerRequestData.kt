@@ -28,4 +28,6 @@ data class CustomerRequestData(
   val channel: String?,
   @Json(name = "redirect_url")
   val redirectUri: PiiString?,
+  @Json(name = "reference_id")
+  val referenceId: PiiString?,
 )

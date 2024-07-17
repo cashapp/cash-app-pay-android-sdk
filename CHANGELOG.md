@@ -1,12 +1,17 @@
+# 2.4.0 - UPCOMING
+
+ - Fix: `OnFileAction` param `accountReferenceId` is now properly being sent over the network
+ - Update Android target SDK version to API 33
+ - Update internal dependencies to recent versions, ensuring strong backward compatibility support
+
 # 2.3.0
 
  - The class `CashAppPayInitializer` was made open, so that androidx.startup can be manually overridden.
  - This version bundles fixes for minify enabled builds.
- - Updated internal dependency on `OkHttp` to version `4.11.0`.
+ - Update internal dependency on `OkHttp` to version `4.11.0`.
  
 ## Breaking Changes
  
- - Renamed class `CashAppCashAppPayApiNetworkException` to `CashAppPayApiNetworkException`
  - Renamed class `CashAppCashAppPayApiNetworkException` to `CashAppPayApiNetworkException`
  - This version contains a change to the bundled Cash App Pay button.
 Previously, `light` and `dark` variants of the button were made possible by using 2 different

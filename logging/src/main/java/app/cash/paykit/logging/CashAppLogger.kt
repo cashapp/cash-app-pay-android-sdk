@@ -38,6 +38,15 @@ interface CashAppLogger {
   fun retrieveLogs(): List<CashAppLogEntry>
 
   /**
+   * Retrieves all logs, compiled as a single string.
+   * Each log entry is separated by two newline characters.
+   * The format of each log entry is: "LEVEL: MESSAGE".
+   *
+   * If you need more control over the format, use [retrieveLogs] instead.
+   */
+  fun logsAsString(): String
+
+  /**
    * Set a listener to be notified when a new log is added.
    */
   fun setListener(listener: CashAppLoggerListener)

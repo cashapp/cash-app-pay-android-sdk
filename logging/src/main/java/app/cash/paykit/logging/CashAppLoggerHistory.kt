@@ -19,7 +19,7 @@ import java.util.LinkedList
 
 internal class CashAppLoggerHistory {
   companion object {
-    private const val HISTORY_MAX_SIZE = 200
+    private const val HISTORY_MAX_SIZE = 5000
   }
 
   private val history = LinkedList<CashAppLogEntry>()
