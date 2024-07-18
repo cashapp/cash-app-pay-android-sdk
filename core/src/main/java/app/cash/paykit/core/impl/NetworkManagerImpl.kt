@@ -81,13 +81,13 @@ internal class NetworkManagerImpl(
     clientId: String,
     paymentActions: List<CashAppPayPaymentAction>,
     redirectUri: String?,
-    referenceId: String?
+    referenceId: String?,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData = CustomerRequestDataFactory.build(
       clientId = clientId,
       redirectUri = redirectUri,
       referenceId = referenceId,
-      paymentActions = paymentActions
+      paymentActions = paymentActions,
     )
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
@@ -110,14 +110,16 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestId: String,
     referenceId: String?,
-    paymentActions: List<CashAppPayPaymentAction>
+    paymentActions: List<CashAppPayPaymentAction>,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData =
       CustomerRequestDataFactory.build(
         clientId = clientId,
         redirectUri = null,
         referenceId = referenceId,
-        paymentActions = paymentActions, isRequestUpdate = true)
+        paymentActions = paymentActions,
+        isRequestUpdate = true,
+      )
     val createCustomerRequest = CreateCustomerRequest(
       customerRequestData = customerRequestData,
     )
@@ -126,7 +128,7 @@ internal class NetworkManagerImpl(
     analyticsEventDispatcher?.updatedCustomerRequest(
       requestId = requestId,
       paymentKitActions = paymentActions,
-      apiActions = customerRequestData.actions
+      apiActions = customerRequestData.actions,
     )
 
     return executeNetworkRequest(

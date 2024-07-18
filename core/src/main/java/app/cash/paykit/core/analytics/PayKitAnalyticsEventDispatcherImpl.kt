@@ -47,7 +47,6 @@ import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
 import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.utils.Clock
 import app.cash.paykit.core.utils.ClockRealImpl

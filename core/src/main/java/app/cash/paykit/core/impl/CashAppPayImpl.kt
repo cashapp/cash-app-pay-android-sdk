@@ -123,7 +123,7 @@ internal class CashAppPayImpl(
   override fun createCustomerRequest(
     paymentAction: CashAppPayPaymentAction,
     redirectUri: String?,
-    referenceId: String?
+    referenceId: String?,
   ) {
     createCustomerRequest(listOf(paymentAction), redirectUri, referenceId)
   }
@@ -139,7 +139,7 @@ internal class CashAppPayImpl(
   override fun createCustomerRequest(
     paymentActions: List<CashAppPayPaymentAction>,
     redirectUri: String?,
-    referenceId: String?
+    referenceId: String?,
   ) {
     enforceRegisteredStateUpdatesListener()
 
@@ -157,7 +157,7 @@ internal class CashAppPayImpl(
       clientId = clientId,
       paymentActions = paymentActions,
       redirectUri = redirectUri,
-      referenceId = referenceId
+      referenceId = referenceId,
     )
     when (networkResult) {
       is Failure -> {
@@ -175,7 +175,7 @@ internal class CashAppPayImpl(
   override fun updateCustomerRequest(
     requestId: String,
     paymentAction: CashAppPayPaymentAction,
-    referenceId: String?
+    referenceId: String?,
   ) {
     updateCustomerRequest(requestId, listOf(paymentAction), referenceId)
   }
@@ -192,7 +192,7 @@ internal class CashAppPayImpl(
   override fun updateCustomerRequest(
     requestId: String,
     paymentActions: List<CashAppPayPaymentAction>,
-    referenceId: String?
+    referenceId: String?,
   ) {
     enforceRegisteredStateUpdatesListener()
 
@@ -210,7 +210,7 @@ internal class CashAppPayImpl(
       clientId = clientId,
       requestId = requestId,
       referenceId = referenceId,
-      paymentActions = paymentActions
+      paymentActions = paymentActions,
     )
     when (networkResult) {
       is Failure -> {
