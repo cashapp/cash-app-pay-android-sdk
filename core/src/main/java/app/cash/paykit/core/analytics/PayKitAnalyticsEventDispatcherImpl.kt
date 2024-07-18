@@ -218,14 +218,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     val moshiAdapter: JsonAdapter<List<Action>> = moshi.adapter()
     val apiActionsAsJson: String = moshiAdapter.toJson(apiActions)
 
-    // Inner payload of the ES2 event.
-    var possibleReferenceId: String? = null
-    for (paymentAction in paymentKitActions) {
-      if (paymentAction is OnFileAction) {
-        possibleReferenceId = paymentAction.accountReferenceId
-      }
-    }
-
     return AnalyticsCustomerRequestPayload(
       sdkVersion,
       userAgent,
@@ -235,7 +227,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       createActions = apiActionsAsJson,
       createChannel = CHANNEL_IN_APP,
       createRedirectUrl = redirectUri?.let { PiiString(redirectUri) },
-      createReferenceId = possibleReferenceId?.let { PiiString(possibleReferenceId) },
       environment = sdkEnvironment,
     )
   }
@@ -285,7 +276,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       customerId = customerResponseData?.customerProfile?.id,
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
       requestId = customerResponseData?.id,
-      referenceId = customerResponseData?.referenceId,
       environment = sdkEnvironment,
     )
   }

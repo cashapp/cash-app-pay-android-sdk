@@ -33,20 +33,15 @@ object CustomerRequestDataFactory {
   fun build(
     clientId: String,
     redirectUri: String?,
+    referenceId: String?,
     paymentActions: List<CashAppPayPaymentAction>,
     isRequestUpdate: Boolean = false,
   ): CustomerRequestData {
     val actions = ArrayList<Action>(paymentActions.size)
-    var possibleReferenceId: String? = null
 
     for (paymentAction in paymentActions) {
       when (paymentAction) {
-        is OnFileAction -> {
-          actions.add(buildFromOnFileAction(clientId, paymentAction))
-          if (paymentAction.accountReferenceId != null) {
-            possibleReferenceId = paymentAction.accountReferenceId
-          }
-        }
+        is OnFileAction -> actions.add(buildFromOnFileAction(clientId, paymentAction))
         is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId, paymentAction))
       }
     }
@@ -56,14 +51,14 @@ object CustomerRequestDataFactory {
         actions = actions,
         channel = null,
         redirectUri = null,
-        referenceId = possibleReferenceId?.let { PiiString(it) },
+        referenceId = referenceId?.let { PiiString(it) },
       )
     } else {
       CustomerRequestData(
         actions = actions,
         channel = CHANNEL_IN_APP,
         redirectUri = redirectUri?.let { PiiString(it) },
-        referenceId = possibleReferenceId?.let { PiiString(it) },
+        referenceId = referenceId?.let { PiiString(it) },
       )
     }
   }
@@ -78,6 +73,7 @@ object CustomerRequestDataFactory {
     return Action(
       scopeId = scopeIdOrClientId,
       type = PAYMENT_TYPE_ON_FILE,
+      accountReferenceId = onFileAction.accountReferenceId?.let { PiiString(it) },
     )
   }
 

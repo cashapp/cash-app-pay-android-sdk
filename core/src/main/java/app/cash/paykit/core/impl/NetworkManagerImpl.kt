@@ -81,8 +81,14 @@ internal class NetworkManagerImpl(
     clientId: String,
     paymentActions: List<CashAppPayPaymentAction>,
     redirectUri: String?,
+    referenceId: String?
   ): NetworkResult<CustomerTopLevelResponse> {
-    val customerRequestData = CustomerRequestDataFactory.build(clientId, redirectUri, paymentActions)
+    val customerRequestData = CustomerRequestDataFactory.build(
+      clientId = clientId,
+      redirectUri = redirectUri,
+      referenceId = referenceId,
+      paymentActions = paymentActions
+    )
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
       customerRequestData = customerRequestData,
@@ -103,16 +109,25 @@ internal class NetworkManagerImpl(
   override fun updateCustomerRequest(
     clientId: String,
     requestId: String,
-    paymentActions: List<CashAppPayPaymentAction>,
+    referenceId: String?,
+    paymentActions: List<CashAppPayPaymentAction>
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData =
-      CustomerRequestDataFactory.build(clientId, null, paymentActions, isRequestUpdate = true)
+      CustomerRequestDataFactory.build(
+        clientId = clientId,
+        redirectUri = null,
+        referenceId = referenceId,
+        paymentActions = paymentActions, isRequestUpdate = true)
     val createCustomerRequest = CreateCustomerRequest(
       customerRequestData = customerRequestData,
     )
 
     // Record analytics.
-    analyticsEventDispatcher?.updatedCustomerRequest(requestId, paymentActions, customerRequestData.actions)
+    analyticsEventDispatcher?.updatedCustomerRequest(
+      requestId = requestId,
+      paymentKitActions = paymentActions,
+      apiActions = customerRequestData.actions
+    )
 
     return executeNetworkRequest(
       PATCH,
