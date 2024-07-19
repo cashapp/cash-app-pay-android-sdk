@@ -1,4 +1,9 @@
-# 2.4.0 - UPCOMING
+# 2.5.0
+
+ - Fix correct usage of `account_reference_id` in `OnFileAction`
+ - Add `reference_id` as a parameter of creating a customer request. This is to bring the Android SDK to parity with iOS and Web.
+
+# 2.4.0
 
  - Fix: `OnFileAction` param `accountReferenceId` is now properly being sent over the network
  - Update Android target SDK version to API 33

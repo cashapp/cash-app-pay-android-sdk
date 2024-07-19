@@ -120,8 +120,12 @@ internal class CashAppPayImpl(
     analyticsEventDispatcher.sdkInitialized()
   }
 
-  override fun createCustomerRequest(paymentAction: CashAppPayPaymentAction, redirectUri: String?) {
-    createCustomerRequest(listOf(paymentAction), redirectUri)
+  override fun createCustomerRequest(
+    paymentAction: CashAppPayPaymentAction,
+    redirectUri: String?,
+    referenceId: String?,
+  ) {
+    createCustomerRequest(listOf(paymentAction), redirectUri, referenceId)
   }
 
   /**
@@ -132,7 +136,11 @@ internal class CashAppPayImpl(
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
-  override fun createCustomerRequest(paymentActions: List<CashAppPayPaymentAction>, redirectUri: String?) {
+  override fun createCustomerRequest(
+    paymentActions: List<CashAppPayPaymentAction>,
+    redirectUri: String?,
+    referenceId: String?,
+  ) {
     enforceRegisteredStateUpdatesListener()
 
     // Validate [paymentActions] is not empty.
@@ -145,7 +153,12 @@ internal class CashAppPayImpl(
     currentState = CreatingCustomerRequest
 
     // Network call.
-    val networkResult = networkManager.createCustomerRequest(clientId, paymentActions, redirectUri)
+    val networkResult = networkManager.createCustomerRequest(
+      clientId = clientId,
+      paymentActions = paymentActions,
+      redirectUri = redirectUri,
+      referenceId = referenceId,
+    )
     when (networkResult) {
       is Failure -> {
         currentState = CashAppPayExceptionState(networkResult.exception)
@@ -159,8 +172,12 @@ internal class CashAppPayImpl(
     }
   }
 
-  override fun updateCustomerRequest(requestId: String, paymentAction: CashAppPayPaymentAction) {
-    updateCustomerRequest(requestId, listOf(paymentAction))
+  override fun updateCustomerRequest(
+    requestId: String,
+    paymentAction: CashAppPayPaymentAction,
+    referenceId: String?,
+  ) {
+    updateCustomerRequest(requestId, listOf(paymentAction), referenceId)
   }
 
   /**
@@ -175,6 +192,7 @@ internal class CashAppPayImpl(
   override fun updateCustomerRequest(
     requestId: String,
     paymentActions: List<CashAppPayPaymentAction>,
+    referenceId: String?,
   ) {
     enforceRegisteredStateUpdatesListener()
 
@@ -188,7 +206,12 @@ internal class CashAppPayImpl(
     currentState = UpdatingCustomerRequest
 
     // Network request.
-    val networkResult = networkManager.updateCustomerRequest(clientId, requestId, paymentActions)
+    val networkResult = networkManager.updateCustomerRequest(
+      clientId = clientId,
+      requestId = requestId,
+      referenceId = referenceId,
+      paymentActions = paymentActions,
+    )
     when (networkResult) {
       is Failure -> {
         currentState = CashAppPayExceptionState(networkResult.exception)

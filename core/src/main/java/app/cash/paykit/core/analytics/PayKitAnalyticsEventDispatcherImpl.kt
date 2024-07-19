@@ -47,7 +47,6 @@ import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
 import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.utils.Clock
 import app.cash.paykit.core.utils.ClockRealImpl
@@ -218,14 +217,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     val moshiAdapter: JsonAdapter<List<Action>> = moshi.adapter()
     val apiActionsAsJson: String = moshiAdapter.toJson(apiActions)
 
-    // Inner payload of the ES2 event.
-    var possibleReferenceId: String? = null
-    for (paymentAction in paymentKitActions) {
-      if (paymentAction is OnFileAction) {
-        possibleReferenceId = paymentAction.accountReferenceId
-      }
-    }
-
     return AnalyticsCustomerRequestPayload(
       sdkVersion,
       userAgent,
@@ -235,7 +226,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       createActions = apiActionsAsJson,
       createChannel = CHANNEL_IN_APP,
       createRedirectUrl = redirectUri?.let { PiiString(redirectUri) },
-      createReferenceId = possibleReferenceId?.let { PiiString(possibleReferenceId) },
       environment = sdkEnvironment,
     )
   }
@@ -285,7 +275,6 @@ internal class PayKitAnalyticsEventDispatcherImpl(
       customerId = customerResponseData?.customerProfile?.id,
       customerCashTag = customerResponseData?.customerProfile?.cashTag,
       requestId = customerResponseData?.id,
-      referenceId = customerResponseData?.referenceId,
       environment = sdkEnvironment,
     )
   }
