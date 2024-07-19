@@ -15,6 +15,7 @@
  */
 package app.cash.paykit.core.models.common
 
+import app.cash.paykit.core.models.pii.PiiString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -28,4 +29,6 @@ data class Action(
   val scopeId: String,
   @Json(name = "type")
   val type: String,
+  @Json(name = "account_reference_id")
+  val accountReferenceId: PiiString? = null,
 )

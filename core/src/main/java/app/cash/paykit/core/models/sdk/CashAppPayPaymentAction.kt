@@ -20,7 +20,7 @@ import app.cash.paykit.core.CashAppPay
 /**
  * This class holds the information necessary for [CashAppPay.createCustomerRequest] to be executed.
  */
-sealed class CashAppPayPaymentAction(scopeId: String?) {
+sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referenceId: String?) {
 
   /**
    * Describes an intent for a client to charge a customer a given amount.
@@ -38,8 +38,9 @@ sealed class CashAppPayPaymentAction(scopeId: String?) {
   data class OneTimeAction(
     val currency: CashAppPayCurrency?,
     val amount: Int?,
-    val scopeId: String? = null,
-  ) : CashAppPayPaymentAction(scopeId)
+    override val scopeId: String? = null,
+    override val referenceId: String? = null,
+  ) : CashAppPayPaymentAction(scopeId, referenceId)
 
   /**
    * Describes an intent for a client to store a customer's account, allowing a client to create payments
@@ -49,8 +50,9 @@ sealed class CashAppPayPaymentAction(scopeId: String?) {
    * @param accountReferenceId Identifier of the account or customer associated to the on file action.
    */
   data class OnFileAction(
-    val scopeId: String? = null,
+    override val scopeId: String? = null,
     val accountReferenceId: String? = null,
+    override val referenceId: String? = null,
   ) :
-    CashAppPayPaymentAction(scopeId)
+    CashAppPayPaymentAction(scopeId, referenceId)
 }
