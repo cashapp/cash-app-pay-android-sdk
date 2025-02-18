@@ -10,7 +10,7 @@ on:
   pull_request:
 
 env:
-  GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx2g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
+  GRADLE_OPTS: "-Xmx4g -Dorg.gradle.daemon=false -Dkotlin.incremental=false"
 
 jobs:
   build:
@@ -23,8 +23,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+      - name: Gradle Setup
+        uses: gradle/gradle-build-action@v2
 
       - name: Configure JDK
         uses: actions/setup-java@v3
@@ -36,7 +36,7 @@ jobs:
         run: ./gradlew lint spotlessCheck
 
       - name: Unit Tests
-        run: ./gradlew testRelease testDebug
+        run: ./gradlew testRelease testDebug --stacktrace
 
       - name: Build
         run: ./gradlew core:assemble
