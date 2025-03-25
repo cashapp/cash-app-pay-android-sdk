@@ -3,15 +3,15 @@
     android:color="#666666">
   <item android:id="@android:id/mask">
     <shape>
-      <corners android:radius="8dp" />
-      <solid android:color="#101010" />
+      <corners android:radius="27dp" />
+      <solid android:color="#000000" />
     </shape>
   </item>
 
   <item>
     <shape>
-      <corners android:radius="8dp" />
-      <solid android:color="#101010" />
+      <corners android:radius="27dp" />
+      <solid android:color="#FFFFFF" />
     </shape>
   </item>
 
