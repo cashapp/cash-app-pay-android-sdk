@@ -130,10 +130,10 @@ class PayKitAnalytics constructor(
           options.interval.inWholeSeconds,
         ),
       )
-      it.scheduleAtFixedRate({
+      it.scheduleWithFixedDelay({
         if (shouldShutdown.compareAndSet(true, false)) {
           shutdown()
-          return@scheduleAtFixedRate
+          return@scheduleWithFixedDelay
         }
         startDelivery(false)
       }, options.delay.inWholeSeconds, options.interval.inWholeSeconds, TimeUnit.SECONDS)
@@ -301,7 +301,7 @@ class PayKitAnalytics constructor(
         if (entryId > 0) {
           logger.v(
             TAG,
-            String.format("%s scheduled for delivery. id: %d", type, entryId),
+            String.format(Locale.US, "%s scheduled for delivery. id: %d", type, entryId),
           )
           entryId
         } else {
