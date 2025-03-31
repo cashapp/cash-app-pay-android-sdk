@@ -305,7 +305,7 @@ class PayKitAnalytics constructor(
           )
           entryId
         } else {
-          logger.e(TAG, String.format("%s NOT scheduled for delivery!", type))
+          logger.e(TAG, String.format(Locale.US, "%s NOT scheduled for delivery!", type))
           null
         }
       } else {
