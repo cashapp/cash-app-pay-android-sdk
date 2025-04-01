@@ -70,7 +70,7 @@ class AnalyticsTest {
     val mockExecutor: ScheduledExecutorService = mockk(relaxed = true)
     every { Executors.newSingleThreadScheduledExecutor() } returns mockExecutor
 
-    every { mockExecutor.scheduleAtFixedRate(any(), any(), any(), any()) } answers {
+    every { mockExecutor.scheduleWithFixedDelay(any(), any(), any(), any()) } answers {
       val task = this.args.first() as Runnable
       task.run()
       mockScheduledFuture
