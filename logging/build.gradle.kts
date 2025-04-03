@@ -43,7 +43,6 @@ android {
     htmlReport = true
     warningsAsErrors = true
     checkAllWarnings = true
-    disable.add("GradleDependency")
     baseline = file("lint-baseline.xml")
   }
 }
