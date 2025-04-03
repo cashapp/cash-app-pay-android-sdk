@@ -20,7 +20,8 @@ import android.util.AttributeSet
 import android.widget.ImageButton
 
 /**
- * Cash App Pay button. Should be used in conjunction with either `CAPButtonStyle.Light` or `CAPButtonStyle.Dark` styles.
+ * Cash App Pay button. Should be used in conjunction with either `CAPButtonStyle.Default`,
+ * `CAPButtonStyle.Alt`, `CAPButtonStyle.MonochromeDark`, or `CAPButtonStyle.MonochromeLight` styles.
  *
  * **Note**: Due to its unmanaged nature, the button is merely a stylized button, it's up to developers
  * to trigger the correct action on button press, as well as manage any visibility states of the

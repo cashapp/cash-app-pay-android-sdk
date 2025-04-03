@@ -1,3 +1,42 @@
+# 2.6.0
+## Breaking Changes
+- Introduces new button styles and deprecates existing styles. This is also replaces 
+`FollowThemeButtonStyle` with two new options: `FollowThemeButtonStyle.Polychrome` and 
+`FollowThemeButtonStyle.Monochrome`. To obtain different variants, 
+developers should use the XML `style` attribute to specify the variant they want, as follows:
+
+Polychrome Light Variant:
+```xml
+<app.cash.paykit.core.ui.CashAppPayButton
+      style="@style/CAPButtonStyle.Alt"
+      android:layout_height="54dp"
+      android:layout_width="match_parent"/>
+```
+
+Polychrome Dark Variant:
+```xml
+<app.cash.paykit.core.ui.CashAppPayButton
+      style="@style/CAPButtonStyle.Default"
+      android:layout_height="54dp"
+      android:layout_width="match_parent"/>
+```
+
+Monochrome Light Variant:
+```xml
+<app.cash.paykit.core.ui.CashAppPayButton
+      style="@style/CAPButtonStyle.MonochromeLight"
+      android:layout_height="54dp"
+      android:layout_width="match_parent"/>
+```
+
+Monochrome Dark Variant:
+```xml
+<app.cash.paykit.core.ui.CashAppPayButton
+      style="@style/CAPButtonStyle.MonochromeDark"
+      android:layout_height="54dp"
+      android:layout_width="match_parent"/>
+```
+
 # 2.5.0
 
  - Fix correct usage of `account_reference_id` in `OnFileAction`
