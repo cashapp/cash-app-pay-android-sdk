@@ -1,4 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.1)" variant="all" version="8.2.1">
+<issues format="6" by="lint 8.8.1" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.1)" variant="all" version="8.8.1">
+
+    <issue
+        id="DefaultLocale"
+        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
+        errorLine1="            String.format(&quot;%s scheduled for delivery. id: %d&quot;, type, entryId),"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/app/cash/paykit/analytics/PayKitAnalytics.kt"
+            line="304"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="DiscouragedApi"
+        message="Use of `scheduleAtFixedRate` is strongly discouraged because it can lead to unexpected behavior when Android processes become cached (tasks may unexpectedly execute hundreds or thousands of times in quick succession when a process changes from cached to uncached); prefer using `scheduleWithFixedDelay`"
+        errorLine1="      it.scheduleAtFixedRate({"
+        errorLine2="      ^">
+        <location
+            file="src/main/java/app/cash/paykit/analytics/PayKitAnalytics.kt"
+            line="133"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="StringFormatTrivial"
+        message="This formatting string is trivial. Rather than using `String.format` to create your String, it will be more performant to concatenate your arguments with `+`. "
+        errorLine1="          logger.e(TAG, String.format(&quot;%s NOT scheduled for delivery!&quot;, type))"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/app/cash/paykit/analytics/PayKitAnalytics.kt"
+            line="308"
+            column="39"/>
+    </issue>
 
 </issues>
