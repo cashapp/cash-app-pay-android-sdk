@@ -19,7 +19,6 @@ buildscript {
     versions = [
         'minSdk': 21,
         'compileSdk': 36,
-        'targetSdk': 34,
     ]
   }
 }
