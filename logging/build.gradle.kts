@@ -11,7 +11,7 @@ com.android.tools.analytics.AnalyticsSettings.optedIn = false
 
 android {
   namespace = "app.cash.paykit.logging"
-  compileSdk = 33
+  compileSdk = (rootProject.extra["versions"] as Map<String, Int>)["compileSdk"]
 
   defaultConfig {
     minSdk = 21
