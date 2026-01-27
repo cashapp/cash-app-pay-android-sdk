@@ -32,7 +32,7 @@ import app.cash.paykit.core.CashAppPayState.Refreshing
 import app.cash.paykit.core.CashAppPayState.RetrievingExistingCustomerRequest
 import app.cash.paykit.core.CashAppPayState.UpdatingCustomerRequest
 import app.cash.paykit.core.NetworkManager
-import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ESEventType
+import app.cash.paykit.core.analytics.AnalyticsEventStream2Event.Companion.ES_EVENT_TYPE
 import app.cash.paykit.core.exceptions.CashAppPayApiNetworkException
 import app.cash.paykit.core.models.analytics.EventStream2Event
 import app.cash.paykit.core.models.analytics.payloads.AnalyticsBasePayload
@@ -77,7 +77,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   init {
     eventStreamDeliverHandler = object : DeliveryHandler() {
 
-      override val deliverableType = ESEventType
+      override val deliverableType = ES_EVENT_TYPE
 
       override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) {
         val eventsAsJson = entries.map { it.content }
@@ -282,19 +282,17 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   /**
    * This function converts a [CashAppPayState] into a valid String action for analytics ingestion.
    */
-  private fun stateToAnalyticsAction(state: CashAppPayState): String {
-    return when (state) {
-      is Approved -> "approved"
-      Authorizing -> "redirect"
-      Refreshing -> "refreshing"
-      CreatingCustomerRequest -> "create"
-      Declined -> "declined"
-      NotStarted -> "not_started"
-      is CashAppPayExceptionState -> "paykit_exception"
-      PollingTransactionStatus -> "polling"
-      is ReadyToAuthorize -> "ready_to_authorize"
-      RetrievingExistingCustomerRequest -> "retrieve_existing_customer_request"
-      UpdatingCustomerRequest -> "update"
-    }
+  private fun stateToAnalyticsAction(state: CashAppPayState): String = when (state) {
+    is Approved -> "approved"
+    Authorizing -> "redirect"
+    Refreshing -> "refreshing"
+    CreatingCustomerRequest -> "create"
+    Declined -> "declined"
+    NotStarted -> "not_started"
+    is CashAppPayExceptionState -> "paykit_exception"
+    PollingTransactionStatus -> "polling"
+    is ReadyToAuthorize -> "ready_to_authorize"
+    RetrievingExistingCustomerRequest -> "retrieve_existing_customer_request"
+    UpdatingCustomerRequest -> "update"
   }
 }

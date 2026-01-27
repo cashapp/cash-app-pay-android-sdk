@@ -76,7 +76,8 @@ internal class CashAppPayImpl(
   private val singleThreadManager: SingleThreadManager = SingleThreadManagerImpl(logger),
   initialState: CashAppPayState = NotStarted,
   initialCustomerResponseData: CustomerResponseData? = null,
-) : CashAppPay, CashAppPayLifecycleListener {
+) : CashAppPay,
+  CashAppPayLifecycleListener {
 
   private var callbackListener: CashAppPayListener? = null
 
@@ -88,18 +89,29 @@ internal class CashAppPayImpl(
       // Track Analytics for various state changes.
       when (value) {
         is Approved -> analyticsEventDispatcher.stateApproved(value)
+
         is CashAppPayExceptionState -> analyticsEventDispatcher.exceptionOccurred(
           value,
           customerResponseData,
         )
+
         Authorizing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+
         Refreshing -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+
         Declined -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+
         NotStarted -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+
         PollingTransactionStatus -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+
         is ReadyToAuthorize -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
+
         RetrievingExistingCustomerRequest -> analyticsEventDispatcher.genericStateChanged(value, customerResponseData)
-        CreatingCustomerRequest -> { } // Handled separately.
+
+        CreatingCustomerRequest -> { }
+
+        // Handled separately.
         UpdatingCustomerRequest -> { } // Handled separately.
       }
 

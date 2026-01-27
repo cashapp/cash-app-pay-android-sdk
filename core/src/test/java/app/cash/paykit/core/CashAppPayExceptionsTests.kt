@@ -62,13 +62,12 @@ class CashAppPayExceptionsTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
   }
 
-  private fun createPayKit(useSandboxEnvironment: Boolean) =
-    CashAppPayImpl(
-      clientId = FakeData.CLIENT_ID,
-      networkManager = networkManager,
-      payKitLifecycleListener = mockk(relaxed = true),
-      useSandboxEnvironment = useSandboxEnvironment,
-      analyticsEventDispatcher = mockk(relaxed = true),
-      logger = mockk(relaxed = true),
-    )
+  private fun createPayKit(useSandboxEnvironment: Boolean) = CashAppPayImpl(
+    clientId = FakeData.CLIENT_ID,
+    networkManager = networkManager,
+    payKitLifecycleListener = mockk(relaxed = true),
+    useSandboxEnvironment = useSandboxEnvironment,
+    analyticsEventDispatcher = mockk(relaxed = true),
+    logger = mockk(relaxed = true),
+  )
 }

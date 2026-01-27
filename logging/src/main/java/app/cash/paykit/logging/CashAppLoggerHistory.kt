@@ -31,7 +31,5 @@ internal class CashAppLoggerHistory {
     }
   }
 
-  fun retrieveLogs(): List<CashAppLogEntry> {
-    return history.toList()
-  }
+  fun retrieveLogs(): List<CashAppLogEntry> = history.toList()
 }

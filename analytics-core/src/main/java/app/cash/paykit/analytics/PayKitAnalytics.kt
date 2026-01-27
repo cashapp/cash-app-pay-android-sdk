@@ -259,13 +259,11 @@ class PayKitAnalytics constructor(
    * @return Synchronization handler
    */
   /*package*/
-  fun getDeliveryHandler(deliverableType: String?): DeliveryHandler? {
-    return deliveryHandlers.find {
-      it.deliverableType.equals(
-        deliverableType,
-        ignoreCase = true,
-      )
-    }
+  fun getDeliveryHandler(deliverableType: String?): DeliveryHandler? = deliveryHandlers.find {
+    it.deliverableType.equals(
+      deliverableType,
+      ignoreCase = true,
+    )
   }
 
   @Synchronized
@@ -290,9 +288,7 @@ class PayKitAnalytics constructor(
   }
 
   @Synchronized
-  fun scheduleForDelivery(deliverable: Deliverable): ScheduleDeliverableTask {
-    return scheduleForDelivery(deliverable.type, deliverable.content, deliverable.metaData)
-  }
+  fun scheduleForDelivery(deliverable: Deliverable): ScheduleDeliverableTask = scheduleForDelivery(deliverable.type, deliverable.content, deliverable.metaData)
 
   inner class ScheduleDeliverableTask(type: String?, content: String?, metaData: String?) :
     FutureTask<Long>({
@@ -323,9 +319,7 @@ class PayKitAnalytics constructor(
    * @param deliverable deliverable to send
    */
   @Synchronized
-  fun dispatch(deliverable: Deliverable): ScheduleDeliverableTask {
-    return dispatch(deliverable.type, deliverable.content, deliverable.metaData)
-  }
+  fun dispatch(deliverable: Deliverable): ScheduleDeliverableTask = dispatch(deliverable.type, deliverable.content, deliverable.metaData)
 
   /**
    * It will immediately try to send the deliverable.

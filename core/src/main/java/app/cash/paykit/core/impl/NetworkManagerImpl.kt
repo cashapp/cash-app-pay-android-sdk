@@ -142,14 +142,12 @@ internal class NetworkManagerImpl(
   override fun retrieveUpdatedRequestData(
     clientId: String,
     requestId: String,
-  ): NetworkResult<CustomerTopLevelResponse> {
-    return executeNetworkRequest(
-      GET,
-      RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
-      clientId,
-      null,
-    )
-  }
+  ): NetworkResult<CustomerTopLevelResponse> = executeNetworkRequest(
+    GET,
+    RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
+    clientId,
+    null,
+  )
 
   override fun uploadAnalyticsEvents(eventsAsJson: List<String>): NetworkResult<EventStream2Response> {
     val analyticsRequest = "{\"events\": [${eventsAsJson.joinToString()}]}"
@@ -163,7 +161,7 @@ internal class NetworkManagerImpl(
   }
 
   @OptIn(ExperimentalStdlibApi::class)
-  /**
+  /*
    * Execute the actual network request, and return a result wrapped in a [NetworkResult].
    *
    * @param In Class for serializing the request
@@ -171,12 +169,7 @@ internal class NetworkManagerImpl(
    * @param clientId Client ID for authenticating the request
    * @param requestPayload Request payload, an instance of the `In` class.
    */
-  private inline fun <reified In : Any, reified Out : Any> executeNetworkRequest(
-    requestType: RequestType,
-    endpointUrl: String,
-    clientId: String,
-    requestPayload: In?,
-  ): NetworkResult<Out> {
+  private inline fun <reified In : Any, reified Out : Any> executeNetworkRequest(requestType: RequestType, endpointUrl: String, clientId: String, requestPayload: In?): NetworkResult<Out> {
     val moshi: Moshi = MoshiProvider.provideDefault()
     val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
     val jsonData: String = requestJsonAdapter.toJson(requestPayload)

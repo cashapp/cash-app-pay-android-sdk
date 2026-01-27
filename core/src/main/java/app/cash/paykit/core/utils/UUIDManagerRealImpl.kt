@@ -18,7 +18,5 @@ package app.cash.paykit.core.utils
 import java.util.UUID
 
 internal class UUIDManagerRealImpl : UUIDManager {
-  override fun generateUUID(): String {
-    return UUID.randomUUID().toString()
-  }
+  override fun generateUUID(): String = UUID.randomUUID().toString()
 }

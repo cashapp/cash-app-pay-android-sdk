@@ -53,6 +53,5 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     override val scopeId: String? = null,
     val accountReferenceId: String? = null,
     override val referenceId: String? = null,
-  ) :
-    CashAppPayPaymentAction(scopeId, referenceId)
+  ) : CashAppPayPaymentAction(scopeId, referenceId)
 }

@@ -176,26 +176,23 @@ class NetworkRetryTests {
   private fun networkManager(
     baseUrl: HttpUrl,
     okHttpClient: OkHttpClient = OkHttpClient(),
-  ): NetworkManager {
-    return NetworkManagerImpl(
-      baseUrl = baseUrl.toString(),
-      userAgentValue = "",
-      okHttpClient = okHttpClient,
-      retryManagerOptions = RetryManagerOptions(
-        maxRetries = MAX_RETRIES,
-        initialDuration = 1.toDuration(MILLISECONDS),
-      ),
-      analyticsBaseUrl = "",
-    )
-  }
+  ): NetworkManager = NetworkManagerImpl(
+    baseUrl = baseUrl.toString(),
+    userAgentValue = "",
+    okHttpClient = okHttpClient,
+    retryManagerOptions = RetryManagerOptions(
+      maxRetries = MAX_RETRIES,
+      initialDuration = 1.toDuration(MILLISECONDS),
+    ),
+    analyticsBaseUrl = "",
+  )
 
-  private fun createPayKit(networkManager: NetworkManager) =
-    CashAppPayImpl(
-      clientId = FakeData.CLIENT_ID,
-      networkManager = networkManager,
-      payKitLifecycleListener = mockk(relaxed = true),
-      useSandboxEnvironment = true,
-      analyticsEventDispatcher = mockk(relaxed = true),
-      logger = mockk(relaxed = true),
-    )
+  private fun createPayKit(networkManager: NetworkManager) = CashAppPayImpl(
+    clientId = FakeData.CLIENT_ID,
+    networkManager = networkManager,
+    payKitLifecycleListener = mockk(relaxed = true),
+    useSandboxEnvironment = true,
+    analyticsEventDispatcher = mockk(relaxed = true),
+    logger = mockk(relaxed = true),
+  )
 }

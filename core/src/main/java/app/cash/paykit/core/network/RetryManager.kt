@@ -44,13 +44,9 @@ internal class RetryManagerImpl(
   private var durationTillNextRetry = retryManagerOptions.initialDuration
   private var retryCount = 0
 
-  override fun shouldRetry(): Boolean {
-    return retryCount <= retryManagerOptions.maxRetries
-  }
+  override fun shouldRetry(): Boolean = retryCount <= retryManagerOptions.maxRetries
 
-  override fun timeUntilNextRetry(): Duration {
-    return durationTillNextRetry
-  }
+  override fun timeUntilNextRetry(): Duration = durationTillNextRetry
 
   override fun networkAttemptFailed() {
     retryCount++

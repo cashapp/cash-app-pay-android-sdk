@@ -20,5 +20,4 @@ import app.cash.paykit.core.exceptions.CashAppPayNetworkErrorType.CONNECTIVITY
 /**
  * This exception represents Network connectivity issues, such as network timeout errors.
  */
-data class CashAppPayConnectivityNetworkException(val e: Exception) :
-  CashAppPayNetworkException(CONNECTIVITY)
+data class CashAppPayConnectivityNetworkException(val e: Exception) : CashAppPayNetworkException(CONNECTIVITY)
