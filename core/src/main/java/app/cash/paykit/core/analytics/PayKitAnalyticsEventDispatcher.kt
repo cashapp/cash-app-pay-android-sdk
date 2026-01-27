@@ -45,7 +45,10 @@ internal interface PayKitAnalyticsEventDispatcher {
     apiActions: List<Action>,
   )
 
-  fun genericStateChanged(cashAppPayState: CashAppPayState, customerResponseData: CustomerResponseData?)
+  fun genericStateChanged(
+    cashAppPayState: CashAppPayState,
+    customerResponseData: CustomerResponseData?,
+  )
 
   fun stateApproved(approved: Approved)
 

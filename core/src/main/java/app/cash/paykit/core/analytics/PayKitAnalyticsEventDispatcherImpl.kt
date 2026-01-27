@@ -108,7 +108,14 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerAdded() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = true, environment = sdkEnvironment)
+      AnalyticsEventListenerPayload(
+        sdkVersion,
+        userAgent,
+        PLATFORM,
+        clientId,
+        isAdded = true,
+        environment = sdkEnvironment,
+      )
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -118,7 +125,14 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   override fun eventListenerRemoved() {
     // Inner payload of the ES2 event.
     val eventPayload =
-      AnalyticsEventListenerPayload(sdkVersion, userAgent, PLATFORM, clientId, isAdded = false, environment = sdkEnvironment)
+      AnalyticsEventListenerPayload(
+        sdkVersion,
+        userAgent,
+        PLATFORM,
+        clientId,
+        isAdded = false,
+        environment = sdkEnvironment,
+      )
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsEventListenerPayload.CATALOG)
@@ -130,7 +144,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     apiActions: List<Action>,
     redirectUri: String?,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
+    val eventPayload =
+      createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, null, redirectUri)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -142,7 +157,8 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     paymentKitActions: List<CashAppPayPaymentAction>,
     apiActions: List<Action>,
   ) {
-    val eventPayload = createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
+    val eventPayload =
+      createOrUpdateAnalyticsPayload(paymentKitActions, apiActions, requestId, null)
 
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
@@ -154,17 +170,19 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     customerResponseData: CustomerResponseData?,
   ) {
     val eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(cashAppPayState))
+      eventFromCustomerResponseData(
+        customerResponseData,
+      ).copy(action = stateToAnalyticsAction(cashAppPayState))
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
   }
 
-  override fun stateApproved(
-    approved: Approved,
-  ) {
+  override fun stateApproved(approved: Approved) {
     val eventPayload =
-      eventFromCustomerResponseData(approved.responseData).copy(action = stateToAnalyticsAction(approved))
+      eventFromCustomerResponseData(
+        approved.responseData,
+      ).copy(action = stateToAnalyticsAction(approved))
     val es2EventAsJsonString =
       encodeToJsonString(eventPayload, AnalyticsCustomerRequestPayload.CATALOG)
     payKitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(es2EventAsJsonString))
@@ -175,7 +193,9 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     customerResponseData: CustomerResponseData?,
   ) {
     var eventPayload =
-      eventFromCustomerResponseData(customerResponseData).copy(action = stateToAnalyticsAction(payKitExceptionState))
+      eventFromCustomerResponseData(
+        customerResponseData,
+      ).copy(action = stateToAnalyticsAction(payKitExceptionState))
 
     eventPayload = if (payKitExceptionState.exception is CashAppPayApiNetworkException) {
       val apiError = payKitExceptionState.exception
@@ -252,7 +272,9 @@ internal class PayKitAnalyticsEventDispatcherImpl(
     return es2EventAdapter.toJson(eventStream2Event)
   }
 
-  private fun eventFromCustomerResponseData(customerResponseData: CustomerResponseData?): AnalyticsCustomerRequestPayload {
+  private fun eventFromCustomerResponseData(
+    customerResponseData: CustomerResponseData?,
+  ): AnalyticsCustomerRequestPayload {
     var grantsPayload: String? = null
     if (customerResponseData?.grants != null) {
       val moshiAdapter: JsonAdapter<List<Grant>> = moshi.adapter()

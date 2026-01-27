@@ -145,7 +145,8 @@ internal object Utils {
       if (insertId < 0) {
         Log.e(
           "Utils",
-          "Unable to insert record into the " + AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES + ", values: " +
+          "Unable to insert record into the " + AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES +
+            ", values: " +
             values,
         )
       }

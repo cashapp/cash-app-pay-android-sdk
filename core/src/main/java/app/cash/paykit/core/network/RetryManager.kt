@@ -37,9 +37,7 @@ internal class RetryManagerOptions(
 /**
  * A [RetryManager] implementation with max number of retries and back-off strategy.
  */
-internal class RetryManagerImpl(
-  private val retryManagerOptions: RetryManagerOptions,
-) : RetryManager {
+internal class RetryManagerImpl(private val retryManagerOptions: RetryManagerOptions) : RetryManager {
 
   private var durationTillNextRetry = retryManagerOptions.initialDuration
   private var retryCount = 0

@@ -173,7 +173,9 @@ object CashAppPayFactory {
     )
   }
 
-  private fun getUserAgentValue(): String = UserAgentProvider.provideUserAgent(ApplicationContextHolder.applicationContext)
+  private fun getUserAgentValue(): String = UserAgentProvider.provideUserAgent(
+    ApplicationContextHolder.applicationContext,
+  )
 
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.

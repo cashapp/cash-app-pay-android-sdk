@@ -95,7 +95,11 @@ internal class NetworkManagerImpl(
     )
 
     // Record analytics.
-    analyticsEventDispatcher?.createdCustomerRequest(paymentActions, customerRequestData.actions, redirectUri)
+    analyticsEventDispatcher?.createdCustomerRequest(
+      paymentActions,
+      customerRequestData.actions,
+      redirectUri,
+    )
 
     return executeNetworkRequest(
       POST,
@@ -149,7 +153,9 @@ internal class NetworkManagerImpl(
     null,
   )
 
-  override fun uploadAnalyticsEvents(eventsAsJson: List<String>): NetworkResult<EventStream2Response> {
+  override fun uploadAnalyticsEvents(
+    eventsAsJson: List<String>,
+  ): NetworkResult<EventStream2Response> {
     val analyticsRequest = "{\"events\": [${eventsAsJson.joinToString()}]}"
     return executePlainNetworkRequest(
       POST,
@@ -169,7 +175,12 @@ internal class NetworkManagerImpl(
    * @param clientId Client ID for authenticating the request
    * @param requestPayload Request payload, an instance of the `In` class.
    */
-  private inline fun <reified In : Any, reified Out : Any> executeNetworkRequest(requestType: RequestType, endpointUrl: String, clientId: String, requestPayload: In?): NetworkResult<Out> {
+  private inline fun <reified In : Any, reified Out : Any> executeNetworkRequest(
+    requestType: RequestType,
+    endpointUrl: String,
+    clientId: String,
+    requestPayload: In?,
+  ): NetworkResult<Out> {
     val moshi: Moshi = MoshiProvider.provideDefault()
     val requestJsonAdapter: JsonAdapter<In> = moshi.adapter()
     val jsonData: String = requestJsonAdapter.toJson(requestPayload)

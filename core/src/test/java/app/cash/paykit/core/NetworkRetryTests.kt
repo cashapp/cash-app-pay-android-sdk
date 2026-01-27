@@ -168,7 +168,9 @@ class NetworkRetryTests {
     payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
 
     // Verify that a timeout error was captured and relayed to the SDK listener.
-    assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(
+    val exception =
+      (mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException
+    assertThat(exception.e).isInstanceOf(
       InterruptedIOException::class.java,
     )
   }

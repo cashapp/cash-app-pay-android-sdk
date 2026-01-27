@@ -27,13 +27,16 @@ import android.widget.ImageButton
  * to trigger the correct action on button press, as well as manage any visibility states of the
  * button accordingly.
  */
-class CashAppPayButton @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, style: Int = 0) :
-  ImageButton(
-    context,
-    attrs,
-    0,
-    style,
-  ) {
+class CashAppPayButton @JvmOverloads constructor(
+  context: Context,
+  attrs: AttributeSet? = null,
+  style: Int = 0,
+) : ImageButton(
+  context,
+  attrs,
+  0,
+  style,
+) {
 
   override fun setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)

@@ -43,6 +43,7 @@ subprojects { subproject ->
           'end_of_line': 'lf',
           'charset': 'utf-8',
           'indent_size': '2',
+          'ktlint_standard_max-line-length': 'disabled',
       ])
       licenseHeaderFile(rootProject.file('gradle/license-header.txt'))
     }

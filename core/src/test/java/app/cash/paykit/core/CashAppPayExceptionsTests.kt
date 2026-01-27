@@ -56,9 +56,10 @@ class CashAppPayExceptionsTests {
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
-    every { networkManager.createCustomerRequest(any(), any(), any(), any()) } returns NetworkResult.failure(
-      Exception("bad"),
-    )
+    every { networkManager.createCustomerRequest(any(), any(), any(), any()) } returns
+      NetworkResult.failure(
+        Exception("bad"),
+      )
     payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
   }
 

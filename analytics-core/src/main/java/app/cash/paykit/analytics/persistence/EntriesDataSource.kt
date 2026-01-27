@@ -67,10 +67,7 @@ abstract class EntriesDataSource(val options: AnalyticsOptions) {
    * @return List of sync entries to send to the server
    */
   @Synchronized
-  fun getEntriesForDelivery(
-    processId: String,
-    entryType: String,
-  ): List<AnalyticEntry> = getEntriesForDelivery(processId, entryType, 0, options.batchSize)
+  fun getEntriesForDelivery(processId: String, entryType: String): List<AnalyticEntry> = getEntriesForDelivery(processId, entryType, 0, options.batchSize)
 
   /**
    * Returns the list of entries to send to the server that are in state SYNC_PENDING and belong

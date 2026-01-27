@@ -69,7 +69,9 @@ class NetworkErrorTests {
     assertThat((mockListener.state as CashAppPayExceptionState).exception).isInstanceOf(
       CashAppPayConnectivityNetworkException::class.java,
     )
-    assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(
+    val exception =
+      (mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException
+    assertThat(exception.e).isInstanceOf(
       IOException::class.java,
     )
   }
