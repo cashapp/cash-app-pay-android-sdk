@@ -42,7 +42,8 @@ class DeliveryWorkerTest {
     val dataSource: AnalyticsSQLiteDataSource = mockk(relaxed = true)
     val analyticsOptions: AnalyticsOptions = mockk(relaxed = true)
     val handlers = ArrayList<DeliveryHandler>()
-    val worker = DeliveryWorker(dataSource, handlers, AnalyticsLogger(analyticsOptions, cashAppLogger))
+    val worker =
+      DeliveryWorker(dataSource, handlers, AnalyticsLogger(analyticsOptions, cashAppLogger))
     worker.call()
 
     verify(inverse = true) { dataSource.generateProcessId(any()) }

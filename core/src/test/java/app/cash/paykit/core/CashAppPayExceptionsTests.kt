@@ -56,19 +56,19 @@ class CashAppPayExceptionsTests {
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
-    every { networkManager.createCustomerRequest(any(), any(), any(), any()) } returns NetworkResult.failure(
-      Exception("bad"),
-    )
+    every { networkManager.createCustomerRequest(any(), any(), any(), any()) } returns
+      NetworkResult.failure(
+        Exception("bad"),
+      )
     payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
   }
 
-  private fun createPayKit(useSandboxEnvironment: Boolean) =
-    CashAppPayImpl(
-      clientId = FakeData.CLIENT_ID,
-      networkManager = networkManager,
-      payKitLifecycleListener = mockk(relaxed = true),
-      useSandboxEnvironment = useSandboxEnvironment,
-      analyticsEventDispatcher = mockk(relaxed = true),
-      logger = mockk(relaxed = true),
-    )
+  private fun createPayKit(useSandboxEnvironment: Boolean) = CashAppPayImpl(
+    clientId = FakeData.CLIENT_ID,
+    networkManager = networkManager,
+    payKitLifecycleListener = mockk(relaxed = true),
+    useSandboxEnvironment = useSandboxEnvironment,
+    analyticsEventDispatcher = mockk(relaxed = true),
+    logger = mockk(relaxed = true),
+  )
 }

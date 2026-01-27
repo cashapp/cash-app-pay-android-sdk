@@ -150,15 +150,13 @@ class AnalyticsTest {
     val h1Type = "TYPE1"
     val h1 = object : DeliveryHandler() {
       override val deliverableType = h1Type
-      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) =
-        Unit
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) = Unit
     }
 
     val h2Type = "TYPE2"
     val h2 = object : DeliveryHandler() {
       override val deliverableType = h2Type
-      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) =
-        Unit
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) = Unit
     }
 
     payKitAnalytics.registerDeliveryHandler(h1)
@@ -176,14 +174,12 @@ class AnalyticsTest {
     val h1Type = "TYPE1"
     val h1 = object : DeliveryHandler() {
       override val deliverableType = h1Type
-      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) =
-        Unit
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) = Unit
     }
 
     val h2 = object : DeliveryHandler() {
       override val deliverableType = h1Type
-      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) =
-        Unit
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) = Unit
     }
 
     payKitAnalytics.registerDeliveryHandler(h1)
@@ -200,15 +196,13 @@ class AnalyticsTest {
 
     val h1 = object : DeliveryHandler() {
       override val deliverableType = h1Type
-      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) =
-        Unit
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) = Unit
     }
 
     val h2Type = "TYPE2"
     val h2 = object : DeliveryHandler() {
       override val deliverableType = h2Type
-      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) =
-        Unit
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) = Unit
     }
     payKitAnalytics.registerDeliveryHandler(h1)
     payKitAnalytics.registerDeliveryHandler(h2)
@@ -240,8 +234,7 @@ class AnalyticsTest {
     }
     val deliveryHandler = object : DeliveryHandler() {
       override val deliverableType = h1Type
-      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) =
-        Unit
+      override fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener) = Unit
     }
     payKitAnalytics.registerDeliveryHandler(deliveryHandler)
 

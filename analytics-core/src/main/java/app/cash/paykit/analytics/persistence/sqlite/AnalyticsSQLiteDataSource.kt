@@ -46,10 +46,17 @@ class AnalyticsSQLiteDataSource(
       values.put(COLUMN_VERSION, options.applicationVersionCode.toString())
       insertId = sqLiteHelper.database.insert(TABLE_SYNC_ENTRIES, null, values)
       if (insertId < 0) {
-        analyticsLogger.e(TAG, "Unable to insert record into the $TABLE_SYNC_ENTRIES, values: $content")
+        analyticsLogger.e(
+          TAG,
+          "Unable to insert record into the $TABLE_SYNC_ENTRIES, values: $content",
+        )
       }
     } catch (e: Exception) {
-      analyticsLogger.e(TAG, "Exception when trying to insert record into the $TABLE_SYNC_ENTRIES, values: $content", e)
+      analyticsLogger.e(
+        TAG,
+        "Exception when trying to insert record into the $TABLE_SYNC_ENTRIES, values: $content",
+        e,
+      )
     }
     return insertId
   }
@@ -130,7 +137,11 @@ class AnalyticsSQLiteDataSource(
         }
       }
     } catch (e: Exception) {
-      analyticsLogger.e(TAG, "Unable to get entries with process id $processId, entryType $entryType and $state state", e)
+      analyticsLogger.e(
+        TAG,
+        "Unable to get entries with process id $processId, entryType $entryType and $state state",
+        e,
+      )
     }
     return entries
   }
@@ -140,7 +151,9 @@ class AnalyticsSQLiteDataSource(
     val database: SQLiteDatabase = sqLiteHelper.database
     try {
       val query =
-        "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=$status WHERE id IN (" + entries.toCommaSeparatedListIds() + ");"
+        "UPDATE $TABLE_SYNC_ENTRIES SET $COLUMN_STATE=$status WHERE id IN (" +
+          entries.toCommaSeparatedListIds() +
+          ");"
       database.execSQL(query)
     } catch (e: Exception) {
       analyticsLogger.e(TAG, "Unable to update statuses", e)
@@ -176,10 +189,14 @@ class AnalyticsSQLiteDataSource(
 
     // @formatter:on
     const val SQL_CREATE_INDEX_FOR_COLUMN_STATE =
-      "CREATE INDEX '" + COLUMN_STATE + "_index' ON " + TABLE_SYNC_ENTRIES + " ('" + COLUMN_STATE + "');"
+      "CREATE INDEX '" + COLUMN_STATE + "_index' ON " + TABLE_SYNC_ENTRIES + " ('" + COLUMN_STATE +
+        "');"
     const val SQL_CREATE_INDEX_FOR_COLUMN_TYPE =
-      "CREATE INDEX '" + COLUMN_TYPE + "_index' ON " + TABLE_SYNC_ENTRIES + " ('" + COLUMN_TYPE + "');"
+      "CREATE INDEX '" + COLUMN_TYPE + "_index' ON " + TABLE_SYNC_ENTRIES + " ('" + COLUMN_TYPE +
+        "');"
     const val SQL_CREATE_INDEX_FOR_COLUMN_PROCESS_ID =
-      "CREATE INDEX '" + COLUMN_PROCESS_ID + "_index' ON " + TABLE_SYNC_ENTRIES + " ('" + COLUMN_PROCESS_ID + "');"
+      "CREATE INDEX '" + COLUMN_PROCESS_ID + "_index' ON " + TABLE_SYNC_ENTRIES + " ('" +
+        COLUMN_PROCESS_ID +
+        "');"
   }
 }

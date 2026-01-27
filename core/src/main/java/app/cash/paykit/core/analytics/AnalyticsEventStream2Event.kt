@@ -20,13 +20,11 @@ import app.cash.paykit.analytics.core.Deliverable
 /**
  * Class that represents the payload to be delivered to the ES2 API.
  */
-internal data class AnalyticsEventStream2Event constructor(
-  override val content: String,
-) : Deliverable {
-  override val type = ESEventType
+internal data class AnalyticsEventStream2Event constructor(override val content: String) : Deliverable {
+  override val type = ES_EVENT_TYPE
   override val metaData = null
 
   companion object {
-    const val ESEventType = "AnalyticsEventStream2Event"
+    const val ES_EVENT_TYPE = "AnalyticsEventStream2Event"
   }
 }

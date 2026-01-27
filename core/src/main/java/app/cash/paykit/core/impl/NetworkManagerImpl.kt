@@ -95,7 +95,11 @@ internal class NetworkManagerImpl(
     )
 
     // Record analytics.
-    analyticsEventDispatcher?.createdCustomerRequest(paymentActions, customerRequestData.actions, redirectUri)
+    analyticsEventDispatcher?.createdCustomerRequest(
+      paymentActions,
+      customerRequestData.actions,
+      redirectUri,
+    )
 
     return executeNetworkRequest(
       POST,
@@ -142,16 +146,16 @@ internal class NetworkManagerImpl(
   override fun retrieveUpdatedRequestData(
     clientId: String,
     requestId: String,
-  ): NetworkResult<CustomerTopLevelResponse> {
-    return executeNetworkRequest(
-      GET,
-      RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
-      clientId,
-      null,
-    )
-  }
+  ): NetworkResult<CustomerTopLevelResponse> = executeNetworkRequest(
+    GET,
+    RETRIEVE_EXISTING_REQUEST_ENDPOINT + requestId,
+    clientId,
+    null,
+  )
 
-  override fun uploadAnalyticsEvents(eventsAsJson: List<String>): NetworkResult<EventStream2Response> {
+  override fun uploadAnalyticsEvents(
+    eventsAsJson: List<String>,
+  ): NetworkResult<EventStream2Response> {
     val analyticsRequest = "{\"events\": [${eventsAsJson.joinToString()}]}"
     return executePlainNetworkRequest(
       POST,
@@ -163,7 +167,7 @@ internal class NetworkManagerImpl(
   }
 
   @OptIn(ExperimentalStdlibApi::class)
-  /**
+  /*
    * Execute the actual network request, and return a result wrapped in a [NetworkResult].
    *
    * @param In Class for serializing the request

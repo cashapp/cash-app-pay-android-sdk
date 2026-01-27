@@ -27,7 +27,6 @@ internal sealed interface NetworkResult<in T> {
   companion object {
     fun <T> success(data: T): NetworkResult<T> = Success(data)
 
-    fun <T> failure(exception: Exception): NetworkResult<T> =
-      Failure(exception)
+    fun <T> failure(exception: Exception): NetworkResult<T> = Failure(exception)
   }
 }

@@ -22,7 +22,5 @@ class FakeUUIDManager : UUIDManager {
   companion object {
     const val UUID = "abc"
   }
-  override fun generateUUID(): String {
-    return UUID
-  }
+  override fun generateUUID(): String = UUID
 }

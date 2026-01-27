@@ -38,12 +38,12 @@ subprojects { subproject ->
   spotless {
     kotlin {
       target("src/**/*.kt")
-      // ktlint doesn't honour .editorconfig yet: https://github.com/diffplug/spotless/issues/142
-      ktlint('0.49.1').editorConfigOverride([
+      ktlint('1.8.0').editorConfigOverride([
           'insert_final_newline': 'true',
           'end_of_line': 'lf',
           'charset': 'utf-8',
           'indent_size': '2',
+          'ktlint_standard_max-line-length': 'disabled',
       ])
       licenseHeaderFile(rootProject.file('gradle/license-header.txt'))
     }
