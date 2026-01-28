@@ -16,6 +16,8 @@
 package app.cash.paykit.core.fakes
 
 import app.cash.paykit.core.models.sdk.CashAppPayCurrency.USD
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 
 object FakeData {
@@ -29,7 +31,11 @@ object FakeData {
   const val USER_AGENT = "Webkit/1.0.0 (Linux; U; Android 12; en-US; Samsung Build/XYZ)"
   const val SDK_ENVIRONMENT_SANDBOX = "SANDBOX"
 
+  const val FAKE_ACCOUNT_REFERENCE_ID = "fake_account_ref_123"
+
   val oneTimePayment = OneTimeAction(USD, FAKE_AMOUNT, BRAND_ID)
+  val onFilePayment = OnFileAction(BRAND_ID, FAKE_ACCOUNT_REFERENCE_ID)
+  val onFilePayoutAction = OnFilePayoutAction(BRAND_ID, FAKE_ACCOUNT_REFERENCE_ID)
 
   val validCreateCustomerJSONresponse = """{
          "request":{
