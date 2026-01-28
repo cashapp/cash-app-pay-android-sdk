@@ -20,7 +20,7 @@ import app.cash.paykit.core.network.adapters.InstantAdapter
 import app.cash.paykit.core.network.adapters.PiiStringClearTextAdapter
 import app.cash.paykit.core.network.adapters.PiiStringRedactAdapter
 import com.squareup.moshi.Moshi
-import kotlinx.datetime.Instant
+import java.time.Instant
 
 internal object MoshiProvider {
   fun provideDefault(redactPii: Boolean = false): Moshi {

@@ -58,9 +58,11 @@ import app.cash.paykit.core.utils.ThreadPurpose.DEFERRED_REFRESH
 import app.cash.paykit.core.utils.ThreadPurpose.REFRESH_AUTH_TOKEN
 import app.cash.paykit.core.utils.orElse
 import app.cash.paykit.logging.CashAppLogger
-import kotlinx.datetime.Clock
+import java.time.Instant
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toKotlinDuration
+import java.time.Duration as JavaDuration
 
 /**
  * @param clientId Client Identifier that should be provided by Cash PayKit integration.
@@ -480,9 +482,9 @@ internal class CashAppPayImpl(
       }
 
       // Stop refreshing if the request has expired.
-      val currentTime = Clock.System.now()
+      val currentTime = Instant.now()
       val hasExpired =
-        customerResponseData?.expiresAt?.let { expiresAt -> currentTime > expiresAt } ?: false
+        customerResponseData?.expiresAt?.let { expiresAt -> currentTime.isAfter(expiresAt) } ?: false
       if (hasExpired) {
         logger.logError(CAP_TAG, "Customer request has expired. Stopping refresh.")
         return@createThread
@@ -535,11 +537,12 @@ internal class CashAppPayImpl(
       return
     }
 
-    val ttlSeconds = customerResponseData.authFlowTriggers.refreshesAt.minus(
+    val ttl = JavaDuration.between(
       customerResponseData.createdAt,
-    )
+      customerResponseData.authFlowTriggers.refreshesAt,
+    ).toKotlinDuration()
 
-    val refreshDelay = ttlSeconds.inWholeSeconds.minus(TOKEN_REFRESH_WINDOW.inWholeSeconds)
+    val refreshDelay = ttl.inWholeSeconds.minus(TOKEN_REFRESH_WINDOW.inWholeSeconds)
     logger.logVerbose(
       CAP_TAG,
       "Scheduling unauthorized customer request refresh in $refreshDelay seconds.",
