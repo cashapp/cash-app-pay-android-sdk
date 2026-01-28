@@ -42,32 +42,26 @@ class CashAppLoggerImpl : CashAppLogger {
     Log.e(tag, msg, throwable)
   }
 
-  override fun retrieveLogs(): List<CashAppLogEntry> {
-    return history.retrieveLogs()
-  }
+  override fun retrieveLogs(): List<CashAppLogEntry> = history.retrieveLogs()
 
-  override fun logsAsString(): String {
-    return buildString {
-      for (log in history.retrieveLogs()) {
-        append(logLevelToString(log.level)).append(": ").append(log.msg)
-        if (log.throwable != null) {
-          append("\n").append("  Exception: ").append(log.throwable.cause).append(": ").append(log.throwable.message)
-        }
-        append("\n\n")
+  override fun logsAsString(): String = buildString {
+    for (log in history.retrieveLogs()) {
+      append(logLevelToString(log.level)).append(": ").append(log.msg)
+      if (log.throwable != null) {
+        append("\n").append("  Exception: ").append(log.throwable.cause).append(": ").append(log.throwable.message)
       }
+      append("\n\n")
     }
   }
 
-  private fun logLevelToString(level: Int): String {
-    return when (level) {
-      Log.VERBOSE -> "VERBOSE"
-      Log.DEBUG -> "DEBUG"
-      Log.INFO -> "INFO"
-      Log.WARN -> "WARN"
-      Log.ERROR -> "ERROR"
-      Log.ASSERT -> "ASSERT"
-      else -> "UNKNOWN"
-    }
+  private fun logLevelToString(level: Int): String = when (level) {
+    Log.VERBOSE -> "VERBOSE"
+    Log.DEBUG -> "DEBUG"
+    Log.INFO -> "INFO"
+    Log.WARN -> "WARN"
+    Log.ERROR -> "ERROR"
+    Log.ASSERT -> "ASSERT"
+    else -> "UNKNOWN"
   }
 
   override fun setListener(listener: CashAppLoggerListener) {

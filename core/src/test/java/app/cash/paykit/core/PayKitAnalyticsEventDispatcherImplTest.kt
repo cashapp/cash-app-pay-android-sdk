@@ -44,7 +44,8 @@ class PayKitAnalyticsEventDispatcherImplTest {
   fun `sdkInitialized records valid analytics event`() {
     val analyticsDispatcher = buildDispatcher()
     analyticsDispatcher.sdkInitialized()
-    val contents = """{"app_name":"paykitsdk-android","catalog_name":"mobile_cap_pk_initialization","json_data":"{\"mobile_cap_pk_initialization_sdk_version\":\"1.0.0\",\"mobile_cap_pk_initialization_client_ua\":\"Webkit/1.0.0 (Linux; U; Android 12; en-US; Samsung Build/XYZ)\",\"mobile_cap_pk_initialization_platform\":\"android\",\"mobile_cap_pk_initialization_client_id\":\"fake_client_id\",\"mobile_cap_pk_initialization_environment\":\"SANDBOX\"}","recorded_at_usec":123,"uuid":"abc"}"""
+    val contents =
+      """{"app_name":"paykitsdk-android","catalog_name":"mobile_cap_pk_initialization","json_data":"{\"mobile_cap_pk_initialization_sdk_version\":\"1.0.0\",\"mobile_cap_pk_initialization_client_ua\":\"Webkit/1.0.0 (Linux; U; Android 12; en-US; Samsung Build/XYZ)\",\"mobile_cap_pk_initialization_platform\":\"android\",\"mobile_cap_pk_initialization_client_id\":\"fake_client_id\",\"mobile_cap_pk_initialization_environment\":\"SANDBOX\"}","recorded_at_usec":123,"uuid":"abc"}"""
 
     verify { paykitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(contents)) }
   }
@@ -53,7 +54,8 @@ class PayKitAnalyticsEventDispatcherImplTest {
   fun `eventListenerAdded records valid analytics event`() {
     val analyticsDispatcher = buildDispatcher()
     analyticsDispatcher.eventListenerAdded()
-    val contents = """{"app_name":"paykitsdk-android","catalog_name":"mobile_cap_pk_event_listener","json_data":"{\"mobile_cap_pk_event_listener_sdk_version\":\"1.0.0\",\"mobile_cap_pk_event_listener_client_ua\":\"Webkit/1.0.0 (Linux; U; Android 12; en-US; Samsung Build/XYZ)\",\"mobile_cap_pk_event_listener_platform\":\"android\",\"mobile_cap_pk_event_listener_client_id\":\"fake_client_id\",\"mobile_cap_pk_event_listener_environment\":\"SANDBOX\",\"mobile_cap_pk_event_listener_is_added\":true}","recorded_at_usec":123,"uuid":"abc"}"""
+    val contents =
+      """{"app_name":"paykitsdk-android","catalog_name":"mobile_cap_pk_event_listener","json_data":"{\"mobile_cap_pk_event_listener_sdk_version\":\"1.0.0\",\"mobile_cap_pk_event_listener_client_ua\":\"Webkit/1.0.0 (Linux; U; Android 12; en-US; Samsung Build/XYZ)\",\"mobile_cap_pk_event_listener_platform\":\"android\",\"mobile_cap_pk_event_listener_client_id\":\"fake_client_id\",\"mobile_cap_pk_event_listener_environment\":\"SANDBOX\",\"mobile_cap_pk_event_listener_is_added\":true}","recorded_at_usec":123,"uuid":"abc"}"""
 
     verify { paykitAnalytics.scheduleForDelivery(AnalyticsEventStream2Event(contents)) }
   }

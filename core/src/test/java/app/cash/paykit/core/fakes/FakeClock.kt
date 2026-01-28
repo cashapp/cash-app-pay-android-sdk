@@ -22,7 +22,5 @@ class FakeClock : Clock {
     const val NOW = 123L
   }
 
-  override fun currentTimeInMicroseconds(): Long {
-    return NOW
-  }
+  override fun currentTimeInMicroseconds(): Long = NOW
 }

@@ -39,16 +39,14 @@ internal object Utils {
     return null
   }
 
-  fun createEntry(entryType: String?, entryState: Int): AnalyticEntry {
-    return createEntry(
-      "entry.process.id",
-      entryType,
-      entryState,
-      "entry.load",
-      "entry.metadata",
-      "v1",
-    )
-  }
+  fun createEntry(entryType: String?, entryState: Int): AnalyticEntry = createEntry(
+    "entry.process.id",
+    entryType,
+    entryState,
+    "entry.load",
+    "entry.metadata",
+    "v1",
+  )
 
   fun createEntry(
     processId: String?,
@@ -67,11 +65,9 @@ internal object Utils {
     version = version,
   )
 
-  fun getEntriesToSync(count: Int): List<AnalyticEntry> {
-    return mutableListOf<AnalyticEntry>().apply {
-      for (i in 0 until count) {
-        add(createEntry("TYPE_1", AnalyticEntry.STATE_NEW))
-      }
+  fun getEntriesToSync(count: Int): List<AnalyticEntry> = mutableListOf<AnalyticEntry>().apply {
+    for (i in 0 until count) {
+      add(createEntry("TYPE_1", AnalyticEntry.STATE_NEW))
     }
   }
 
@@ -149,7 +145,8 @@ internal object Utils {
       if (insertId < 0) {
         Log.e(
           "Utils",
-          "Unable to insert record into the " + AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES + ", values: " +
+          "Unable to insert record into the " + AnalyticsSQLiteDataSource.TABLE_SYNC_ENTRIES +
+            ", values: " +
             values,
         )
       }

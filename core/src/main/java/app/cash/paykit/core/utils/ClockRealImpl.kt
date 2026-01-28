@@ -18,7 +18,5 @@ package app.cash.paykit.core.utils
 import java.util.concurrent.TimeUnit
 
 internal class ClockRealImpl : Clock {
-  override fun currentTimeInMicroseconds(): Long {
-    return TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis())
-  }
+  override fun currentTimeInMicroseconds(): Long = TimeUnit.MILLISECONDS.toMicros(System.currentTimeMillis())
 }

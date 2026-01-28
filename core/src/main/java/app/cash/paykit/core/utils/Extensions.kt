@@ -20,6 +20,4 @@ package app.cash.paykit.core.utils
  *
  * Eg.: ```gotData?.(display).orElse { logError() }```
  */
-internal inline fun <R> R?.orElse(block: () -> R): R {
-  return this ?: block()
-}
+internal inline fun <R> R?.orElse(block: () -> R): R = this ?: block()

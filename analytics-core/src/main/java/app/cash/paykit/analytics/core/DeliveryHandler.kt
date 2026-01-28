@@ -53,10 +53,7 @@ abstract class DeliveryHandler {
     this.logger = logger
   }
 
-  abstract fun deliver(
-    entries: List<AnalyticEntry>,
-    deliveryListener: DeliveryListener,
-  )
+  abstract fun deliver(entries: List<AnalyticEntry>, deliveryListener: DeliveryListener)
 
   companion object {
     private const val TAG = "DeliveryHandler"

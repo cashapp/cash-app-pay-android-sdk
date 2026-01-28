@@ -21,7 +21,5 @@ package app.cash.paykit.core.models.pii
  */
 class PiiString(private var value: String) : PiiContent {
 
-  override fun toString(): String {
-    return value
-  }
+  override fun toString(): String = value
 }

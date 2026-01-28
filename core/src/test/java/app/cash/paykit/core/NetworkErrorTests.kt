@@ -69,7 +69,9 @@ class NetworkErrorTests {
     assertThat((mockListener.state as CashAppPayExceptionState).exception).isInstanceOf(
       CashAppPayConnectivityNetworkException::class.java,
     )
-    assertThat(((mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException).e).isInstanceOf(
+    val exception =
+      (mockListener.state as CashAppPayExceptionState).exception as CashAppPayConnectivityNetworkException
+    assertThat(exception.e).isInstanceOf(
       IOException::class.java,
     )
   }
@@ -221,26 +223,23 @@ class NetworkErrorTests {
   private fun networkManager(
     baseUrl: HttpUrl,
     okHttpClient: OkHttpClient = OkHttpClient(),
-  ): NetworkManager {
-    return NetworkManagerImpl(
-      baseUrl = baseUrl.toString(),
-      userAgentValue = "",
-      okHttpClient = okHttpClient,
-      retryManagerOptions = RetryManagerOptions(
-        maxRetries = 1,
-        initialDuration = 1.toDuration(DurationUnit.MILLISECONDS),
-      ),
-      analyticsBaseUrl = "",
-    )
-  }
+  ): NetworkManager = NetworkManagerImpl(
+    baseUrl = baseUrl.toString(),
+    userAgentValue = "",
+    okHttpClient = okHttpClient,
+    retryManagerOptions = RetryManagerOptions(
+      maxRetries = 1,
+      initialDuration = 1.toDuration(DurationUnit.MILLISECONDS),
+    ),
+    analyticsBaseUrl = "",
+  )
 
-  private fun createPayKit(networkManager: NetworkManager) =
-    CashAppPayImpl(
-      clientId = FakeData.CLIENT_ID,
-      networkManager = networkManager,
-      payKitLifecycleListener = mockk(relaxed = true),
-      useSandboxEnvironment = true,
-      analyticsEventDispatcher = mockk(relaxed = true),
-      logger = mockk(relaxed = true),
-    )
+  private fun createPayKit(networkManager: NetworkManager) = CashAppPayImpl(
+    clientId = FakeData.CLIENT_ID,
+    networkManager = networkManager,
+    payKitLifecycleListener = mockk(relaxed = true),
+    useSandboxEnvironment = true,
+    analyticsEventDispatcher = mockk(relaxed = true),
+    logger = mockk(relaxed = true),
+  )
 }

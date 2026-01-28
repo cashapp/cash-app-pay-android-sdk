@@ -72,13 +72,12 @@ class CashAppPayAuthorizeTests {
     payKit.authorizeCustomerRequest(customerResponseData)
   }
 
-  private fun createPayKit() =
-    CashAppPayImpl(
-      clientId = FakeData.CLIENT_ID,
-      networkManager = mockk(),
-      payKitLifecycleListener = mockk(relaxed = true),
-      useSandboxEnvironment = true,
-      analyticsEventDispatcher = mockk(relaxed = true),
-      logger = mockk(relaxed = true),
-    )
+  private fun createPayKit() = CashAppPayImpl(
+    clientId = FakeData.CLIENT_ID,
+    networkManager = mockk(),
+    payKitLifecycleListener = mockk(relaxed = true),
+    useSandboxEnvironment = true,
+    analyticsEventDispatcher = mockk(relaxed = true),
+    logger = mockk(relaxed = true),
+  )
 }

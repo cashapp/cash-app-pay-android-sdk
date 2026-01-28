@@ -29,7 +29,5 @@ class CashAppPayInitializer : Initializer<CashAppPayInitializerStub> {
     return object : CashAppPayInitializerStub {}
   }
 
-  override fun dependencies(): List<Class<out Initializer<*>>> {
-    return emptyList()
-  }
+  override fun dependencies(): List<Class<out Initializer<*>>> = emptyList()
 }

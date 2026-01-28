@@ -144,39 +144,38 @@ object CashAppPayFactory {
 
   private val cashAppPayLifecycleObserver: CashAppPayLifecycleObserver = CashAppPayLifecycleObserverImpl()
 
-  private fun buildPayKitAnalytics(isSandbox: Boolean, cashAppLogger: CashAppLogger) =
-    with(ApplicationContextHolder.applicationContext) {
-      val info = packageManager.getPackageInfo(packageName, 0)
+  private fun buildPayKitAnalytics(isSandbox: Boolean, cashAppLogger: CashAppLogger) = with(ApplicationContextHolder.applicationContext) {
+    val info = packageManager.getPackageInfo(packageName, 0)
 
-      @Suppress("DEPRECATION")
-      val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        info?.longVersionCode
-      } else {
-        info?.versionCode
-      }
-
-      val dbName = if (isSandbox) {
-        ANALYTICS_DB_NAME_SANDBOX
-      } else {
-        ANALYTICS_DB_NAME_PROD
-      }
-
-      PayKitAnalytics(
-        context = ApplicationContextHolder.applicationContext,
-        options = AnalyticsOptions(
-          delay = 10.seconds,
-          logLevel = Log.WARN,
-          databaseName = dbName,
-          isLoggerDisabled = !BuildConfig.DEBUG,
-          applicationVersionCode = versionCode!!.toInt(), // casting as int gives us the "legacy" version code
-        ),
-        cashAppLogger = cashAppLogger,
-      )
+    @Suppress("DEPRECATION")
+    val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      info?.longVersionCode
+    } else {
+      info?.versionCode
     }
 
-  private fun getUserAgentValue(): String {
-    return UserAgentProvider.provideUserAgent(ApplicationContextHolder.applicationContext)
+    val dbName = if (isSandbox) {
+      ANALYTICS_DB_NAME_SANDBOX
+    } else {
+      ANALYTICS_DB_NAME_PROD
+    }
+
+    PayKitAnalytics(
+      context = ApplicationContextHolder.applicationContext,
+      options = AnalyticsOptions(
+        delay = 10.seconds,
+        logLevel = Log.WARN,
+        databaseName = dbName,
+        isLoggerDisabled = !BuildConfig.DEBUG,
+        applicationVersionCode = versionCode!!.toInt(), // casting as int gives us the "legacy" version code
+      ),
+      cashAppLogger = cashAppLogger,
+    )
   }
+
+  private fun getUserAgentValue(): String = UserAgentProvider.provideUserAgent(
+    ApplicationContextHolder.applicationContext,
+  )
 
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.

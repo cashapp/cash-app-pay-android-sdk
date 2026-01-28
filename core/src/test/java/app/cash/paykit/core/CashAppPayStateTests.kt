@@ -44,8 +44,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import okhttp3.internal.notifyAll
-import okhttp3.internal.wait
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -76,9 +74,10 @@ class CashAppPayStateTests {
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)
 
-    every { networkManager.createCustomerRequest(any(), any(), any(), any()) } returns NetworkResult.failure(
-      Exception("bad"),
-    )
+    every { networkManager.createCustomerRequest(any(), any(), any(), any()) } returns
+      NetworkResult.failure(
+        Exception("bad"),
+      )
 
     payKit.createCustomerRequest(FakeData.oneTimePayment, FakeData.REDIRECT_URI)
     verify { listener.cashAppPayStateDidChange(CreatingCustomerRequest) }
@@ -211,7 +210,7 @@ class CashAppPayStateTests {
     // Initiate polling routine, and wait for thread to return.
     mockLifecycleListener.simulateOnApplicationForegrounded()
     synchronized(payKitListener) {
-      payKitListener.wait()
+      (payKitListener as Object).wait()
     }
 
     // Verify we got the expected result.
@@ -258,7 +257,7 @@ class CashAppPayStateTests {
     // Initiate polling routine, and wait for thread to return.
     mockLifecycleListener.simulateOnApplicationForegrounded()
     synchronized(payKitListener) {
-      payKitListener.wait()
+      (payKitListener as Object).wait()
     }
 
     // Verify we got the expected result.
@@ -286,17 +285,16 @@ class CashAppPayStateTests {
   private fun createPayKit(
     initialState: CashAppPayState = NotStarted,
     initialCustomerResponseData: CustomerResponseData? = null,
-  ) =
-    CashAppPayImpl(
-      clientId = FakeData.CLIENT_ID,
-      networkManager = networkManager,
-      payKitLifecycleListener = mockLifecycleListener,
-      useSandboxEnvironment = true,
-      initialState = initialState,
-      initialCustomerResponseData = initialCustomerResponseData,
-      analyticsEventDispatcher = mockk(relaxed = true),
-      logger = mockk(relaxed = true),
-    )
+  ) = CashAppPayImpl(
+    clientId = FakeData.CLIENT_ID,
+    networkManager = networkManager,
+    payKitLifecycleListener = mockLifecycleListener,
+    useSandboxEnvironment = true,
+    initialState = initialState,
+    initialCustomerResponseData = initialCustomerResponseData,
+    analyticsEventDispatcher = mockk(relaxed = true),
+    logger = mockk(relaxed = true),
+  )
 
   /**
    * Specialized Mock [CashAppPayLifecycleObserver] that we can easily simulate the following events:
@@ -332,7 +330,7 @@ class CashAppPayStateTests {
 
     override fun cashAppPayStateDidChange(newState: CashAppPayState) {
       state = newState
-      synchronized(this) { notifyAll() }
+      synchronized(this) { (this as Object).notifyAll() }
     }
   }
 }

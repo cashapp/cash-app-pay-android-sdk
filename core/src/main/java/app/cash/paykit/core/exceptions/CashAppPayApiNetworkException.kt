@@ -25,5 +25,4 @@ data class CashAppPayApiNetworkException(
   val code: String,
   val detail: String?,
   val field_value: String?,
-) :
-  CashAppPayNetworkException(API)
+) : CashAppPayNetworkException(API)
