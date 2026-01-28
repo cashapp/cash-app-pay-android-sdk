@@ -54,4 +54,17 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     val accountReferenceId: String? = null,
     override val referenceId: String? = null,
   ) : CashAppPayPaymentAction(scopeId, referenceId)
+
+  /**
+   * Creates a payout to a customer. A payout allows a merchant to send money to a customer’s
+   * Cash App account.
+   *
+   * @param scopeId This is analogous with the reference ID, an optional field required for brands and merchants support. If null, client ID will be used instead.
+   * @param accountReferenceId Identifier of the account or customer associated to the on file action.
+   */
+  data class OnFilePayoutAction(
+    override val scopeId: String? = null,
+    val accountReferenceId: String? = null,
+    override val referenceId: String? = null,
+  ) : CashAppPayPaymentAction(scopeId, referenceId)
 }

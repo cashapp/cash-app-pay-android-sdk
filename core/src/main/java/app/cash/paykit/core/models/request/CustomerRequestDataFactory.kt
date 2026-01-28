@@ -19,6 +19,7 @@ import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.pii.PiiString
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 
 /**
@@ -29,6 +30,7 @@ object CustomerRequestDataFactory {
   internal const val CHANNEL_IN_APP = "IN_APP"
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
   private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
+  private const val PAYMENT_TYPE_ON_FILE_PAYOUT = "ON_FILE_PAYOUT"
 
   fun build(
     clientId: String,
@@ -43,6 +45,7 @@ object CustomerRequestDataFactory {
       when (paymentAction) {
         is OnFileAction -> actions.add(buildFromOnFileAction(clientId, paymentAction))
         is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId, paymentAction))
+        is OnFilePayoutAction -> actions.add(buildFromOnFilePayoutAction(clientId, paymentAction))
       }
     }
 
@@ -63,10 +66,7 @@ object CustomerRequestDataFactory {
     }
   }
 
-  private fun buildFromOnFileAction(
-    clientId: String,
-    onFileAction: OnFileAction,
-  ): Action {
+  private fun buildFromOnFileAction(clientId: String, onFileAction: OnFileAction): Action {
     // Create request data.
     val scopeIdOrClientId = onFileAction.scopeId ?: clientId
 
@@ -77,10 +77,7 @@ object CustomerRequestDataFactory {
     )
   }
 
-  private fun buildFromOneTimeAction(
-    clientId: String,
-    oneTimeAction: OneTimeAction,
-  ): Action {
+  private fun buildFromOneTimeAction(clientId: String, oneTimeAction: OneTimeAction): Action {
     // Create request data.
     val scopeIdOrClientId = oneTimeAction.scopeId ?: clientId
     return Action(
@@ -88,6 +85,20 @@ object CustomerRequestDataFactory {
       currency = oneTimeAction.currency?.backendValue,
       scopeId = scopeIdOrClientId,
       type = PAYMENT_TYPE_ONE_TIME,
+    )
+  }
+
+  private fun buildFromOnFilePayoutAction(
+    clientId: String,
+    onFilePayoutAction: OnFilePayoutAction,
+  ): Action {
+    // Create request data.
+    val scopeIdOrClientId = onFilePayoutAction.scopeId ?: clientId
+
+    return Action(
+      scopeId = scopeIdOrClientId,
+      type = PAYMENT_TYPE_ON_FILE_PAYOUT,
+      accountReferenceId = onFilePayoutAction.accountReferenceId?.let { PiiString(it) },
     )
   }
 }
