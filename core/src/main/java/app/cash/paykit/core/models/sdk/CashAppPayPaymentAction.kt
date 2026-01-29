@@ -33,7 +33,19 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
    *
    * @param currency The type of currency to use for this payment.
    * @param amount Amount for this payment (typically in cents or equivalent monetary unit).
-   * @param scopeId This is analogous with the reference ID, an optional field required for brands and merchants support. If null, client ID will be used instead.
+   * @param scopeId ID of the client, brand, or merchant that will charge the customer.
+   *
+   * If a **client ID** is passed, the grant from this action can be used to create a
+   * payment for any merchant owned by the client.
+   *
+   * If a **brand ID** is passed, the grant from this action can be used to create a
+   * payment for any merchant that has a matching brand ID.
+   *
+   * If a **merchant ID** is passed, the grant from this action can be used to create a
+   * payment for the merchant with a matching ID.
+   *
+   * @param referenceId A user-defined identifier for this request, typically used to
+   * associate the resource with a record in an external system.
    */
   data class OneTimeAction(
     val currency: CashAppPayCurrency?,
@@ -46,8 +58,20 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
    * Describes an intent for a client to store a customer's account, allowing a client to create payments
    * or issue refunds for it on a recurring basis.
    *
-   * @param scopeId This is analogous with the reference ID, an optional field required for brands and merchants support. If null, client ID will be used instead.
+   * @param scopeId ID of the client, brand, or merchant that will charge the customer.
+   *
+   * If a **client ID** is passed, the grant from this action can be used to create a
+   * payment for any merchant owned by the client.
+   *
+   * If a **brand ID** is passed, the grant from this action can be used to create a
+   * payment for any merchant that has a matching brand ID.
+   *
+   * If a **merchant ID** is passed, the grant from this action can be used to create a
+   * payment for the merchant with a matching ID.
+   *
    * @param accountReferenceId Identifier of the account or customer associated to the on file action.
+   * @param referenceId A user-defined identifier for this request, typically used to
+   * associate the resource with a record in an external system.
    */
   data class OnFileAction(
     override val scopeId: String? = null,
@@ -59,12 +83,25 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
    * Creates a payout to a customer. A payout allows a merchant to send money to a customer’s
    * Cash App account.
    *
-   * @param scopeId This is analogous with the reference ID, an optional field required for brands and merchants support. If null, client ID will be used instead.
    * @param accountReferenceId Identifier of the account or customer associated to the on file action.
+   * @param scopeId ID of the client, brand, or merchant that will charge the customer.
+   *
+   * If a **client ID** is passed, the grant from this action can be used to create a
+   * payment for any merchant owned by the client.
+   *
+   * If a **brand ID** is passed, the grant from this action can be used to create a
+   * payment for any merchant that has a matching brand ID.
+   *
+   * If a **merchant ID** is passed, the grant from this action can be used to create a
+   * payment for the merchant with a matching ID.
+   *
+   * @param referenceId A user-defined identifier for this request, typically used to
+   * associate the resource with a record in an external system.
+   *
    */
   data class OnFilePayoutAction(
-    override val scopeId: String? = null,
     val accountReferenceId: String? = null,
+    override val scopeId: String? = null,
     override val referenceId: String? = null,
   ) : CashAppPayPaymentAction(scopeId, referenceId)
 }
