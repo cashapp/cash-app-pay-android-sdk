@@ -19,8 +19,7 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonReader.Token.NULL
 import com.squareup.moshi.JsonWriter
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toInstant
+import java.time.Instant
 
 internal class InstantAdapter : JsonAdapter<Instant>() {
 
@@ -29,7 +28,7 @@ internal class InstantAdapter : JsonAdapter<Instant>() {
       return reader.nextNull<Instant>()
     }
     val timeRFC3339 = reader.nextString()
-    return timeRFC3339.toInstant()
+    return Instant.parse(timeRFC3339)
   }
 
   override fun toJson(writer: JsonWriter, value: Instant?) {

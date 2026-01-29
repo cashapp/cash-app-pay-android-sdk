@@ -16,7 +16,7 @@ buildscript {
     google_truth_version = '1.4.5'
     startup_version = '1.2.0'
     okhttp_version = '5.3.2'
-    kotlinx_date_version = '0.6.2'
+    desugar_jdk_libs_version = '2.1.5'
 
     versions = [
         'minSdk': 21,

@@ -1,3 +1,7 @@
+# NEXT RELEASE | WIP
+## Breaking Changes
+- Our internal implementation no longer depends on `kotlinx-datetime` 
+
 # 2.6.0
 ## Breaking Changes
 - Introduces new button styles and deprecates existing styles. This is also replaces 
