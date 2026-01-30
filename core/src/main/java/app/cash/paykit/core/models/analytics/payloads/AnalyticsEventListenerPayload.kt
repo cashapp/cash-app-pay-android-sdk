@@ -22,7 +22,7 @@ import com.squareup.moshi.JsonClass
  * This payload corresponds to the (mobile_cap_pk_event_listener)[https://es-manager.stage.sqprod.co/schema-manager/catalogs/1340] Catalog.
  */
 @JsonClass(generateAdapter = true)
-class AnalyticsEventListenerPayload(
+internal class AnalyticsEventListenerPayload(
   /*
    * Common fields.
    */

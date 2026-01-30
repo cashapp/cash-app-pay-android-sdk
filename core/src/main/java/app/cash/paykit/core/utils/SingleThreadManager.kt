@@ -15,7 +15,7 @@
  */
 package app.cash.paykit.core.utils
 
-enum class ThreadPurpose {
+internal enum class ThreadPurpose {
   REFRESH_AUTH_TOKEN,
   CHECK_APPROVAL_STATUS,
   DEFERRED_REFRESH,

@@ -21,7 +21,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class CustomerRequestData(
+internal data class CustomerRequestData(
   @Json(name = "actions")
   val actions: List<Action>,
   @Json(name = "channel")

@@ -19,7 +19,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class ApiError(
+internal data class ApiError(
   @Json(name = "category")
   val category: String,
   @Json(name = "code")

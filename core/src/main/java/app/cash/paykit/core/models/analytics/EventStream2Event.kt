@@ -19,7 +19,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class EventStream2Event(
+internal data class EventStream2Event(
   @Json(name = "app_name")
   val appName: String,
   @Json(name = "catalog_name")
