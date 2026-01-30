@@ -34,7 +34,7 @@ internal class SingleThreadManagerImpl(private val logger: CashAppLogger) : Sing
     try {
       threads[purpose]?.interrupt()
     } catch (e: Exception) {
-      logger.logError(TAG, "Failed to interrupt thread: ${purpose.name}", e)
+      logger.logError(tag = TAG, msg = "Failed to interrupt thread: ${purpose.name}", throwable = e)
     } finally {
       threads[purpose] = null
     }
