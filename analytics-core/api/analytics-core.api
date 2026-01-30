@@ -1,0 +1,177 @@
+public final class app/cash/paykit/analytics/AnalyticsLogger {
+	public fun <init> (Lapp/cash/paykit/analytics/AnalyticsOptions;Lapp/cash/paykit/logging/CashAppLogger;)V
+	public final fun e (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;)V
+	public static synthetic fun e$default (Lapp/cash/paykit/analytics/AnalyticsLogger;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Throwable;ILjava/lang/Object;)V
+	public final fun v (Ljava/lang/String;Ljava/lang/String;)V
+	public final fun w (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class app/cash/paykit/analytics/AnalyticsOptions {
+	public synthetic fun <init> (JJIILjava/lang/String;IZIILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJIILjava/lang/String;IZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1-UwyO8pc ()J
+	public final fun component2-UwyO8pc ()J
+	public final fun component3 ()I
+	public final fun component4 ()I
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()I
+	public final fun component7 ()Z
+	public final fun component8 ()I
+	public final fun copy-SC-SkC4 (JJIILjava/lang/String;IZI)Lapp/cash/paykit/analytics/AnalyticsOptions;
+	public static synthetic fun copy-SC-SkC4$default (Lapp/cash/paykit/analytics/AnalyticsOptions;JJIILjava/lang/String;IZIILjava/lang/Object;)Lapp/cash/paykit/analytics/AnalyticsOptions;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getApplicationVersionCode ()I
+	public final fun getBatchSize ()I
+	public final fun getDatabaseName ()Ljava/lang/String;
+	public final fun getDelay-UwyO8pc ()J
+	public final fun getInterval-UwyO8pc ()J
+	public final fun getLogLevel ()I
+	public final fun getMaxEntryCountPerProcess ()I
+	public fun hashCode ()I
+	public final fun isLoggerDisabled ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class app/cash/paykit/analytics/BuildConfig {
+	public static final field BUILD_TYPE Ljava/lang/String;
+	public static final field DEBUG Z
+	public static final field LIBRARY_PACKAGE_NAME Ljava/lang/String;
+	public fun <init> ()V
+}
+
+public final class app/cash/paykit/analytics/PayKitAnalytics {
+	public static final field Companion Lapp/cash/paykit/analytics/PayKitAnalytics$Companion;
+	public fun <init> (Landroid/content/Context;Lapp/cash/paykit/analytics/AnalyticsOptions;Lapp/cash/paykit/logging/CashAppLogger;Lapp/cash/paykit/analytics/persistence/sqlite/AnalyticsSqLiteHelper;Lapp/cash/paykit/analytics/persistence/EntriesDataSource;Lapp/cash/paykit/analytics/AnalyticsLogger;[Lapp/cash/paykit/analytics/core/DeliveryHandler;)V
+	public synthetic fun <init> (Landroid/content/Context;Lapp/cash/paykit/analytics/AnalyticsOptions;Lapp/cash/paykit/logging/CashAppLogger;Lapp/cash/paykit/analytics/persistence/sqlite/AnalyticsSqLiteHelper;Lapp/cash/paykit/analytics/persistence/EntriesDataSource;Lapp/cash/paykit/analytics/AnalyticsLogger;[Lapp/cash/paykit/analytics/core/DeliveryHandler;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun dispatch (Lapp/cash/paykit/analytics/core/Deliverable;)Lapp/cash/paykit/analytics/PayKitAnalytics$ScheduleDeliverableTask;
+	public final fun dispatch (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lapp/cash/paykit/analytics/PayKitAnalytics$ScheduleDeliverableTask;
+	public final fun getDeliveryHandler (Ljava/lang/String;)Lapp/cash/paykit/analytics/core/DeliveryHandler;
+	public final fun getEntriesDataSource ()Lapp/cash/paykit/analytics/persistence/EntriesDataSource;
+	public final fun registerDeliveryHandler (Lapp/cash/paykit/analytics/core/DeliveryHandler;)V
+	public final fun scheduleForDelivery (Lapp/cash/paykit/analytics/core/Deliverable;)Lapp/cash/paykit/analytics/PayKitAnalytics$ScheduleDeliverableTask;
+	public final fun scheduleForDelivery (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lapp/cash/paykit/analytics/PayKitAnalytics$ScheduleDeliverableTask;
+	public final fun scheduleShutdown ()V
+	public final fun unregisterDeliveryHandler (Lapp/cash/paykit/analytics/core/DeliveryHandler;)V
+}
+
+public final class app/cash/paykit/analytics/PayKitAnalytics$Companion {
+}
+
+public final class app/cash/paykit/analytics/PayKitAnalytics$ScheduleDeliverableTask : java/util/concurrent/FutureTask {
+	public fun <init> (Lapp/cash/paykit/analytics/PayKitAnalytics;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public abstract interface class app/cash/paykit/analytics/core/Deliverable {
+	public abstract fun getContent ()Ljava/lang/String;
+	public abstract fun getMetaData ()Ljava/lang/String;
+	public abstract fun getType ()Ljava/lang/String;
+}
+
+public abstract class app/cash/paykit/analytics/core/DeliveryHandler {
+	public static final field Companion Lapp/cash/paykit/analytics/core/DeliveryHandler$Companion;
+	public fun <init> ()V
+	public abstract fun deliver (Ljava/util/List;Lapp/cash/paykit/analytics/core/DeliveryListener;)V
+	public abstract fun getDeliverableType ()Ljava/lang/String;
+	public final fun getDeliveryListener ()Lapp/cash/paykit/analytics/core/DeliveryListener;
+	public final fun getLogger ()Lapp/cash/paykit/analytics/AnalyticsLogger;
+	public final fun setLogger (Lapp/cash/paykit/analytics/AnalyticsLogger;)V
+}
+
+public final class app/cash/paykit/analytics/core/DeliveryHandler$Companion {
+}
+
+public abstract interface class app/cash/paykit/analytics/core/DeliveryListener {
+	public abstract fun onError (Ljava/util/List;)V
+	public abstract fun onSuccess (Ljava/util/List;)V
+}
+
+public final class app/cash/paykit/analytics/persistence/AnalyticEntry {
+	public static final field Companion Lapp/cash/paykit/analytics/persistence/AnalyticEntry$Companion;
+	public static final field STATE_DELIVERY_FAILED I
+	public static final field STATE_DELIVERY_IN_PROGRESS I
+	public static final field STATE_DELIVERY_PENDING I
+	public static final field STATE_NEW I
+	public fun <init> (JLjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (JLjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()J
+	public final fun component2 ()Ljava/lang/String;
+	public final fun component3 ()Ljava/lang/String;
+	public final fun component4 ()I
+	public final fun component5 ()Ljava/lang/String;
+	public final fun component6 ()Ljava/lang/String;
+	public final fun component7 ()Ljava/lang/String;
+	public final fun copy (JLjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;)Lapp/cash/paykit/analytics/persistence/AnalyticEntry;
+	public static synthetic fun copy$default (Lapp/cash/paykit/analytics/persistence/AnalyticEntry;JLjava/lang/String;Ljava/lang/String;ILjava/lang/String;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lapp/cash/paykit/analytics/persistence/AnalyticEntry;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getContent ()Ljava/lang/String;
+	public final fun getId ()J
+	public final fun getMetaData ()Ljava/lang/String;
+	public final fun getProcessId ()Ljava/lang/String;
+	public final fun getState ()I
+	public final fun getType ()Ljava/lang/String;
+	public final fun getVersion ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class app/cash/paykit/analytics/persistence/AnalyticEntry$Companion {
+	public final fun from (Landroid/database/Cursor;)Lapp/cash/paykit/analytics/persistence/AnalyticEntry;
+}
+
+public abstract class app/cash/paykit/analytics/persistence/EntriesDataSource {
+	public fun <init> (Lapp/cash/paykit/analytics/AnalyticsOptions;)V
+	public abstract fun deleteEntry (Ljava/util/List;)V
+	public final fun generateProcessId (Ljava/lang/String;)Ljava/lang/String;
+	public abstract fun getEntriesByProcessIdAndState (Ljava/lang/String;Ljava/lang/String;III)Ljava/util/List;
+	public final fun getEntriesForDelivery (Ljava/lang/String;Ljava/lang/String;)Ljava/util/List;
+	public final fun getEntriesForDelivery (Ljava/lang/String;Ljava/lang/String;II)Ljava/util/List;
+	public final fun getOptions ()Lapp/cash/paykit/analytics/AnalyticsOptions;
+	public abstract fun insertEntry (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)J
+	public abstract fun markEntriesForDelivery (Ljava/lang/String;Ljava/lang/String;)V
+	public abstract fun resetEntries ()V
+	public abstract fun updateStatuses (Ljava/util/List;I)V
+}
+
+public final class app/cash/paykit/analytics/persistence/EntriesDataSourceKt {
+	public static final fun toCommaSeparatedListIds (Ljava/util/List;)Ljava/lang/String;
+}
+
+public final class app/cash/paykit/analytics/persistence/sqlite/AnalyticsSQLiteDataSource : app/cash/paykit/analytics/persistence/EntriesDataSource {
+	public static final field COLUMN_CONTENT Ljava/lang/String;
+	public static final field COLUMN_ID Ljava/lang/String;
+	public static final field COLUMN_META_DATA Ljava/lang/String;
+	public static final field COLUMN_PROCESS_ID Ljava/lang/String;
+	public static final field COLUMN_STATE Ljava/lang/String;
+	public static final field COLUMN_TYPE Ljava/lang/String;
+	public static final field COLUMN_VERSION Ljava/lang/String;
+	public static final field Companion Lapp/cash/paykit/analytics/persistence/sqlite/AnalyticsSQLiteDataSource$Companion;
+	public static final field SQL_CREATE_INDEX_FOR_COLUMN_PROCESS_ID Ljava/lang/String;
+	public static final field SQL_CREATE_INDEX_FOR_COLUMN_STATE Ljava/lang/String;
+	public static final field SQL_CREATE_INDEX_FOR_COLUMN_TYPE Ljava/lang/String;
+	public static final field SQL_CREATE_TABLE Ljava/lang/String;
+	public static final field TABLE_SYNC_ENTRIES Ljava/lang/String;
+	public fun <init> (Lapp/cash/paykit/analytics/persistence/sqlite/AnalyticsSqLiteHelper;Lapp/cash/paykit/analytics/AnalyticsOptions;Lapp/cash/paykit/logging/CashAppLogger;Lapp/cash/paykit/analytics/AnalyticsLogger;)V
+	public synthetic fun <init> (Lapp/cash/paykit/analytics/persistence/sqlite/AnalyticsSqLiteHelper;Lapp/cash/paykit/analytics/AnalyticsOptions;Lapp/cash/paykit/logging/CashAppLogger;Lapp/cash/paykit/analytics/AnalyticsLogger;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun deleteEntry (Ljava/util/List;)V
+	public fun getEntriesByProcessIdAndState (Ljava/lang/String;Ljava/lang/String;III)Ljava/util/List;
+	public fun insertEntry (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)J
+	public fun markEntriesForDelivery (Ljava/lang/String;Ljava/lang/String;)V
+	public fun resetEntries ()V
+	public fun updateStatuses (Ljava/util/List;I)V
+}
+
+public final class app/cash/paykit/analytics/persistence/sqlite/AnalyticsSQLiteDataSource$Companion {
+}
+
+public final class app/cash/paykit/analytics/persistence/sqlite/AnalyticsSqLiteHelper : android/database/sqlite/SQLiteOpenHelper {
+	public static final field Companion Lapp/cash/paykit/analytics/persistence/sqlite/AnalyticsSqLiteHelper$Companion;
+	public static final field DATABASE_VERSION I
+	public fun <init> (Landroid/content/Context;Lapp/cash/paykit/analytics/AnalyticsOptions;)V
+	public final fun getDatabase ()Landroid/database/sqlite/SQLiteDatabase;
+	public fun onCreate (Landroid/database/sqlite/SQLiteDatabase;)V
+	public fun onUpgrade (Landroid/database/sqlite/SQLiteDatabase;II)V
+}
+
+public final class app/cash/paykit/analytics/persistence/sqlite/AnalyticsSqLiteHelper$Companion {
+}
+
