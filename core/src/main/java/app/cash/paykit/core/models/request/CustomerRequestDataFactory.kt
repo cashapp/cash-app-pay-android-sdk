@@ -43,9 +43,9 @@ object CustomerRequestDataFactory {
 
     for (paymentAction in paymentActions) {
       when (paymentAction) {
-        is OnFileAction -> actions.add(buildFromOnFileAction(clientId, paymentAction))
-        is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId, paymentAction))
-        is OnFilePayoutAction -> actions.add(buildFromOnFilePayoutAction(clientId, paymentAction))
+        is OnFileAction -> actions.add(buildFromOnFileAction(clientId = clientId, onFileAction = paymentAction))
+        is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId = clientId, oneTimeAction = paymentAction))
+        is OnFilePayoutAction -> actions.add(buildFromOnFilePayoutAction(clientId = clientId, onFilePayoutAction = paymentAction))
       }
     }
 
