@@ -25,10 +25,10 @@ fun Thread.safeStart(errorMessage: String?, logger: CashAppLogger, onError: () -
     start()
   } catch (e: IllegalThreadStateException) {
     // This can happen if the thread is already started.
-    logger.logError(CAP_TAG, errorMessage ?: "", e)
+    logger.logError(tag = CAP_TAG, msg = errorMessage ?: "", throwable = e)
     onError()
   } catch (e: InterruptedException) {
-    logger.logError(CAP_TAG, errorMessage ?: "", e)
+    logger.logError(tag = CAP_TAG, msg = errorMessage ?: "", throwable = e)
     onError()
   }
 }

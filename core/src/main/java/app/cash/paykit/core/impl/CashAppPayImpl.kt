@@ -129,8 +129,8 @@ internal class CashAppPayImpl(
       callbackListener?.cashAppPayStateDidChange(value)
         .orElse {
           logger.logError(
-            CAP_TAG,
-            "State changed to ${value.javaClass.simpleName}, but no listeners were notified." +
+            tag = CAP_TAG,
+            msg = "State changed to ${value.javaClass.simpleName}, but no listeners were notified." +
               "Make sure that you've used `registerForStateUpdates` to receive PayKit state updates.",
           )
         }
@@ -306,8 +306,8 @@ internal class CashAppPayImpl(
 
     if (customerData.isAuthTokenExpired()) {
       logger.logVerbose(
-        CAP_TAG,
-        "Auth token expired when attempting to authenticate, refreshing before proceeding.",
+        tag = CAP_TAG,
+        msg = "Auth token expired when attempting to authenticate, refreshing before proceeding.",
       )
       deferredAuthorizeCustomerRequest()
       return
@@ -326,8 +326,8 @@ internal class CashAppPayImpl(
     currentState = Refreshing
 
     logger.logVerbose(
-      CAP_TAG,
-      "Will refresh customer request before proceeding with authorization.",
+      tag = CAP_TAG,
+      msg = "Will refresh customer request before proceeding with authorization.",
     )
     singleThreadManager.createThread(DEFERRED_REFRESH) {
       val networkResult = networkManager.retrieveUpdatedRequestData(
@@ -336,14 +336,14 @@ internal class CashAppPayImpl(
       )
       if (networkResult is Failure) {
         logger.logError(
-          CAP_TAG,
-          "Failed to refresh expired auth token customer request.",
-          networkResult.exception,
+          tag = CAP_TAG,
+          msg = "Failed to refresh expired auth token customer request.",
+          throwable = networkResult.exception,
         )
         currentState = CashAppPayExceptionState(networkResult.exception)
         return@createThread
       }
-      logger.logVerbose(CAP_TAG, "Refreshed customer request with SUCCESS")
+      logger.logVerbose(tag = CAP_TAG, msg = "Refreshed customer request with SUCCESS")
       customerResponseData = (networkResult as Success).data.customerResponseData
 
       if (currentState == Refreshing) {
@@ -382,8 +382,8 @@ internal class CashAppPayImpl(
 
     if (customerData.isAuthTokenExpired()) {
       logger.logVerbose(
-        CAP_TAG,
-        "Auth token expired when attempting to authenticate, refreshing before proceeding.",
+        tag = CAP_TAG,
+        msg = "Auth token expired when attempting to authenticate, refreshing before proceeding.",
       )
       deferredAuthorizeCustomerRequest()
       return
@@ -415,7 +415,7 @@ internal class CashAppPayImpl(
    *  Unregister any previously registered [CashAppPayListener] from PayKit updates.
    */
   override fun unregisterFromStateUpdates() {
-    logger.logVerbose(CAP_TAG, "Unregistering from state updates")
+    logger.logVerbose(tag = CAP_TAG, msg = "Unregistering from state updates")
     callbackListener = null
     payKitLifecycleListener.unregister(this)
     analyticsEventDispatcher.eventListenerRemoved()
@@ -484,15 +484,15 @@ internal class CashAppPayImpl(
       val hasExpired =
         customerResponseData?.expiresAt?.let { expiresAt -> currentTime > expiresAt } ?: false
       if (hasExpired) {
-        logger.logError(CAP_TAG, "Customer request has expired. Stopping refresh.")
+        logger.logError(tag = CAP_TAG, msg = "Customer request has expired. Stopping refresh.")
         return@createThread
       }
 
       if (currentState !is ReadyToAuthorize) {
         // In this case, we don't want to retry since we're in a state that doesn't allow it.
         logger.logWarning(
-          CAP_TAG,
-          "Not refreshing unauthorized customer request because state is not ReadyToAuthorize",
+          tag = CAP_TAG,
+          msg = "Not refreshing unauthorized customer request because state is not ReadyToAuthorize",
         )
         return@createThread
       }
@@ -503,16 +503,16 @@ internal class CashAppPayImpl(
       )
       if (networkResult is Failure) {
         logger.logError(
-          CAP_TAG,
-          "Failed to refresh expiring auth token customer request.",
-          networkResult.exception,
+          tag = CAP_TAG,
+          msg = "Failed to refresh expiring auth token customer request.",
+          throwable = networkResult.exception,
         )
 
         // Retry refreshing unauthorized customer request.
         refreshUnauthorizedCustomerRequest(delay)
         return@createThread
       }
-      logger.logVerbose(CAP_TAG, "Refreshed customer request with SUCCESS")
+      logger.logVerbose(tag = CAP_TAG, msg = "Refreshed customer request with SUCCESS")
       customerResponseData = (networkResult as Success).data.customerResponseData
       refreshUnauthorizedCustomerRequest(delay)
     }.safeStart("Could not start refreshUnauthorizedThread.", logger, onError = {
@@ -529,8 +529,8 @@ internal class CashAppPayImpl(
   ) {
     if (customerResponseData.authFlowTriggers?.refreshesAt == null) {
       logger.logError(
-        CAP_TAG,
-        "Unable to schedule unauthorized customer request refresh. RefreshesAt is null.",
+        tag = CAP_TAG,
+        msg = "Unable to schedule unauthorized customer request refresh. RefreshesAt is null.",
       )
       return
     }
@@ -541,8 +541,8 @@ internal class CashAppPayImpl(
 
     val refreshDelay = ttlSeconds.inWholeSeconds.minus(TOKEN_REFRESH_WINDOW.inWholeSeconds)
     logger.logVerbose(
-      CAP_TAG,
-      "Scheduling unauthorized customer request refresh in $refreshDelay seconds.",
+      tag = CAP_TAG,
+      msg = "Scheduling unauthorized customer request refresh in $refreshDelay seconds.",
     )
     refreshUnauthorizedCustomerRequest(refreshDelay.seconds)
   }
@@ -552,7 +552,7 @@ internal class CashAppPayImpl(
    */
   @Throws
   private fun logAndSoftCrash(msg: String, exception: Exception) {
-    logger.logError(CAP_TAG, msg, exception)
+    logger.logError(tag = CAP_TAG, msg = msg, throwable = exception)
     if (useSandboxEnvironment || BuildConfig.DEBUG) {
       throw exception
     }
@@ -566,7 +566,7 @@ internal class CashAppPayImpl(
     msg: String,
     exception: Exception,
   ): CashAppPayExceptionState {
-    logger.logError(CAP_TAG, msg, exception)
+    logger.logError(tag = CAP_TAG, msg = msg, throwable = exception)
     if (useSandboxEnvironment || BuildConfig.DEBUG) {
       throw exception
     }
@@ -593,11 +593,11 @@ internal class CashAppPayImpl(
    */
 
   override fun onApplicationForegrounded() {
-    logger.logVerbose(CAP_TAG, "onApplicationForegrounded")
+    logger.logVerbose(tag = CAP_TAG, msg = "onApplicationForegrounded")
     updateStateAndPoolForTransactionStatus()
   }
 
   override fun onApplicationBackgrounded() {
-    logger.logVerbose(CAP_TAG, "onApplicationBackgrounded")
+    logger.logVerbose(tag = CAP_TAG, msg = "onApplicationBackgrounded")
   }
 }

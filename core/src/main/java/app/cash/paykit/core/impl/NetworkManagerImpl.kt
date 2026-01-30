@@ -271,10 +271,10 @@ internal class NetworkManagerImpl(
               is Success -> {
                 val apiError = apiErrorResponse.data.apiErrors.first()
                 val apiException = CashAppPayApiNetworkException(
-                  apiError.category,
-                  apiError.code,
-                  apiError.detail,
-                  apiError.field_value,
+                  category = apiError.category,
+                  code = apiError.code,
+                  detail = apiError.detail,
+                  field_value = apiError.field_value,
                 )
                 NetworkResult.failure(apiException)
               }
