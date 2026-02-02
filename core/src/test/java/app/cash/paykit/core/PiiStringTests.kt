@@ -23,8 +23,8 @@ import com.google.common.truth.Truth.assertThat
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapter
-import kotlinx.datetime.Instant
 import org.junit.Test
+import java.time.Instant
 
 class PiiStringTests {
 

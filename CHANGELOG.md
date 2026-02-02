@@ -1,3 +1,17 @@
+# NEXT RELEASE | WIP
+## Breaking Changes
+ - Our internal implementation no longer depends on `kotlinx-datetime`, and now uses Java 8 time classes,
+namely `java.time.Instant`.
+As a result, if your app or library supports Android versions below API 26, you must enable 
+**[coreLibraryDesugaring](https://developer.android.com/studio/write/java8-support-table)** if it isn't already. In most cases, this will be evident at compile time, 
+as the build will fail with an error similar to the following:
+
+```
+Dependency XYZ requires core library desugaring to be enabled for :your-app-module.
+```
+
+ - Add new action `ON_FILE_PAYOUT`. A payout allows a merchant to send money to a user's Cash App account.
+
 # 2.6.0
 ## Breaking Changes
 - Introduces new button styles and deprecates existing styles. This is also replaces 
