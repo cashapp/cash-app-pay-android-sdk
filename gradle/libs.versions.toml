@@ -1,0 +1,55 @@
+[versions]
+# SDK Versions
+minSdk = "21"
+compileSdk = "36"
+
+# Plugin Versions
+agp = "8.13.2"
+kotlin = "2.2.21"
+ksp = "2.2.21-2.0.4"
+spotless = "8.2.0"
+mavenPublish = "0.32.0"
+binaryCompatibilityValidator = "0.18.1"
+
+# Dependency Versions
+desugarJdkLibs = "2.1.5"
+lifecycle = "2.9.0"
+moshi = "1.15.2"
+okhttp = "5.3.2"
+startup = "1.2.0"
+
+# Test Dependency Versions
+coroutinesTest = "1.9.0"
+junit = "4.13.2"
+junitAndroidx = "1.1.5"
+mockk = "1.14.9"
+robolectric = "4.15.1"
+truth = "1.4.5"
+
+[libraries]
+# Core Dependencies
+desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
+lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
+lifecycle-runtime-testing = { module = "androidx.lifecycle:lifecycle-runtime-testing", version.ref = "lifecycle" }
+moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
+moshi-kotlin-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
+startup-runtime = { module = "androidx.startup:startup-runtime", version.ref = "startup" }
+
+# Test Dependencies
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+junit = { module = "junit:junit", version.ref = "junit" }
+junit-androidx = { module = "androidx.test.ext:junit-ktx", version.ref = "junitAndroidx" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+truth = { module = "com.google.truth:truth", version.ref = "truth" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+binary-compatibility-validator = { id = "org.jetbrains.kotlinx.binary-compatibility-validator", version.ref = "binaryCompatibilityValidator" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+maven-publish = { id = "com.vanniktech.maven.publish.base", version.ref = "mavenPublish" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

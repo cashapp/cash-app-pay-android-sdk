@@ -6,18 +6,18 @@ plugins {
   alias(libs.plugins.maven.publish)
 }
 
-// https://issuetracker.google.com/issues/226095015
-com.android.tools.analytics.AnalyticsSettings.optedIn = false
-
 android {
-  namespace = "app.cash.paykit.logging"
+  namespace = "app.cash.paykit.analytics"
   compileSdk = libs.versions.compileSdk.get().toInt()
 
   defaultConfig {
     minSdk = libs.versions.minSdk.get().toInt()
 
+    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles("consumer-rules.pro")
   }
+
+  resourcePrefix = "paykit_analytics_"
 
   buildTypes {
     release {
@@ -42,15 +42,23 @@ android {
   lint {
     abortOnError = true
     htmlReport = true
-    warningsAsErrors = true
     checkAllWarnings = true
+    warningsAsErrors = true
     baseline = file("lint-baseline.xml")
+  }
+
+  buildFeatures {
+    buildConfig = true
   }
 }
 
 dependencies {
   testImplementation(libs.junit)
-  testImplementation(libs.truth)
+  testImplementation(libs.mockk)
+
+  implementation(project(":logging"))
+
+  // Robolectric environment.
   testImplementation(libs.robolectric)
 }
 
