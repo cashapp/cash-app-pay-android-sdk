@@ -505,18 +505,18 @@ public final class app/cash/paykit/core/models/response/ApiErrorResponseJsonAdap
 }
 
 public final class app/cash/paykit/core/models/response/AuthFlowTriggers {
-	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;)V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/time/Instant;)V
 	public final fun component1 ()Ljava/lang/String;
 	public final fun component2 ()Ljava/lang/String;
 	public final fun component3 ()Ljava/lang/String;
-	public final fun component4 ()Lkotlinx/datetime/Instant;
-	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;)Lapp/cash/paykit/core/models/response/AuthFlowTriggers;
-	public static synthetic fun copy$default (Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Lkotlinx/datetime/Instant;ILjava/lang/Object;)Lapp/cash/paykit/core/models/response/AuthFlowTriggers;
+	public final fun component4 ()Ljava/time/Instant;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/time/Instant;)Lapp/cash/paykit/core/models/response/AuthFlowTriggers;
+	public static synthetic fun copy$default (Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/time/Instant;ILjava/lang/Object;)Lapp/cash/paykit/core/models/response/AuthFlowTriggers;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getMobileUrl ()Ljava/lang/String;
 	public final fun getQrCodeImageUrl ()Ljava/lang/String;
 	public final fun getQrCodeSvgUrl ()Ljava/lang/String;
-	public final fun getRefreshesAt ()Lkotlinx/datetime/Instant;
+	public final fun getRefreshesAt ()Ljava/time/Instant;
 	public fun hashCode ()I
 	public fun toString ()Ljava/lang/String;
 }
@@ -553,9 +553,9 @@ public final class app/cash/paykit/core/models/response/CustomerProfileJsonAdapt
 }
 
 public final class app/cash/paykit/core/models/response/CustomerResponseData {
-	public fun <init> (Ljava/util/List;Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Lapp/cash/paykit/core/models/response/Origin;Lapp/cash/paykit/core/models/response/RequesterProfile;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lapp/cash/paykit/core/models/response/CustomerProfile;Ljava/util/List;Lapp/cash/paykit/core/models/pii/PiiString;)V
+	public fun <init> (Ljava/util/List;Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Lapp/cash/paykit/core/models/response/Origin;Lapp/cash/paykit/core/models/response/RequesterProfile;Ljava/lang/String;Ljava/time/Instant;Ljava/time/Instant;Ljava/time/Instant;Lapp/cash/paykit/core/models/response/CustomerProfile;Ljava/util/List;Lapp/cash/paykit/core/models/pii/PiiString;)V
 	public final fun component1 ()Ljava/util/List;
-	public final fun component10 ()Lkotlinx/datetime/Instant;
+	public final fun component10 ()Ljava/time/Instant;
 	public final fun component11 ()Lapp/cash/paykit/core/models/response/CustomerProfile;
 	public final fun component12 ()Ljava/util/List;
 	public final fun component13 ()Lapp/cash/paykit/core/models/pii/PiiString;
@@ -565,24 +565,24 @@ public final class app/cash/paykit/core/models/response/CustomerResponseData {
 	public final fun component5 ()Lapp/cash/paykit/core/models/response/Origin;
 	public final fun component6 ()Lapp/cash/paykit/core/models/response/RequesterProfile;
 	public final fun component7 ()Ljava/lang/String;
-	public final fun component8 ()Lkotlinx/datetime/Instant;
-	public final fun component9 ()Lkotlinx/datetime/Instant;
-	public final fun copy (Ljava/util/List;Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Lapp/cash/paykit/core/models/response/Origin;Lapp/cash/paykit/core/models/response/RequesterProfile;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lapp/cash/paykit/core/models/response/CustomerProfile;Ljava/util/List;Lapp/cash/paykit/core/models/pii/PiiString;)Lapp/cash/paykit/core/models/response/CustomerResponseData;
-	public static synthetic fun copy$default (Lapp/cash/paykit/core/models/response/CustomerResponseData;Ljava/util/List;Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Lapp/cash/paykit/core/models/response/Origin;Lapp/cash/paykit/core/models/response/RequesterProfile;Ljava/lang/String;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lkotlinx/datetime/Instant;Lapp/cash/paykit/core/models/response/CustomerProfile;Ljava/util/List;Lapp/cash/paykit/core/models/pii/PiiString;ILjava/lang/Object;)Lapp/cash/paykit/core/models/response/CustomerResponseData;
+	public final fun component8 ()Ljava/time/Instant;
+	public final fun component9 ()Ljava/time/Instant;
+	public final fun copy (Ljava/util/List;Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Lapp/cash/paykit/core/models/response/Origin;Lapp/cash/paykit/core/models/response/RequesterProfile;Ljava/lang/String;Ljava/time/Instant;Ljava/time/Instant;Ljava/time/Instant;Lapp/cash/paykit/core/models/response/CustomerProfile;Ljava/util/List;Lapp/cash/paykit/core/models/pii/PiiString;)Lapp/cash/paykit/core/models/response/CustomerResponseData;
+	public static synthetic fun copy$default (Lapp/cash/paykit/core/models/response/CustomerResponseData;Ljava/util/List;Lapp/cash/paykit/core/models/response/AuthFlowTriggers;Ljava/lang/String;Ljava/lang/String;Lapp/cash/paykit/core/models/response/Origin;Lapp/cash/paykit/core/models/response/RequesterProfile;Ljava/lang/String;Ljava/time/Instant;Ljava/time/Instant;Ljava/time/Instant;Lapp/cash/paykit/core/models/response/CustomerProfile;Ljava/util/List;Lapp/cash/paykit/core/models/pii/PiiString;ILjava/lang/Object;)Lapp/cash/paykit/core/models/response/CustomerResponseData;
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getActions ()Ljava/util/List;
 	public final fun getAuthFlowTriggers ()Lapp/cash/paykit/core/models/response/AuthFlowTriggers;
 	public final fun getChannel ()Ljava/lang/String;
-	public final fun getCreatedAt ()Lkotlinx/datetime/Instant;
+	public final fun getCreatedAt ()Ljava/time/Instant;
 	public final fun getCustomerProfile ()Lapp/cash/paykit/core/models/response/CustomerProfile;
-	public final fun getExpiresAt ()Lkotlinx/datetime/Instant;
+	public final fun getExpiresAt ()Ljava/time/Instant;
 	public final fun getGrants ()Ljava/util/List;
 	public final fun getId ()Ljava/lang/String;
 	public final fun getOrigin ()Lapp/cash/paykit/core/models/response/Origin;
 	public final fun getReferenceId ()Lapp/cash/paykit/core/models/pii/PiiString;
 	public final fun getRequesterProfile ()Lapp/cash/paykit/core/models/response/RequesterProfile;
 	public final fun getStatus ()Ljava/lang/String;
-	public final fun getUpdatedAt ()Lkotlinx/datetime/Instant;
+	public final fun getUpdatedAt ()Ljava/time/Instant;
 	public fun hashCode ()I
 	public final fun isAuthTokenExpired ()Z
 	public fun toString ()Ljava/lang/String;
