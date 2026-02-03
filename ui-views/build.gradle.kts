@@ -6,16 +6,12 @@ plugins {
   alias(libs.plugins.maven.publish)
 }
 
-// https://issuetracker.google.com/issues/226095015
-com.android.tools.analytics.AnalyticsSettings.optedIn = false
-
 android {
-  namespace = "app.cash.paykit.logging"
+  namespace = "app.cash.paykit.ui.views"
   compileSdk = libs.versions.compileSdk.get().toInt()
 
   defaultConfig {
     minSdk = libs.versions.minSdk.get().toInt()
-
     consumerProguardFiles("consumer-rules.pro")
   }
 
@@ -35,22 +31,23 @@ android {
     jvmTarget = "17"
   }
 
+  resourcePrefix = "cap_"
+
   lint {
     abortOnError = true
     htmlReport = true
-    warningsAsErrors = true
     checkAllWarnings = true
+    warningsAsErrors = true
     baseline = file("lint-baseline.xml")
+    disable += setOf("GradleDependency", "AndroidGradlePluginVersion", "NewerVersionAvailable")
   }
 }
 
 dependencies {
   testImplementation(libs.junit)
-  testImplementation(libs.truth)
   testImplementation(libs.robolectric)
 }
 
 mavenPublishing {
-  // AndroidMultiVariantLibrary(publish a sources jar, publish a javadoc jar)
   configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = true))
 }
