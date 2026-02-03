@@ -22,7 +22,7 @@ import com.squareup.moshi.JsonClass
  * This payload corresponds to the (mobile_cap_pk_initialization)[https://es-manager.stage.sqprod.co/schema-manager/catalogs/1339] Catalog.
  */
 @JsonClass(generateAdapter = true)
-class AnalyticsInitializationPayload(
+internal class AnalyticsInitializationPayload(
   /*
    * Common fields.
    */

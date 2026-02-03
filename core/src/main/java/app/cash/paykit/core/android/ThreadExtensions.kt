@@ -20,7 +20,7 @@ import app.cash.paykit.logging.CashAppLogger
 /**
  * This class is used to wrap a thread start operation in a way that allows for smooth degradation on exception, as well as convenient and consistent error handling.
  */
-fun Thread.safeStart(errorMessage: String?, logger: CashAppLogger, onError: () -> Unit? = {}) {
+internal fun Thread.safeStart(errorMessage: String?, logger: CashAppLogger, onError: () -> Unit? = {}) {
   try {
     start()
   } catch (e: IllegalThreadStateException) {
