@@ -132,10 +132,6 @@ public abstract class app/cash/paykit/analytics/persistence/EntriesDataSource {
 	public abstract fun updateStatuses (Ljava/util/List;I)V
 }
 
-public final class app/cash/paykit/analytics/persistence/EntriesDataSourceKt {
-	public static final fun toCommaSeparatedListIds (Ljava/util/List;)Ljava/lang/String;
-}
-
 public final class app/cash/paykit/analytics/persistence/sqlite/AnalyticsSQLiteDataSource : app/cash/paykit/analytics/persistence/EntriesDataSource {
 	public static final field COLUMN_CONTENT Ljava/lang/String;
 	public static final field COLUMN_ID Ljava/lang/String;
