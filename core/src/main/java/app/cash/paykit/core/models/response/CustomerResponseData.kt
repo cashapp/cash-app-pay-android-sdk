@@ -19,8 +19,7 @@ import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.pii.PiiString
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import kotlinx.datetime.Clock.System
-import kotlinx.datetime.Instant
+import java.time.Instant
 
 const val STATUS_PENDING = "PENDING"
 const val STATUS_PROCESSING = "PROCESSING"
@@ -57,8 +56,8 @@ data class CustomerResponseData(
   val referenceId: PiiString?,
 ) {
   fun isAuthTokenExpired(): Boolean {
-    val now = System.now()
-    val isExpired = now > (authFlowTriggers?.refreshesAt ?: return false)
+    val now = Instant.now()
+    val isExpired = now.isAfter(authFlowTriggers?.refreshesAt ?: return false)
     return isExpired
   }
 }

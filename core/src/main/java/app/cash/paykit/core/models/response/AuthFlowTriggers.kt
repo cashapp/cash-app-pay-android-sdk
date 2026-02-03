@@ -17,7 +17,7 @@ package app.cash.paykit.core.models.response
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import kotlinx.datetime.Instant
+import java.time.Instant
 
 @JsonClass(generateAdapter = true)
 data class AuthFlowTriggers(
