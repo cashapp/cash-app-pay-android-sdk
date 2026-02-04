@@ -25,7 +25,7 @@ import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 /**
  * Factory that will create a [CreateCustomerRequest] from a [CashAppPayPaymentAction].
  */
-object CustomerRequestDataFactory {
+internal object CustomerRequestDataFactory {
 
   internal const val CHANNEL_IN_APP = "IN_APP"
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
