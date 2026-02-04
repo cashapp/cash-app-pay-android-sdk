@@ -27,6 +27,7 @@ subprojects {
           "charset" to "utf-8",
           "indent_size" to "2",
           "ktlint_standard_max-line-length" to "disabled",
+          "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
         ),
       )
       licenseHeaderFile(rootProject.file("gradle/license-header.txt"))
