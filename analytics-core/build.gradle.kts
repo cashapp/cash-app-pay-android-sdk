@@ -35,6 +35,10 @@ android {
     jvmTarget = "17"
   }
 
+  kotlin {
+    jvmToolchain(17)
+  }
+
   lint {
     abortOnError = true
     htmlReport = true

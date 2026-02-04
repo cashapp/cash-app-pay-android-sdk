@@ -23,7 +23,7 @@ import com.squareup.moshi.JsonClass
  * This payload corresponds to the (mobile_cap_pk_customer_request)[https://es-manager.stage.sqprod.co/schema-manager/catalogs/1341] Catalog.
  */
 @JsonClass(generateAdapter = true)
-data class AnalyticsCustomerRequestPayload(
+internal data class AnalyticsCustomerRequestPayload(
 
   /*
    * Common fields.

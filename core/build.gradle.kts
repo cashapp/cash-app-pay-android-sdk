@@ -42,6 +42,10 @@ android {
     jvmTarget = "17"
   }
 
+  kotlin {
+    jvmToolchain(17)
+  }
+
   resourcePrefix = "cap_"
 
   lint {
