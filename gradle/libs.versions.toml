@@ -4,6 +4,7 @@ minSdk = "21"
 compileSdk = "36"
 
 # Plugin Versions
+# We want to lock these dependencies at a lower than latest version to avoid forcing transitive updates onto merchants.
 agp = "8.13.2"
 kotlin = "2.2.21"
 ksp = "2.2.21-2.0.4"
