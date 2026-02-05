@@ -21,25 +21,25 @@ package app.cash.paykit.ui.compose
 enum class CashAppPayButtonStyle {
   /**
    * Default style: Polychrome (green) Cash logo on dark background.
-   * Recommended for light backgrounds.
+   * Recommended for light app backgrounds.
    */
   Default,
 
   /**
    * Alternative style: Dark monochrome Cash logo on green background.
-   * High-visibility option for light backgrounds.
+   * Works equally well in light and dark app backgrounds.
    */
   Alt,
 
   /**
    * Monochrome dark style: Light Cash logo on dark background.
-   * For dark backgrounds or high-contrast needs.
+   * For light app backgrounds.
    */
   MonochromeDark,
 
   /**
    * Monochrome light style: Dark Cash logo on light outlined background.
-   * For light backgrounds when color is not desired.
+   * For dark app backgrounds.
    */
   MonochromeLight,
 }
