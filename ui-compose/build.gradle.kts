@@ -32,7 +32,7 @@ android {
     jvmTarget = "17"
   }
 
-  resourcePrefix = "cap_"
+  resourcePrefix = "cap_compose_"
 
   buildFeatures {
     compose = true

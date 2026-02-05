@@ -65,7 +65,7 @@ fun CashAppPayButton(
   style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
   enabled: Boolean = true,
 ) {
-  val a11yLabel = stringResource(R.string.cap_a11_button_label)
+  val a11yLabel = stringResource(R.string.cap_compose_a11_button_label)
   val interactionSource = remember { MutableInteractionSource() }
   val shape = RoundedCornerShape(8.dp)
 
@@ -73,28 +73,28 @@ fun CashAppPayButton(
     when (style) {
       CashAppPayButtonStyle.Default -> ButtonProperties(
         backgroundColor = Color(0xFF101010),
-        logoRes = R.drawable.cap_logo_polychrome,
+        logoRes = R.drawable.cap_compose_logo_polychrome,
         hasBorder = false,
         rippleColor = Color.White,
       )
 
       CashAppPayButtonStyle.Alt -> ButtonProperties(
         backgroundColor = Color(0xFF00D64F),
-        logoRes = R.drawable.cap_logo_monochrome_dark,
+        logoRes = R.drawable.cap_compose_logo_monochrome_dark,
         hasBorder = false,
         rippleColor = Color.Black,
       )
 
       CashAppPayButtonStyle.MonochromeDark -> ButtonProperties(
         backgroundColor = Color(0xFF101010),
-        logoRes = R.drawable.cap_logo_monochrome_light,
+        logoRes = R.drawable.cap_compose_logo_monochrome_light,
         hasBorder = false,
         rippleColor = Color.White,
       )
 
       CashAppPayButtonStyle.MonochromeLight -> ButtonProperties(
         backgroundColor = Color(0xFFFFFFFF),
-        logoRes = R.drawable.cap_logo_monochrome_dark,
+        logoRes = R.drawable.cap_compose_logo_monochrome_dark,
         hasBorder = true,
         rippleColor = Color.Black,
       )
