@@ -16,32 +16,25 @@
 package app.cash.paykit.ui.compose
 
 import android.content.res.Configuration
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ripple
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -68,7 +61,6 @@ fun CashAppPayButton(
   enabled: Boolean = true,
 ) {
   val a11yLabel = stringResource(R.string.cap_compose_a11_button_label)
-  val interactionSource = remember { MutableInteractionSource() }
   val shape = RoundedCornerShape(8.dp)
 
   // Resolve Monochrome style based on app's current UI mode configuration
@@ -92,60 +84,50 @@ fun CashAppPayButton(
       CashAppPayButtonStyle.Default -> ButtonProperties(
         backgroundColor = Color(0xFF101010),
         logoRes = R.drawable.cap_compose_logo_polychrome,
-        hasBorder = false,
-        rippleColor = Color.White,
+        borderColor = null,
       )
 
       CashAppPayButtonStyle.Alt -> ButtonProperties(
         backgroundColor = Color(0xFF00D64F),
         logoRes = R.drawable.cap_compose_logo_monochrome_dark,
-        hasBorder = false,
-        rippleColor = Color.Black,
+        borderColor = null,
       )
 
       CashAppPayButtonStyle.MonochromeDark -> ButtonProperties(
         backgroundColor = Color(0xFF101010),
         logoRes = R.drawable.cap_compose_logo_monochrome_light,
-        hasBorder = false,
-        rippleColor = Color.White,
+        borderColor = null,
       )
 
       CashAppPayButtonStyle.MonochromeLight -> ButtonProperties(
         backgroundColor = Color(0xFFFFFFFF),
         logoRes = R.drawable.cap_compose_logo_monochrome_dark,
-        hasBorder = true,
-        rippleColor = Color.Black,
+        borderColor = Color.Black,
       )
 
       CashAppPayButtonStyle.Monochrome -> error("Monochrome should be resolved before this point")
     }
   }
 
-  val rippleIndication = ripple(color = buttonProperties.rippleColor)
-
-  Box(
+  Button(
+    onClick = onClick,
     modifier = modifier
       .defaultMinSize(minHeight = 48.dp)
       .height(48.dp)
       .fillMaxWidth()
-      .alpha(if (enabled) 1f else 0.3f)
-      .clip(shape)
-      .background(buttonProperties.backgroundColor)
-      .then(
-        if (buttonProperties.hasBorder) Modifier.border(1.dp, Color.Black, shape) else Modifier,
-      )
-      .clickable(
-        enabled = enabled,
-        interactionSource = interactionSource,
-        indication = rippleIndication,
-        onClick = onClick,
-      )
-      .semantics { contentDescription = a11yLabel },
-    contentAlignment = Alignment.Center,
+      .alpha(if (enabled) 1f else 0.3f),
+    enabled = enabled,
+    shape = shape,
+    colors = ButtonDefaults.buttonColors(
+      containerColor = buttonProperties.backgroundColor,
+      disabledContainerColor = buttonProperties.backgroundColor,
+    ),
+    border = buttonProperties.borderColor?.let { BorderStroke(1.dp, it) },
+    contentPadding = ButtonDefaults.ContentPadding,
   ) {
     Image(
       painter = painterResource(buttonProperties.logoRes),
-      contentDescription = null,
+      contentDescription = a11yLabel,
     )
   }
 }
@@ -153,8 +135,7 @@ fun CashAppPayButton(
 private data class ButtonProperties(
   val backgroundColor: Color,
   val logoRes: Int,
-  val hasBorder: Boolean,
-  val rippleColor: Color,
+  val borderColor: Color?,
 )
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
