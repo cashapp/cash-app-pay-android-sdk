@@ -42,4 +42,12 @@ enum class CashAppPayButtonStyle {
    * For dark app backgrounds.
    */
   MonochromeLight,
+
+  /**
+   * Theme-aware monochrome style that automatically picks MonochromeDark or MonochromeLight
+   * based on the app's current UI mode configuration.
+   * - Light mode: Uses MonochromeDark appearance (light logo on dark background)
+   * - Dark mode: Uses MonochromeLight appearance (dark logo on light background)
+   */
+  Monochrome,
 }

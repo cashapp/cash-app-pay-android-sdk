@@ -15,6 +15,7 @@
  */
 package app.cash.paykit.ui.compose
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -69,8 +71,24 @@ fun CashAppPayButton(
   val interactionSource = remember { MutableInteractionSource() }
   val shape = RoundedCornerShape(8.dp)
 
-  val buttonProperties = remember(style) {
-    when (style) {
+  // Resolve Monochrome style based on app's current UI mode configuration
+  val configuration = LocalConfiguration.current
+  val isDarkMode =
+    (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+  val resolvedStyle = when (style) {
+    CashAppPayButtonStyle.Monochrome -> {
+      if (isDarkMode) {
+        CashAppPayButtonStyle.MonochromeLight
+      } else {
+        CashAppPayButtonStyle.MonochromeDark
+      }
+    }
+
+    else -> style
+  }
+
+  val buttonProperties = remember(resolvedStyle) {
+    when (resolvedStyle) {
       CashAppPayButtonStyle.Default -> ButtonProperties(
         backgroundColor = Color(0xFF101010),
         logoRes = R.drawable.cap_compose_logo_polychrome,
@@ -98,6 +116,8 @@ fun CashAppPayButton(
         hasBorder = true,
         rippleColor = Color.Black,
       )
+
+      CashAppPayButtonStyle.Monochrome -> error("Monochrome should be resolved before this point")
     }
   }
 
@@ -176,5 +196,31 @@ private fun CashAppPayButtonDisabledPreview() {
     CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Alt, enabled = false)
     CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeDark, enabled = false)
     CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeLight, enabled = false)
+  }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Composable
+private fun CashAppPayButtonMonochromeLightThemePreview() {
+  Column(
+    modifier = Modifier.padding(16.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+  ) {
+    // In light theme, Monochrome will resolve to MonochromeDark appearance
+    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome)
+    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome, enabled = false)
+  }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF111111, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun CashAppPayButtonMonochromeDarkThemePreview() {
+  Column(
+    modifier = Modifier.padding(16.dp),
+    verticalArrangement = Arrangement.spacedBy(8.dp),
+  ) {
+    // In dark theme, Monochrome will resolve to MonochromeLight appearance
+    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome)
+    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome, enabled = false)
   }
 }
