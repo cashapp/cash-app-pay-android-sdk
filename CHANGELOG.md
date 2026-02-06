@@ -15,6 +15,7 @@ It has been moved to a separate, **optional dependency**: `group = "app.cash.pay
 Note that this is a View-based UI component. See below for the Compose alternative. If you do not use this component,
 you do not need to include this dependency in your project.
 
+The package has changed from `app.cash.paykit.core.ui.CashAppPayButton` to `app.cash.paykit.ui.views.CashAppPayButton`; update any import statements or XML references accordingly.
 
 ## New
 
