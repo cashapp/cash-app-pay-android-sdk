@@ -19,3 +19,5 @@ rootProject.name = "Pay Kit SDK"
 include(":core")
 include(":analytics-core")
 include(":logging")
+include(":ui-views")
+include(":ui-compose")

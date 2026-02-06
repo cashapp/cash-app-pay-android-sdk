@@ -10,6 +10,31 @@ as the build will fail with an error similar to the following:
 Dependency XYZ requires core library desugaring to be enabled for :your-app-module.
 ```
 
+ - `CashAppPayButton` (the Cash App Pay–styled button) is **no longer** bundled with the core PayKit SDK.
+It has been moved to a separate, **optional dependency**: `group = "app.cash.paykit", name = "ui-views"`.
+Note that this is a View-based UI component. See below for the Compose alternative. If you do not use this component,
+you do not need to include this dependency in your project.
+
+The package has changed from `app.cash.paykit.core.ui.CashAppPayButton` to `app.cash.paykit.ui.views.CashAppPayButton`; update any import statements or XML references accordingly.
+
+## New
+
+ - Added a new **optional** dependency providing a **Jetpack Compose** version of the Cash App Pay–styled button, 
+with the same supported variants: `group = "app.cash.paykit", name = "ui-compose"`. If you do not use this component, 
+ you do not need to include this dependency in your project.
+
+**Composable API:**
+
+```kotlin
+@Composable
+fun CashAppPayButton(
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
+  enabled: Boolean = true,
+)
+```
+
  - Add new action `ON_FILE_PAYOUT`. A payout allows a merchant to send money to a user's Cash App account.
 
 # 2.6.0

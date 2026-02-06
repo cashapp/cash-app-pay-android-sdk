@@ -73,7 +73,6 @@ android {
 dependencies {
   coreLibraryDesugaring(libs.desugar.jdk.libs)
 
-  // We want to lock this dependency at a lower than latest version to not force transitive updates onto merchants.
   ksp(libs.moshi.kotlin.codegen)
   implementation(libs.moshi.kotlin)
 

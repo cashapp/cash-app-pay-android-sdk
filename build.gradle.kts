@@ -1,3 +1,5 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
 import com.vanniktech.maven.publish.SonatypeHost
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -15,7 +17,7 @@ subprojects {
   version = "2.6.1-SNAPSHOT"
 
   apply(plugin = "com.diffplug.spotless")
-  extensions.configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+  extensions.configure<SpotlessExtension> {
     kotlin {
       target("src/**/*.kt")
       ktlint("1.8.0").editorConfigOverride(
@@ -25,6 +27,7 @@ subprojects {
           "charset" to "utf-8",
           "indent_size" to "2",
           "ktlint_standard_max-line-length" to "disabled",
+          "ktlint_function_naming_ignore_when_annotated_with" to "Composable",
         ),
       )
       licenseHeaderFile(rootProject.file("gradle/license-header.txt"))
@@ -36,7 +39,7 @@ subprojects {
 
   plugins.withId("com.vanniktech.maven.publish.base") {
     apply(plugin = "binary-compatibility-validator")
-    extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
+    extensions.configure<MavenPublishBaseExtension> {
       publishToMavenCentral(SonatypeHost.DEFAULT, automaticRelease = true)
       signAllPublications()
       pom {

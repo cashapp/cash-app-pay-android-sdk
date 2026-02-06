@@ -465,11 +465,3 @@ public final class app/cash/paykit/core/models/sdk/CashAppPayPaymentAction$OneTi
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class app/cash/paykit/core/ui/CashAppPayButton : android/widget/ImageButton {
-	public fun <init> (Landroid/content/Context;)V
-	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;)V
-	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;I)V
-	public synthetic fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public fun setEnabled (Z)V
-}
-

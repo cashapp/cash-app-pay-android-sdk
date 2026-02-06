@@ -3,26 +3,22 @@ import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
 plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.kotlin.android)
+  alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.maven.publish)
 }
 
-// https://issuetracker.google.com/issues/226095015
-com.android.tools.analytics.AnalyticsSettings.optedIn = false
-
 android {
-  namespace = "app.cash.paykit.logging"
+  namespace = "app.cash.paykit.ui.compose"
   compileSdk = libs.versions.compileSdk.get().toInt()
 
   defaultConfig {
     minSdk = libs.versions.minSdk.get().toInt()
-
     consumerProguardFiles("consumer-rules.pro")
   }
 
   buildTypes {
     release {
       isMinifyEnabled = false
-      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
 
@@ -35,22 +31,37 @@ android {
     jvmTarget = "17"
   }
 
+  resourcePrefix = "cap_compose_"
+
+  buildFeatures {
+    compose = true
+  }
+
   lint {
     abortOnError = true
     htmlReport = true
-    warningsAsErrors = true
     checkAllWarnings = true
+    warningsAsErrors = true
     baseline = file("lint-baseline.xml")
+    lintConfig = file("lint.xml")
+    disable += setOf("GradleDependency", "AndroidGradlePluginVersion", "NewerVersionAvailable")
   }
 }
 
 dependencies {
+  api(libs.compose.ui)
+  implementation(platform(libs.compose.bom))
+  implementation(libs.compose.foundation)
+  implementation(libs.compose.material3)
+  implementation(libs.compose.ui.tooling.preview)
+
+  debugImplementation(libs.compose.ui.tooling)
+
+  lintChecks(libs.compose.lints)
+
   testImplementation(libs.junit)
-  testImplementation(libs.truth)
-  testImplementation(libs.robolectric)
 }
 
 mavenPublishing {
-  // AndroidMultiVariantLibrary(publish a sources jar, publish a javadoc jar)
   configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = true))
 }
