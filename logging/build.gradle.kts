@@ -1,4 +1,6 @@
+import com.android.tools.analytics.AnalyticsSettings
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.android.library)
@@ -7,7 +9,7 @@ plugins {
 }
 
 // https://issuetracker.google.com/issues/226095015
-com.android.tools.analytics.AnalyticsSettings.optedIn = false
+AnalyticsSettings.optedIn = false
 
 android {
   namespace = "app.cash.paykit.logging"
@@ -31,8 +33,10 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
 
-  kotlinOptions {
-    jvmTarget = "17"
+  kotlin {
+    compilerOptions {
+      jvmTarget.set(JvmTarget.JVM_17)
+    }
   }
 
   lint {
@@ -51,6 +55,5 @@ dependencies {
 }
 
 mavenPublishing {
-  // AndroidMultiVariantLibrary(publish a sources jar, publish a javadoc jar)
   configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = true))
 }

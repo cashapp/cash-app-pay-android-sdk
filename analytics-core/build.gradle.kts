@@ -1,4 +1,5 @@
 import com.vanniktech.maven.publish.AndroidSingleVariantLibrary
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
   alias(libs.plugins.android.library)
@@ -31,8 +32,10 @@ android {
     targetCompatibility = JavaVersion.VERSION_17
   }
 
-  kotlinOptions {
-    jvmTarget = "17"
+  kotlin {
+    compilerOptions {
+      jvmTarget.set(JvmTarget.JVM_17)
+    }
   }
 
   kotlin {
@@ -63,6 +66,5 @@ dependencies {
 }
 
 mavenPublishing {
-  // AndroidMultiVariantLibrary(publish a sources jar, publish a javadoc jar)
   configure(AndroidSingleVariantLibrary("release", sourcesJar = true, publishJavadocJar = true))
 }

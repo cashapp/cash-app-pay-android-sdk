@@ -1,6 +1,5 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
 import com.vanniktech.maven.publish.MavenPublishBaseExtension
-import com.vanniktech.maven.publish.SonatypeHost
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
@@ -14,7 +13,7 @@ plugins {
 
 subprojects {
   group = "app.cash.paykit"
-  version = "2.6.1-SNAPSHOT"
+  version = "3.0.0-SNAPSHOT"
 
   apply(plugin = "com.diffplug.spotless")
   extensions.configure<SpotlessExtension> {
@@ -40,7 +39,7 @@ subprojects {
   plugins.withId("com.vanniktech.maven.publish.base") {
     apply(plugin = "binary-compatibility-validator")
     extensions.configure<MavenPublishBaseExtension> {
-      publishToMavenCentral(SonatypeHost.DEFAULT, automaticRelease = true)
+      publishToMavenCentral(automaticRelease = true)
       signAllPublications()
       pom {
         description.set("Cash App Pay SDK")

@@ -1,4 +1,4 @@
-# NEXT RELEASE | WIP
+# 3.0.0
 ## Breaking Changes
  - Our internal implementation no longer depends on `kotlinx-datetime`, and now uses Java 8 time classes,
 namely `java.time.Instant`.
