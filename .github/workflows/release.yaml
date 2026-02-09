@@ -1,9 +1,5 @@
 name: release
 
-# TODO we could consider creating a github release
-# https://www.notion.so/cashappcash/Change-github-triggers-to-build-on-new-Github-Release-8c3da4ce779e440299908e7ec734626a
-# from zipline - https://github.com/cashapp/zipline/blob/trunk/.github/workflows/release.yaml#LL111C7-L130C22
-
 on:
   workflow_dispatch:
   push:
@@ -36,6 +32,7 @@ jobs:
           ./gradlew clean publish --stacktrace
 
         env:
-          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ARTIFACT_SIGNING_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.GPG_SECRET_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.GPG_SECRET_PASSPHRASE }}
