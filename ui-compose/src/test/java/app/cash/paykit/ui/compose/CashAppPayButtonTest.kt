@@ -31,8 +31,6 @@ import com.android.resources.NightMode
 import org.junit.Rule
 import org.junit.Test
 
-
-
 /**
  * Paparazzi snapshot tests for [CashAppPayButton].
  *
@@ -53,8 +51,7 @@ class CashAppPayButtonTest {
       .width(BUTTON_WIDTH)
       .height(BUTTON_HEIGHT)
   }
-  
-  
+
   @get:Rule
   val paparazzi = Paparazzi(
     deviceConfig = DEVICE_CONFIG,
