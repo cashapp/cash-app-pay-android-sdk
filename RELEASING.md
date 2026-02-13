@@ -25,9 +25,7 @@ To release a new snapshot build do the following steps:
 - Push the tag (`git push origin tag_name`)
 
 GitHub Actions will start a release job, and if everything goes well the SNAPSHOT will automatically
-uploaded to
-the [snapshots repository](https://oss.sonatype.org/index.html#view-repositories;snapshots~browsestorage~/app/cash/paykit/core/maven-metadata.xml)
-.
+uploaded to : https://central.sonatype.com/repository/maven-snapshots/
 
 # Development tasks
 

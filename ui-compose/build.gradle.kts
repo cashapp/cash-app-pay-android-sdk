@@ -5,12 +5,18 @@ plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.kotlin.compose)
+  alias(libs.plugins.paparazzi)
   alias(libs.plugins.maven.publish)
 }
 
 android {
   namespace = "app.cash.paykit.ui.compose"
   compileSdk = libs.versions.compileSdk.get().toInt()
+  testOptions {
+    unitTests {
+      isIncludeAndroidResources = true
+    }
+  }
 
   defaultConfig {
     minSdk = libs.versions.minSdk.get().toInt()
@@ -63,6 +69,7 @@ dependencies {
   lintChecks(libs.compose.lints)
 
   testImplementation(libs.junit)
+  testImplementation(libs.paparazzi)
 }
 
 mavenPublishing {
