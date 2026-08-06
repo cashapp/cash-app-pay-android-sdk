@@ -1,0 +1,12 @@
+﻿#cash-app-pay-injector-container { position: fixed; bottom: 20px; right: 20px; z-index: 2147483647; }
+.cap-injector-btn {
+  background: #00c853;
+  color: #ffffff;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  cursor: pointer;
+}
+.cap-injector-btn:active { transform: translateY(1px); }
