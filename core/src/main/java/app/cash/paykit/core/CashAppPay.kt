@@ -33,6 +33,7 @@ import app.cash.paykit.core.network.OkHttpProvider
 import app.cash.paykit.core.utils.UserAgentProvider
 import app.cash.paykit.logging.CashAppLogger
 import app.cash.paykit.logging.CashAppLoggerImpl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import kotlin.time.Duration.Companion.seconds
 
 interface CashAppPay {
@@ -179,47 +180,43 @@ object CashAppPayFactory {
 
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.
+   * @param baseUrl Optional root URL of the Cash App API host to use instead of production, such as
+   * `https://example.com`. The SDK appends `/customer-request/v1/`.
    */
+  @JvmOverloads
   fun create(
     clientId: String,
-  ): CashAppPay {
-    val networkManager = NetworkManagerImpl(
-      BASE_URL_PRODUCTION,
-      ANALYTICS_BASE_URL,
-      userAgentValue = getUserAgentValue(),
-      okHttpClient = defaultOkHttpClient,
-    )
-    val analytics = buildPayKitAnalytics(isSandbox = false, cashAppPayLogger)
-    val analyticsEventDispatcher =
-      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_PROD_ENVIRONMENT)
-    networkManager.analyticsEventDispatcher = analyticsEventDispatcher
-
-    return CashAppPayImpl(
-      clientId = clientId,
-      networkManager = networkManager,
-      analyticsEventDispatcher = analyticsEventDispatcher,
-      payKitLifecycleListener = cashAppPayLifecycleObserver,
-      useSandboxEnvironment = false,
-      logger = cashAppPayLogger,
-    )
-  }
+    baseUrl: String? = null,
+  ): CashAppPay = build(
+    clientId = clientId,
+    baseUrl = baseUrl?.let(::customerRequestBaseUrl) ?: BASE_URL_PRODUCTION,
+    isSandbox = false,
+  )
 
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.
    */
   fun createSandbox(
     clientId: String,
-  ): CashAppPay {
+  ): CashAppPay = build(clientId = clientId, baseUrl = BASE_URL_SANDBOX, isSandbox = true)
+
+  internal fun customerRequestBaseUrl(baseUrl: String): String {
+    val url = requireNotNull(baseUrl.toHttpUrlOrNull()) { "baseUrl must be an http(s) URL: $baseUrl" }
+    require(url.encodedPath == "/") { "baseUrl must not include a path: $baseUrl" }
+    return url.resolve("customer-request/v1/").toString()
+  }
+
+  private fun build(clientId: String, baseUrl: String, isSandbox: Boolean): CashAppPay {
     val networkManager = NetworkManagerImpl(
-      BASE_URL_SANDBOX,
+      baseUrl,
       ANALYTICS_BASE_URL,
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
     )
-
-    val analytics = buildPayKitAnalytics(isSandbox = true, cashAppPayLogger)
+    val analytics = buildPayKitAnalytics(isSandbox = isSandbox, cashAppPayLogger)
+    val analyticsEnvironment = if (isSandbox) ANALYTICS_SANDBOX_ENVIRONMENT else ANALYTICS_PROD_ENVIRONMENT
     val analyticsEventDispatcher =
-      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, ANALYTICS_SANDBOX_ENVIRONMENT)
+      buildPayKitAnalyticsEventDispatcher(clientId, networkManager, analytics, analyticsEnvironment)
     networkManager.analyticsEventDispatcher = analyticsEventDispatcher
 
     return CashAppPayImpl(
@@ -227,7 +224,7 @@ object CashAppPayFactory {
       networkManager = networkManager,
       analyticsEventDispatcher = analyticsEventDispatcher,
       payKitLifecycleListener = cashAppPayLifecycleObserver,
-      useSandboxEnvironment = true,
+      useSandboxEnvironment = isSandbox,
       logger = cashAppPayLogger,
     )
   }

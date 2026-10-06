@@ -31,6 +31,8 @@ public final class app/cash/paykit/core/CashAppPay$DefaultImpls {
 public final class app/cash/paykit/core/CashAppPayFactory {
 	public static final field INSTANCE Lapp/cash/paykit/core/CashAppPayFactory;
 	public final fun create (Ljava/lang/String;)Lapp/cash/paykit/core/CashAppPay;
+	public final fun create (Ljava/lang/String;Ljava/lang/String;)Lapp/cash/paykit/core/CashAppPay;
+	public static synthetic fun create$default (Lapp/cash/paykit/core/CashAppPayFactory;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lapp/cash/paykit/core/CashAppPay;
 	public final fun createSandbox (Ljava/lang/String;)Lapp/cash/paykit/core/CashAppPay;
 }
 
