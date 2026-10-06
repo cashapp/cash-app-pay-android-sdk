@@ -18,6 +18,7 @@ package app.cash.paykit.core.models.request
 import app.cash.paykit.core.fakes.FakeData
 import app.cash.paykit.core.models.pii.PiiString
 import app.cash.paykit.core.models.sdk.CashAppPayCurrency.USD
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.CustomerProfileSharingAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
@@ -223,6 +224,26 @@ class CustomerRequestDataFactoryTests {
     )
 
     assertThat(result.actions[0].scopeId).isEqualTo(FakeData.CLIENT_ID)
+  }
+
+  @Test
+  fun `build with CustomerProfileSharingAction sends only type and scopeId`() {
+    val result = CustomerRequestDataFactory.build(
+      clientId = FakeData.CLIENT_ID,
+      redirectUri = FakeData.REDIRECT_URI,
+      referenceId = null,
+      paymentActions = listOf(
+        OnFileAction(scopeId = FakeData.BRAND_ID, accountReferenceId = "account"),
+        CustomerProfileSharingAction(scopeId = FakeData.BRAND_ID),
+      ),
+    )
+
+    assertThat(result.actions).hasSize(2)
+    assertThat(result.actions[1].type).isEqualTo("CUSTOMER_PROFILE_SHARING")
+    assertThat(result.actions[1].scopeId).isEqualTo(FakeData.BRAND_ID)
+    assertThat(result.actions[1].accountReferenceId).isNull()
+    assertThat(result.actions[1].amount_cents).isNull()
+    assertThat(result.actions[1].currency).isNull()
   }
 
   @Test

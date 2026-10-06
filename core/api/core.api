@@ -415,6 +415,17 @@ public abstract class app/cash/paykit/core/models/sdk/CashAppPayPaymentAction {
 	public fun getScopeId ()Ljava/lang/String;
 }
 
+public final class app/cash/paykit/core/models/sdk/CashAppPayPaymentAction$CustomerProfileSharingAction : app/cash/paykit/core/models/sdk/CashAppPayPaymentAction {
+	public fun <init> (Ljava/lang/String;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;)Lapp/cash/paykit/core/models/sdk/CashAppPayPaymentAction$CustomerProfileSharingAction;
+	public static synthetic fun copy$default (Lapp/cash/paykit/core/models/sdk/CashAppPayPaymentAction$CustomerProfileSharingAction;Ljava/lang/String;ILjava/lang/Object;)Lapp/cash/paykit/core/models/sdk/CashAppPayPaymentAction$CustomerProfileSharingAction;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun getScopeId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class app/cash/paykit/core/models/sdk/CashAppPayPaymentAction$OnFileAction : app/cash/paykit/core/models/sdk/CashAppPayPaymentAction {
 	public fun <init> ()V
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V

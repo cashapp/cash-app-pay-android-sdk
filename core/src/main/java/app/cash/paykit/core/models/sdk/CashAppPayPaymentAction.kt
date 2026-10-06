@@ -103,4 +103,20 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     override val scopeId: String? = null,
     override val referenceId: String? = null,
   ) : CashAppPayPaymentAction(scopeId, referenceId)
+
+  /**
+   * Asks the customer to share their Cash App profile information with the brand or merchant
+   * identified by [scopeId].
+   *
+   * This action can't be used on its own. Pass it to [CashAppPay.createCustomerRequest] together with
+   * exactly one [OneTimeAction] or [OnFileAction] that uses the same [scopeId]. The API rejects other
+   * combinations, including pairing it with [OnFilePayoutAction]. Customer profile sharing must also be
+   * enabled for your client.
+   *
+   * @param scopeId ID of the brand or merchant the profile is shared with. It must match the paired
+   * action's scope ID. Client IDs are not supported.
+   */
+  data class CustomerProfileSharingAction(
+    override val scopeId: String,
+  ) : CashAppPayPaymentAction(scopeId, referenceId = null)
 }

@@ -18,6 +18,7 @@ package app.cash.paykit.core.models.request
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.pii.PiiString
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.CustomerProfileSharingAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
 import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
@@ -31,6 +32,7 @@ internal object CustomerRequestDataFactory {
   private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
   private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
   private const val PAYMENT_TYPE_ON_FILE_PAYOUT = "ON_FILE_PAYOUT"
+  private const val PAYMENT_TYPE_CUSTOMER_PROFILE_SHARING = "CUSTOMER_PROFILE_SHARING"
 
   fun build(
     clientId: String,
@@ -44,8 +46,14 @@ internal object CustomerRequestDataFactory {
     for (paymentAction in paymentActions) {
       when (paymentAction) {
         is OnFileAction -> actions.add(buildFromOnFileAction(clientId = clientId, onFileAction = paymentAction))
+
         is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId = clientId, oneTimeAction = paymentAction))
+
         is OnFilePayoutAction -> actions.add(buildFromOnFilePayoutAction(clientId = clientId, onFilePayoutAction = paymentAction))
+
+        is CustomerProfileSharingAction -> actions.add(
+          Action(scopeId = paymentAction.scopeId, type = PAYMENT_TYPE_CUSTOMER_PROFILE_SHARING),
+        )
       }
     }
 
