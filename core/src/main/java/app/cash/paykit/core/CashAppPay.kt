@@ -180,35 +180,19 @@ object CashAppPayFactory {
 
   /**
    * @param clientId Client Identifier that should be provided by Cash PayKit integration.
-   * @param baseUrl Optional root URL of the Cash App API host to use instead of production, such as
-   * `https://example.com`. The SDK appends `/customer-request/v1/`.
+   * @param baseUrl Root URL of the Cash App API host. Defaults to production. The SDK appends
+   * `/customer-request/v1/`.
    */
   @JvmOverloads
   fun create(
     clientId: String,
-    baseUrl: String? = null,
-  ): CashAppPay = build(
-    clientId = clientId,
-    baseUrl = baseUrl?.let(::customerRequestBaseUrl) ?: BASE_URL_PRODUCTION,
-    isSandbox = false,
-  )
+    baseUrl: String = BASE_URL_PRODUCTION,
+  ): CashAppPay {
+    val customerRequestBaseUrl = customerRequestBaseUrl(baseUrl)
+    val isSandbox = customerRequestBaseUrl == customerRequestBaseUrl(BASE_URL_SANDBOX)
 
-  /**
-   * @param clientId Client Identifier that should be provided by Cash PayKit integration.
-   */
-  fun createSandbox(
-    clientId: String,
-  ): CashAppPay = build(clientId = clientId, baseUrl = BASE_URL_SANDBOX, isSandbox = true)
-
-  internal fun customerRequestBaseUrl(baseUrl: String): String {
-    val url = requireNotNull(baseUrl.toHttpUrlOrNull()) { "baseUrl must be an http(s) URL: $baseUrl" }
-    require(url.encodedPath == "/") { "baseUrl must not include a path: $baseUrl" }
-    return url.resolve("customer-request/v1/").toString()
-  }
-
-  private fun build(clientId: String, baseUrl: String, isSandbox: Boolean): CashAppPay {
     val networkManager = NetworkManagerImpl(
-      baseUrl,
+      customerRequestBaseUrl,
       ANALYTICS_BASE_URL,
       userAgentValue = getUserAgentValue(),
       okHttpClient = defaultOkHttpClient,
@@ -227,6 +211,21 @@ object CashAppPayFactory {
       useSandboxEnvironment = isSandbox,
       logger = cashAppPayLogger,
     )
+  }
+
+  /**
+   * Shortcut for [create] with the Cash App sandbox URL.
+   *
+   * @param clientId Client Identifier that should be provided by Cash PayKit integration.
+   */
+  fun createSandbox(
+    clientId: String,
+  ): CashAppPay = create(clientId = clientId, baseUrl = BASE_URL_SANDBOX)
+
+  internal fun customerRequestBaseUrl(baseUrl: String): String {
+    val url = requireNotNull(baseUrl.toHttpUrlOrNull()) { "baseUrl must be an http(s) URL: $baseUrl" }
+    require(url.encodedPath == "/") { "baseUrl must not include a path: $baseUrl" }
+    return url.resolve("customer-request/v1/").toString()
   }
 
   private fun buildPayKitAnalyticsEventDispatcher(
@@ -252,8 +251,8 @@ object CashAppPayFactory {
   private val cashAppPayLogger: CashAppLogger = CashAppLoggerImpl()
 
   // Do NOT add `const` to these, as it will invalidate reflection for our Dev App.
-  private val BASE_URL_SANDBOX = "https://sandbox.api.cash.app/customer-request/v1/"
-  private val BASE_URL_PRODUCTION = "https://api.cash.app/customer-request/v1/"
+  private val BASE_URL_SANDBOX = "https://sandbox.api.cash.app"
+  private val BASE_URL_PRODUCTION = "https://api.cash.app"
   private val ANALYTICS_BASE_URL = "https://api.squareup.com/"
   private val ANALYTICS_DB_NAME_PROD = "paykit-events.db"
   private val ANALYTICS_DB_NAME_SANDBOX = "paykit-events-sandbox.db"

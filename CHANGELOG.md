@@ -1,7 +1,8 @@
 # Unreleased
 ## New
  - `CashAppPayFactory.create` takes an optional `baseUrl` to send Customer Request API calls to a different
-Cash App API host. The SDK appends `/customer-request/v1/`. `create(clientId)` is unchanged.
+Cash App API host. The SDK appends `/customer-request/v1/`. `create(clientId)` and `createSandbox(clientId)` are
+unchanged; `createSandbox` is now a shortcut for `create` with the sandbox URL.
 
 # 3.0.0
 ## Breaking Changes
