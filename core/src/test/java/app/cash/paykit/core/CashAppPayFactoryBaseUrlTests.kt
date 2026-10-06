@@ -28,6 +28,14 @@ class CashAppPayFactoryBaseUrlTests {
   }
 
   @Test
+  fun `customerRequestBaseUrl keeps the production and sandbox endpoints unchanged`() {
+    assertThat(CashAppPayFactory.customerRequestBaseUrl("https://api.cash.app"))
+      .isEqualTo("https://api.cash.app/customer-request/v1/")
+    assertThat(CashAppPayFactory.customerRequestBaseUrl("https://sandbox.api.cash.app"))
+      .isEqualTo("https://sandbox.api.cash.app/customer-request/v1/")
+  }
+
+  @Test
   fun `customerRequestBaseUrl accepts a trailing slash`() {
     assertThat(CashAppPayFactory.customerRequestBaseUrl("https://example.com/"))
       .isEqualTo("https://example.com/customer-request/v1/")
