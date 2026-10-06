@@ -247,6 +247,25 @@ class CustomerRequestDataFactoryTests {
   }
 
   @Test
+  fun `build with on-file payment, payout, and profile sharing actions keeps all three in order`() {
+    val result = CustomerRequestDataFactory.build(
+      clientId = FakeData.CLIENT_ID,
+      redirectUri = FakeData.REDIRECT_URI,
+      referenceId = null,
+      paymentActions = listOf(
+        OnFileAction(scopeId = FakeData.BRAND_ID, accountReferenceId = "account"),
+        OnFilePayoutAction(scopeId = FakeData.BRAND_ID, accountReferenceId = "account"),
+        CustomerProfileSharingAction(scopeId = FakeData.BRAND_ID),
+      ),
+    )
+
+    assertThat(result.actions.map { it.type })
+      .containsExactly("ON_FILE_PAYMENT", "ON_FILE_PAYOUT", "CUSTOMER_PROFILE_SHARING")
+      .inOrder()
+    assertThat(result.actions.map { it.scopeId }.distinct()).containsExactly(FakeData.BRAND_ID)
+  }
+
+  @Test
   fun `build with multiple action types preserves order`() {
     val oneTimeAction = OneTimeAction(currency = USD, amount = FakeData.FAKE_AMOUNT)
     val onFileAction = OnFileAction(scopeId = FakeData.BRAND_ID)
