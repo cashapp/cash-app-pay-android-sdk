@@ -18,6 +18,12 @@ you do not need to include this dependency in your project.
 
 The package has changed from `app.cash.paykit.core.ui.CashAppPayButton` to `app.cash.paykit.ui.views.CashAppPayButton`; update any import statements or XML references accordingly.
 
+ - Types and helpers that were never meant for SDK consumers are now `internal`. This includes the network
+request and response models (`CreateCustomerRequest`, `CustomerRequestData`, `CustomerRequestDataFactory`,
+`CustomerTopLevelResponse`, `ApiError`, `ApiErrorResponse`), the analytics payload and event models, their Moshi
+JSON adapters, and internal threading and logging utilities. Use `CashAppPay`, `CashAppPayPaymentAction`,
+`CashAppPayState`, and `CustomerResponseData` instead.
+
 ## New
 
  - Added a new **optional** dependency providing a **Jetpack Compose** version of the Cash App Pay–styled button, 
