@@ -29,10 +29,10 @@ import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 internal object CustomerRequestDataFactory {
 
   internal const val CHANNEL_IN_APP = "IN_APP"
-  private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
-  private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
-  private const val PAYMENT_TYPE_ON_FILE_PAYOUT = "ON_FILE_PAYOUT"
-  private const val PAYMENT_TYPE_CUSTOMER_PROFILE_SHARING = "CUSTOMER_PROFILE_SHARING"
+  private const val ACTION_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
+  private const val ACTION_TYPE_ON_FILE = "ON_FILE_PAYMENT"
+  private const val ACTION_TYPE_ON_FILE_PAYOUT = "ON_FILE_PAYOUT"
+  private const val ACTION_TYPE_CUSTOMER_PROFILE_SHARING = "CUSTOMER_PROFILE_SHARING"
 
   fun build(
     clientId: String,
@@ -52,7 +52,7 @@ internal object CustomerRequestDataFactory {
         is OnFilePayoutAction -> actions.add(buildFromOnFilePayoutAction(clientId = clientId, onFilePayoutAction = paymentAction))
 
         is CustomerProfileSharingAction -> actions.add(
-          Action(scopeId = paymentAction.scopeId, type = PAYMENT_TYPE_CUSTOMER_PROFILE_SHARING),
+          Action(scopeId = paymentAction.scopeId, type = ACTION_TYPE_CUSTOMER_PROFILE_SHARING),
         )
       }
     }
@@ -80,7 +80,7 @@ internal object CustomerRequestDataFactory {
 
     return Action(
       scopeId = scopeIdOrClientId,
-      type = PAYMENT_TYPE_ON_FILE,
+      type = ACTION_TYPE_ON_FILE,
       accountReferenceId = onFileAction.accountReferenceId?.let { PiiString(it) },
     )
   }
@@ -92,7 +92,7 @@ internal object CustomerRequestDataFactory {
       amount_cents = oneTimeAction.amount,
       currency = oneTimeAction.currency?.backendValue,
       scopeId = scopeIdOrClientId,
-      type = PAYMENT_TYPE_ONE_TIME,
+      type = ACTION_TYPE_ONE_TIME,
     )
   }
 
@@ -105,7 +105,7 @@ internal object CustomerRequestDataFactory {
 
     return Action(
       scopeId = scopeIdOrClientId,
-      type = PAYMENT_TYPE_ON_FILE_PAYOUT,
+      type = ACTION_TYPE_ON_FILE_PAYOUT,
       accountReferenceId = onFilePayoutAction.accountReferenceId?.let { PiiString(it) },
     )
   }
