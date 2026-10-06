@@ -38,35 +38,35 @@ internal object CustomerRequestDataFactory {
     clientId: String,
     redirectUri: String?,
     referenceId: String?,
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayPaymentAction>,
     isRequestUpdate: Boolean = false,
   ): CustomerRequestData {
-    val actions = ArrayList<Action>(paymentActions.size)
+    val requestActions = ArrayList<Action>(actions.size)
 
-    for (paymentAction in paymentActions) {
-      when (paymentAction) {
-        is OnFileAction -> actions.add(buildFromOnFileAction(clientId = clientId, onFileAction = paymentAction))
+    for (action in actions) {
+      when (action) {
+        is OnFileAction -> requestActions.add(buildFromOnFileAction(clientId = clientId, onFileAction = action))
 
-        is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId = clientId, oneTimeAction = paymentAction))
+        is OneTimeAction -> requestActions.add(buildFromOneTimeAction(clientId = clientId, oneTimeAction = action))
 
-        is OnFilePayoutAction -> actions.add(buildFromOnFilePayoutAction(clientId = clientId, onFilePayoutAction = paymentAction))
+        is OnFilePayoutAction -> requestActions.add(buildFromOnFilePayoutAction(clientId = clientId, onFilePayoutAction = action))
 
-        is CustomerProfileSharingAction -> actions.add(
-          Action(scopeId = paymentAction.scopeId, type = ACTION_TYPE_CUSTOMER_PROFILE_SHARING),
+        is CustomerProfileSharingAction -> requestActions.add(
+          Action(scopeId = action.scopeId, type = ACTION_TYPE_CUSTOMER_PROFILE_SHARING),
         )
       }
     }
 
     return if (isRequestUpdate) {
       CustomerRequestData(
-        actions = actions,
+        actions = requestActions,
         channel = null,
         redirectUri = null,
         referenceId = referenceId?.let { PiiString(it) },
       )
     } else {
       CustomerRequestData(
-        actions = actions,
+        actions = requestActions,
         channel = CHANNEL_IN_APP,
         redirectUri = redirectUri?.let { PiiString(it) },
         referenceId = referenceId?.let { PiiString(it) },

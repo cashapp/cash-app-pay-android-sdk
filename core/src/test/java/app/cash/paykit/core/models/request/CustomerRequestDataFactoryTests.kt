@@ -35,7 +35,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions).hasSize(1)
@@ -50,7 +50,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].scopeId).isEqualTo(FakeData.BRAND_ID)
@@ -64,7 +64,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].scopeId).isEqualTo(FakeData.CLIENT_ID)
@@ -82,7 +82,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].accountReferenceId).isNotNull()
@@ -101,7 +101,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].accountReferenceId).isNull()
@@ -115,7 +115,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions).hasSize(1)
@@ -130,7 +130,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].scopeId).isEqualTo(FakeData.BRAND_ID)
@@ -144,7 +144,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].scopeId).isEqualTo(FakeData.CLIENT_ID)
@@ -162,7 +162,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].accountReferenceId).isNotNull()
@@ -182,7 +182,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions).hasSize(1)
@@ -201,7 +201,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].amount_cents).isEqualTo(FakeData.FAKE_AMOUNT)
@@ -220,7 +220,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.actions[0].scopeId).isEqualTo(FakeData.CLIENT_ID)
@@ -232,7 +232,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(
+      actions = listOf(
         OnFileAction(scopeId = FakeData.BRAND_ID, accountReferenceId = "account"),
         CustomerProfileSharingAction(scopeId = FakeData.BRAND_ID),
       ),
@@ -252,7 +252,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(
+      actions = listOf(
         OnFileAction(scopeId = FakeData.BRAND_ID, accountReferenceId = "account"),
         OnFilePayoutAction(scopeId = FakeData.BRAND_ID, accountReferenceId = "account"),
         CustomerProfileSharingAction(scopeId = FakeData.BRAND_ID),
@@ -274,7 +274,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(oneTimeAction, onFileAction),
+      actions = listOf(oneTimeAction, onFileAction),
     )
 
     assertThat(result.actions).hasSize(2)
@@ -290,7 +290,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
       isRequestUpdate = false,
     )
 
@@ -305,7 +305,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
       isRequestUpdate = true,
     )
 
@@ -320,7 +320,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
       isRequestUpdate = false,
     )
 
@@ -336,7 +336,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = listOf(action),
+      actions = listOf(action),
       isRequestUpdate = true,
     )
 
@@ -352,7 +352,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = refId,
-      paymentActions = listOf(action),
+      actions = listOf(action),
     )
 
     assertThat(result.referenceId).isNotNull()
@@ -365,7 +365,7 @@ class CustomerRequestDataFactoryTests {
       clientId = FakeData.CLIENT_ID,
       redirectUri = FakeData.REDIRECT_URI,
       referenceId = null,
-      paymentActions = emptyList(),
+      actions = emptyList(),
     )
 
     assertThat(result.actions).isEmpty()

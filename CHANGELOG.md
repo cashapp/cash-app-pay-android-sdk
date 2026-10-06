@@ -20,6 +20,10 @@ request and response models (`CreateCustomerRequest`, `CustomerRequestData`, `Cu
 JSON adapters, and internal threading and logging utilities. Use `CashAppPay`, `CashAppPayPaymentAction`,
 `CashAppPayState`, and `CustomerResponseData` instead.
 
+ - The `paymentAction` and `paymentActions` parameters of `createCustomerRequest` and `updateCustomerRequest` are now
+named `action` and `actions`, because actions include payouts and profile sharing as well as payments. Only Kotlin
+calls that use named arguments need to change.
+
 ## New
 
  - Added a new **optional** dependency providing a **Jetpack Compose** version of the Cash App Pay–styled button, 

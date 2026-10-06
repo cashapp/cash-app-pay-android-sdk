@@ -145,31 +145,31 @@ internal class CashAppPayImpl(
   }
 
   override fun createCustomerRequest(
-    paymentAction: CashAppPayPaymentAction,
+    action: CashAppPayPaymentAction,
     redirectUri: String?,
     referenceId: String?,
   ) {
-    createCustomerRequest(listOf(paymentAction), redirectUri, referenceId)
+    createCustomerRequest(listOf(action), redirectUri, referenceId)
   }
 
   /**
    * Create customer request given a [CashAppPayPaymentAction].
    * Must be called from a background thread.
    *
-   * @param paymentActions A wrapper class that contains all of the necessary ingredients for building a customer request.
+   * @param actions A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
   override fun createCustomerRequest(
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayPaymentAction>,
     redirectUri: String?,
     referenceId: String?,
   ) {
     enforceRegisteredStateUpdatesListener()
 
-    // Validate [paymentActions] is not empty.
-    if (paymentActions.isEmpty()) {
-      val exceptionText = "paymentAction should not be empty"
+    // Validate [actions] is not empty.
+    if (actions.isEmpty()) {
+      val exceptionText = "actions should not be empty"
       currentState =
         softCrashOrStateException(exceptionText, CashAppPayIntegrationException(exceptionText))
       return
@@ -180,7 +180,7 @@ internal class CashAppPayImpl(
     // Network call.
     val networkResult = networkManager.createCustomerRequest(
       clientId = clientId,
-      paymentActions = paymentActions,
+      actions = actions,
       redirectUri = redirectUri,
       referenceId = referenceId,
     )
@@ -199,10 +199,10 @@ internal class CashAppPayImpl(
 
   override fun updateCustomerRequest(
     requestId: String,
-    paymentAction: CashAppPayPaymentAction,
+    action: CashAppPayPaymentAction,
     referenceId: String?,
   ) {
-    updateCustomerRequest(requestId, listOf(paymentAction), referenceId)
+    updateCustomerRequest(requestId, listOf(action), referenceId)
   }
 
   /**
@@ -210,20 +210,20 @@ internal class CashAppPayImpl(
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do update.
-   * @param paymentActions A wrapper class that contains all of the necessary ingredients for building a customer request.
+   * @param actions A wrapper class that contains all of the necessary ingredients for building a customer request.
    *                      Look at [PayKitPaymentAction] for more details.
    */
   @WorkerThread
   override fun updateCustomerRequest(
     requestId: String,
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayPaymentAction>,
     referenceId: String?,
   ) {
     enforceRegisteredStateUpdatesListener()
 
-    // Validate [paymentActions] is not empty.
-    if (paymentActions.isEmpty()) {
-      val exceptionText = "paymentAction should not be empty"
+    // Validate [actions] is not empty.
+    if (actions.isEmpty()) {
+      val exceptionText = "actions should not be empty"
       currentState =
         softCrashOrStateException(exceptionText, CashAppPayIntegrationException(exceptionText))
       return
@@ -236,7 +236,7 @@ internal class CashAppPayImpl(
       clientId = clientId,
       requestId = requestId,
       referenceId = referenceId,
-      paymentActions = paymentActions,
+      actions = actions,
     )
     when (networkResult) {
       is Failure -> {

@@ -26,7 +26,7 @@ internal interface NetworkManager {
   @Throws(IOException::class)
   fun createCustomerRequest(
     clientId: String,
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayPaymentAction>,
     redirectUri: String?,
     referenceId: String?,
   ): NetworkResult<CustomerTopLevelResponse>
@@ -36,7 +36,7 @@ internal interface NetworkManager {
     clientId: String,
     requestId: String,
     referenceId: String?,
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayPaymentAction>,
   ): NetworkResult<CustomerTopLevelResponse>
 
   fun retrieveUpdatedRequestData(
