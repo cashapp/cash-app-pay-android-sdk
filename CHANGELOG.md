@@ -1,9 +1,3 @@
-# Unreleased
-## New
- - `CashAppPayFactory.create` takes an optional `baseUrl` to send Customer Request API calls to a different
-Cash App API host. The SDK appends `/customer-request/v1/`. `create(clientId)` and `createSandbox(clientId)` are
-unchanged; `createSandbox` is now a shortcut for `create` with the sandbox URL.
-
 # 3.0.0
 ## Breaking Changes
  - Our internal implementation no longer depends on `kotlinx-datetime`, and now uses Java 8 time classes,
@@ -45,6 +39,17 @@ fun CashAppPayButton(
 ```
 
  - Add new action `ON_FILE_PAYOUT`. A payout allows a merchant to send money to a user's Cash App account.
+
+ - Add new action `CUSTOMER_PROFILE_SHARING` (`CustomerProfileSharingAction`), which asks the customer to share their
+Cash App profile with a brand or merchant. Send it in the same `createCustomerRequest` call as exactly one
+`OneTimeAction` or `OnFileAction` with the same `scopeId`. Clients enabled for combined on-file payments and
+payouts can also send it with both an `OnFileAction` and an `OnFilePayoutAction`. The API rejects client IDs as the
+scope and rejects pairing with an `OnFilePayoutAction` alone. On approval, `CustomerResponseData.grants` includes a
+`ONE_TIME` `CUSTOMER_PROFILE_SHARING` grant.
+
+ - `CashAppPayFactory.create` takes an optional `baseUrl` to send Customer Request API calls to a different
+Cash App API host. The SDK appends `/customer-request/v1/`. `create(clientId)` is unchanged, and
+`createSandbox(clientId)` is now a shortcut for `create` with the sandbox URL.
 
 # 2.6.0
 ## Breaking Changes
