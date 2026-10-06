@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+  <!--
+    The SDK uses java.time (API 26+) but does not enable core library desugaring itself, so it doesn't force
+    desugaring on every app. Apps with a minSdk below 26 must enable desugaring, as documented in CHANGELOG.md.
+  -->
+  <issue id="NewApi">
+    <ignore regexp="java\.time\." />
+    <ignore regexp="Implicit cast from .*Instant.* to .*Temporal" />
+  </issue>
+</lint>

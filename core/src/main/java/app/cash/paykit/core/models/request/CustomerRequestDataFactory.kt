@@ -17,48 +17,56 @@ package app.cash.paykit.core.models.request
 
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.pii.PiiString
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.CustomerProfileSharingAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFilePayoutAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OneTimeAction
 
 /**
- * Factory that will create a [CreateCustomerRequest] from a [CashAppPayPaymentAction].
+ * Factory that will create a [CreateCustomerRequest] from a [CashAppPayAction].
  */
 internal object CustomerRequestDataFactory {
 
   internal const val CHANNEL_IN_APP = "IN_APP"
-  private const val PAYMENT_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
-  private const val PAYMENT_TYPE_ON_FILE = "ON_FILE_PAYMENT"
-  private const val PAYMENT_TYPE_ON_FILE_PAYOUT = "ON_FILE_PAYOUT"
+  private const val ACTION_TYPE_ONE_TIME = "ONE_TIME_PAYMENT"
+  private const val ACTION_TYPE_ON_FILE = "ON_FILE_PAYMENT"
+  private const val ACTION_TYPE_ON_FILE_PAYOUT = "ON_FILE_PAYOUT"
+  private const val ACTION_TYPE_CUSTOMER_PROFILE_SHARING = "CUSTOMER_PROFILE_SHARING"
 
   fun build(
     clientId: String,
     redirectUri: String?,
     referenceId: String?,
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
     isRequestUpdate: Boolean = false,
   ): CustomerRequestData {
-    val actions = ArrayList<Action>(paymentActions.size)
+    val requestActions = ArrayList<Action>(actions.size)
 
-    for (paymentAction in paymentActions) {
-      when (paymentAction) {
-        is OnFileAction -> actions.add(buildFromOnFileAction(clientId = clientId, onFileAction = paymentAction))
-        is OneTimeAction -> actions.add(buildFromOneTimeAction(clientId = clientId, oneTimeAction = paymentAction))
-        is OnFilePayoutAction -> actions.add(buildFromOnFilePayoutAction(clientId = clientId, onFilePayoutAction = paymentAction))
+    for (action in actions) {
+      when (action) {
+        is OnFileAction -> requestActions.add(buildFromOnFileAction(clientId = clientId, onFileAction = action))
+
+        is OneTimeAction -> requestActions.add(buildFromOneTimeAction(clientId = clientId, oneTimeAction = action))
+
+        is OnFilePayoutAction -> requestActions.add(buildFromOnFilePayoutAction(clientId = clientId, onFilePayoutAction = action))
+
+        is CustomerProfileSharingAction -> requestActions.add(
+          Action(scopeId = action.scopeId, type = ACTION_TYPE_CUSTOMER_PROFILE_SHARING),
+        )
       }
     }
 
     return if (isRequestUpdate) {
       CustomerRequestData(
-        actions = actions,
+        actions = requestActions,
         channel = null,
         redirectUri = null,
         referenceId = referenceId?.let { PiiString(it) },
       )
     } else {
       CustomerRequestData(
-        actions = actions,
+        actions = requestActions,
         channel = CHANNEL_IN_APP,
         redirectUri = redirectUri?.let { PiiString(it) },
         referenceId = referenceId?.let { PiiString(it) },
@@ -72,7 +80,7 @@ internal object CustomerRequestDataFactory {
 
     return Action(
       scopeId = scopeIdOrClientId,
-      type = PAYMENT_TYPE_ON_FILE,
+      type = ACTION_TYPE_ON_FILE,
       accountReferenceId = onFileAction.accountReferenceId?.let { PiiString(it) },
     )
   }
@@ -84,7 +92,7 @@ internal object CustomerRequestDataFactory {
       amount_cents = oneTimeAction.amount,
       currency = oneTimeAction.currency?.backendValue,
       scopeId = scopeIdOrClientId,
-      type = PAYMENT_TYPE_ONE_TIME,
+      type = ACTION_TYPE_ONE_TIME,
     )
   }
 
@@ -97,7 +105,7 @@ internal object CustomerRequestDataFactory {
 
     return Action(
       scopeId = scopeIdOrClientId,
-      type = PAYMENT_TYPE_ON_FILE_PAYOUT,
+      type = ACTION_TYPE_ON_FILE_PAYOUT,
       accountReferenceId = onFilePayoutAction.accountReferenceId?.let { PiiString(it) },
     )
   }

@@ -2,13 +2,10 @@
 ## Breaking Changes
  - Our internal implementation no longer depends on `kotlinx-datetime`, and now uses Java 8 time classes,
 namely `java.time.Instant`.
-As a result, if your app or library supports Android versions below API 26, you must enable 
-**[coreLibraryDesugaring](https://developer.android.com/studio/write/java8-support-table)** if it isn't already. In most cases, this will be evident at compile time, 
-as the build will fail with an error similar to the following:
-
-```
-Dependency XYZ requires core library desugaring to be enabled for :your-app-module.
-```
+As a result, if your app supports Android versions below API 26, you must enable
+**[coreLibraryDesugaring](https://developer.android.com/studio/write/java8-support-table)** if it isn't already enabled.
+Without it, the SDK will crash on those devices when it reads timestamps. Apps with a `minSdk` of 26 or higher don't
+need to change anything.
 
  - `CashAppPayButton` (the Cash App Pay–styled button) is **no longer** bundled with the core PayKit SDK.
 It has been moved to a separate, **optional dependency**: `group = "app.cash.paykit", name = "ui-views"`.
@@ -16,6 +13,18 @@ Note that this is a View-based UI component. See below for the Compose alternati
 you do not need to include this dependency in your project.
 
 The package has changed from `app.cash.paykit.core.ui.CashAppPayButton` to `app.cash.paykit.ui.views.CashAppPayButton`; update any import statements or XML references accordingly.
+
+ - Types and helpers that were never meant for SDK consumers are now `internal`. This includes the network
+request and response models (`CreateCustomerRequest`, `CustomerRequestData`, `CustomerRequestDataFactory`,
+`CustomerTopLevelResponse`, `ApiError`, `ApiErrorResponse`), the analytics payload and event models, their Moshi
+JSON adapters, and internal threading and logging utilities. Use `CashAppPay`, `CashAppPayAction`,
+`CashAppPayState`, and `CustomerResponseData` instead.
+
+ - `CashAppPayPaymentAction` is renamed to `CashAppPayAction`, because actions include payouts and profile sharing as well
+as payments. Update imports from `app.cash.paykit.core.models.sdk.CashAppPayPaymentAction` (including nested types such
+as `CashAppPayPaymentAction.OnFileAction`) to `app.cash.paykit.core.models.sdk.CashAppPayAction`. For the same reason,
+the `paymentAction` and `paymentActions` parameters of `createCustomerRequest` and `updateCustomerRequest` are now
+named `action` and `actions`; only Kotlin calls that use named arguments need to change.
 
 ## New
 
@@ -36,6 +45,17 @@ fun CashAppPayButton(
 ```
 
  - Add new action `ON_FILE_PAYOUT`. A payout allows a merchant to send money to a user's Cash App account.
+
+ - Add new action `CUSTOMER_PROFILE_SHARING` (`CustomerProfileSharingAction`), which asks the customer to share their
+Cash App profile with a brand or merchant. Send it in the same `createCustomerRequest` call as exactly one
+`OneTimeAction` or `OnFileAction` with the same `scopeId`. Clients enabled for combined on-file payments and
+payouts can also send it with both an `OnFileAction` and an `OnFilePayoutAction`. The API rejects client IDs as the
+scope and rejects pairing with an `OnFilePayoutAction` alone. On approval, `CustomerResponseData.grants` includes a
+`ONE_TIME` `CUSTOMER_PROFILE_SHARING` grant.
+
+ - `CashAppPayFactory.create` takes an optional `baseUrl` to send Customer Request API calls to a different
+Cash App API host. The SDK appends `/customer-request/v1/`. `create(clientId)` is unchanged, and
+`createSandbox(clientId)` is now a shortcut for `create` with the sandbox URL.
 
 # 2.6.0
 ## Breaking Changes

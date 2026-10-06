@@ -30,7 +30,7 @@ import app.cash.paykit.core.models.request.CreateCustomerRequest
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory
 import app.cash.paykit.core.models.response.ApiErrorResponse
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
 import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.network.RetryManager
 import app.cash.paykit.core.network.RetryManagerImpl
@@ -79,7 +79,7 @@ internal class NetworkManagerImpl(
   @Throws(IOException::class)
   override fun createCustomerRequest(
     clientId: String,
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
     redirectUri: String?,
     referenceId: String?,
   ): NetworkResult<CustomerTopLevelResponse> {
@@ -87,7 +87,7 @@ internal class NetworkManagerImpl(
       clientId = clientId,
       redirectUri = redirectUri,
       referenceId = referenceId,
-      paymentActions = paymentActions,
+      actions = actions,
     )
     val createCustomerRequest = CreateCustomerRequest(
       idempotencyKey = UUID.randomUUID().toString(),
@@ -96,7 +96,7 @@ internal class NetworkManagerImpl(
 
     // Record analytics.
     analyticsEventDispatcher?.createdCustomerRequest(
-      paymentActions,
+      actions,
       customerRequestData.actions,
       redirectUri,
     )
@@ -114,14 +114,14 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestId: String,
     referenceId: String?,
-    paymentActions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData =
       CustomerRequestDataFactory.build(
         clientId = clientId,
         redirectUri = null,
         referenceId = referenceId,
-        paymentActions = paymentActions,
+        actions = actions,
         isRequestUpdate = true,
       )
     val createCustomerRequest = CreateCustomerRequest(
@@ -131,7 +131,7 @@ internal class NetworkManagerImpl(
     // Record analytics.
     analyticsEventDispatcher?.updatedCustomerRequest(
       requestId = requestId,
-      paymentKitActions = paymentActions,
+      paymentKitActions = actions,
       apiActions = customerRequestData.actions,
     )
 

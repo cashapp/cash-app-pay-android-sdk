@@ -43,7 +43,7 @@ class CashAppPayExceptionsTests {
   }
 
   @Test(expected = CashAppPayIntegrationException::class)
-  fun `should throw during Dev when paymentActions is an empty list`() {
+  fun `should throw during Dev when actions is an empty list`() {
     val payKit = createPayKit(useSandboxEnvironment = true)
     val listener = mockk<CashAppPayListener>(relaxed = true)
     payKit.registerForStateUpdates(listener)

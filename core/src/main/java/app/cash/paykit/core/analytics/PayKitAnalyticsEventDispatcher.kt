@@ -20,7 +20,7 @@ import app.cash.paykit.core.CashAppPayState.Approved
 import app.cash.paykit.core.CashAppPayState.CashAppPayExceptionState
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.response.CustomerResponseData
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
 
 /**
  * Definition of analytics events that we want to capture.
@@ -34,14 +34,14 @@ internal interface PayKitAnalyticsEventDispatcher {
   fun eventListenerRemoved()
 
   fun createdCustomerRequest(
-    paymentKitActions: List<CashAppPayPaymentAction>,
+    paymentKitActions: List<CashAppPayAction>,
     apiActions: List<Action>,
     redirectUri: String?,
   )
 
   fun updatedCustomerRequest(
     requestId: String,
-    paymentKitActions: List<CashAppPayPaymentAction>,
+    paymentKitActions: List<CashAppPayAction>,
     apiActions: List<Action>,
   )
 

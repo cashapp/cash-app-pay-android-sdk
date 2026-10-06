@@ -20,7 +20,7 @@ import app.cash.paykit.core.CashAppPay
 /**
  * This class holds the information necessary for [CashAppPay.createCustomerRequest] to be executed.
  */
-sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referenceId: String?) {
+sealed class CashAppPayAction(open val scopeId: String?, open val referenceId: String?) {
 
   /**
    * Describes an intent for a client to charge a customer a given amount.
@@ -52,7 +52,7 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     val amount: Int?,
     override val scopeId: String? = null,
     override val referenceId: String? = null,
-  ) : CashAppPayPaymentAction(scopeId, referenceId)
+  ) : CashAppPayAction(scopeId, referenceId)
 
   /**
    * Describes an intent for a client to store a customer's account, allowing a client to create payments
@@ -77,23 +77,22 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     override val scopeId: String? = null,
     val accountReferenceId: String? = null,
     override val referenceId: String? = null,
-  ) : CashAppPayPaymentAction(scopeId, referenceId)
+  ) : CashAppPayAction(scopeId, referenceId)
 
   /**
    * Creates a payout to a customer. A payout allows a merchant to send money to a customer’s
    * Cash App account.
    *
    * @param accountReferenceId Identifier of the account or customer associated to the on file action.
-   * @param scopeId ID of the client, brand, or merchant that will charge the customer.
+   * @param scopeId ID of the client or brand that will pay out to the customer. Defaults to the client ID.
    *
    * If a **client ID** is passed, the grant from this action can be used to create a
-   * payment for any merchant owned by the client.
+   * payout for any merchant owned by the client.
    *
    * If a **brand ID** is passed, the grant from this action can be used to create a
-   * payment for any merchant that has a matching brand ID.
+   * payout for any merchant that has a matching brand ID.
    *
-   * If a **merchant ID** is passed, the grant from this action can be used to create a
-   * payment for the merchant with a matching ID.
+   * Merchant IDs are not supported for payouts.
    *
    * @param referenceId A user-defined identifier for this request, typically used to
    * associate the resource with a record in an external system.
@@ -103,5 +102,22 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     val accountReferenceId: String? = null,
     override val scopeId: String? = null,
     override val referenceId: String? = null,
-  ) : CashAppPayPaymentAction(scopeId, referenceId)
+  ) : CashAppPayAction(scopeId, referenceId)
+
+  /**
+   * Asks the customer to share their Cash App profile information with the brand or merchant
+   * identified by [scopeId].
+   *
+   * This action can't be used on its own. Pass it to [CashAppPay.createCustomerRequest] together with
+   * exactly one [OneTimeAction] or [OnFileAction] that uses the same [scopeId]. If combining on-file
+   * payments and payouts is enabled for your client, you can also send it with an [OnFileAction] and an
+   * [OnFilePayoutAction] in the same request. It can't be paired with an [OnFilePayoutAction] alone.
+   * Customer profile sharing must also be enabled for your client.
+   *
+   * @param scopeId ID of the brand or merchant the profile is shared with. It must match the paired
+   * action's scope ID. Client IDs are not supported.
+   */
+  data class CustomerProfileSharingAction(
+    override val scopeId: String,
+  ) : CashAppPayAction(scopeId, referenceId = null)
 }

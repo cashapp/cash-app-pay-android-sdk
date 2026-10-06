@@ -46,7 +46,7 @@ import app.cash.paykit.core.models.pii.PiiString
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory.CHANNEL_IN_APP
 import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.Grant
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
 import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.utils.Clock
 import app.cash.paykit.core.utils.ClockRealImpl
@@ -140,7 +140,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   override fun createdCustomerRequest(
-    paymentKitActions: List<CashAppPayPaymentAction>,
+    paymentKitActions: List<CashAppPayAction>,
     apiActions: List<Action>,
     redirectUri: String?,
   ) {
@@ -154,7 +154,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
 
   override fun updatedCustomerRequest(
     requestId: String,
-    paymentKitActions: List<CashAppPayPaymentAction>,
+    paymentKitActions: List<CashAppPayAction>,
     apiActions: List<Action>,
   ) {
     val eventPayload =
@@ -222,7 +222,7 @@ internal class PayKitAnalyticsEventDispatcherImpl(
   }
 
   private fun createOrUpdateAnalyticsPayload(
-    paymentKitActions: List<CashAppPayPaymentAction>,
+    paymentKitActions: List<CashAppPayAction>,
     apiActions: List<Action>,
     requestId: String?,
     redirectUri: String?,
