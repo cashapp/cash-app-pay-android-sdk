@@ -17,11 +17,11 @@ package app.cash.paykit.core.models.request
 
 import app.cash.paykit.core.fakes.FakeData
 import app.cash.paykit.core.models.pii.PiiString
+import app.cash.paykit.core.models.sdk.CashAppPayAction.CustomerProfileSharingAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFilePayoutAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OneTimeAction
 import app.cash.paykit.core.models.sdk.CashAppPayCurrency.USD
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.CustomerProfileSharingAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 

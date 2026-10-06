@@ -17,14 +17,14 @@ package app.cash.paykit.core.models.request
 
 import app.cash.paykit.core.models.common.Action
 import app.cash.paykit.core.models.pii.PiiString
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.CustomerProfileSharingAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.CustomerProfileSharingAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFilePayoutAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OneTimeAction
 
 /**
- * Factory that will create a [CreateCustomerRequest] from a [CashAppPayPaymentAction].
+ * Factory that will create a [CreateCustomerRequest] from a [CashAppPayAction].
  */
 internal object CustomerRequestDataFactory {
 
@@ -38,7 +38,7 @@ internal object CustomerRequestDataFactory {
     clientId: String,
     redirectUri: String?,
     referenceId: String?,
-    actions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
     isRequestUpdate: Boolean = false,
   ): CustomerRequestData {
     val requestActions = ArrayList<Action>(actions.size)

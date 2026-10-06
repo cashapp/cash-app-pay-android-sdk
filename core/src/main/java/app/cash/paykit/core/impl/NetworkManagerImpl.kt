@@ -30,7 +30,7 @@ import app.cash.paykit.core.models.request.CreateCustomerRequest
 import app.cash.paykit.core.models.request.CustomerRequestDataFactory
 import app.cash.paykit.core.models.response.ApiErrorResponse
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
 import app.cash.paykit.core.network.MoshiProvider
 import app.cash.paykit.core.network.RetryManager
 import app.cash.paykit.core.network.RetryManagerImpl
@@ -79,7 +79,7 @@ internal class NetworkManagerImpl(
   @Throws(IOException::class)
   override fun createCustomerRequest(
     clientId: String,
-    actions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
     redirectUri: String?,
     referenceId: String?,
   ): NetworkResult<CustomerTopLevelResponse> {
@@ -114,7 +114,7 @@ internal class NetworkManagerImpl(
     clientId: String,
     requestId: String,
     referenceId: String?,
-    actions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
   ): NetworkResult<CustomerTopLevelResponse> {
     val customerRequestData =
       CustomerRequestDataFactory.build(

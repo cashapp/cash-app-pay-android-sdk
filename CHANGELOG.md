@@ -17,12 +17,14 @@ The package has changed from `app.cash.paykit.core.ui.CashAppPayButton` to `app.
  - Types and helpers that were never meant for SDK consumers are now `internal`. This includes the network
 request and response models (`CreateCustomerRequest`, `CustomerRequestData`, `CustomerRequestDataFactory`,
 `CustomerTopLevelResponse`, `ApiError`, `ApiErrorResponse`), the analytics payload and event models, their Moshi
-JSON adapters, and internal threading and logging utilities. Use `CashAppPay`, `CashAppPayPaymentAction`,
+JSON adapters, and internal threading and logging utilities. Use `CashAppPay`, `CashAppPayAction`,
 `CashAppPayState`, and `CustomerResponseData` instead.
 
- - The `paymentAction` and `paymentActions` parameters of `createCustomerRequest` and `updateCustomerRequest` are now
-named `action` and `actions`, because actions include payouts and profile sharing as well as payments. Only Kotlin
-calls that use named arguments need to change.
+ - `CashAppPayPaymentAction` is renamed to `CashAppPayAction`, because actions include payouts and profile sharing as well
+as payments. Update imports from `app.cash.paykit.core.models.sdk.CashAppPayPaymentAction` (including nested types such
+as `CashAppPayPaymentAction.OnFileAction`) to `app.cash.paykit.core.models.sdk.CashAppPayAction`. For the same reason,
+the `paymentAction` and `paymentActions` parameters of `createCustomerRequest` and `updateCustomerRequest` are now
+named `action` and `actions`; only Kotlin calls that use named arguments need to change.
 
 ## New
 

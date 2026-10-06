@@ -15,10 +15,10 @@
  */
 package app.cash.paykit.core.fakes
 
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFileAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OnFilePayoutAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction.OneTimeAction
 import app.cash.paykit.core.models.sdk.CashAppPayCurrency.USD
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFileAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OnFilePayoutAction
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction.OneTimeAction
 
 object FakeData {
   const val CLIENT_ID = "fake_client_id"

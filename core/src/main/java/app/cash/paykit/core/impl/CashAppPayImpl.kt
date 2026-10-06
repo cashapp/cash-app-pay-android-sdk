@@ -50,7 +50,7 @@ import app.cash.paykit.core.models.response.CustomerResponseData
 import app.cash.paykit.core.models.response.STATUS_APPROVED
 import app.cash.paykit.core.models.response.STATUS_PENDING
 import app.cash.paykit.core.models.response.STATUS_PROCESSING
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
 import app.cash.paykit.core.utils.SingleThreadManager
 import app.cash.paykit.core.utils.SingleThreadManagerImpl
 import app.cash.paykit.core.utils.ThreadPurpose.CHECK_APPROVAL_STATUS
@@ -145,7 +145,7 @@ internal class CashAppPayImpl(
   }
 
   override fun createCustomerRequest(
-    action: CashAppPayPaymentAction,
+    action: CashAppPayAction,
     redirectUri: String?,
     referenceId: String?,
   ) {
@@ -153,15 +153,15 @@ internal class CashAppPayImpl(
   }
 
   /**
-   * Create customer request given a [CashAppPayPaymentAction].
+   * Create customer request given a [CashAppPayAction].
    * Must be called from a background thread.
    *
    * @param actions A wrapper class that contains all of the necessary ingredients for building a customer request.
-   *                      Look at [PayKitPaymentAction] for more details.
+   *                      Look at [CashAppPayAction] for more details.
    */
   @WorkerThread
   override fun createCustomerRequest(
-    actions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
     redirectUri: String?,
     referenceId: String?,
   ) {
@@ -199,24 +199,24 @@ internal class CashAppPayImpl(
 
   override fun updateCustomerRequest(
     requestId: String,
-    action: CashAppPayPaymentAction,
+    action: CashAppPayAction,
     referenceId: String?,
   ) {
     updateCustomerRequest(requestId, listOf(action), referenceId)
   }
 
   /**
-   * Update an existing customer request given its [requestId] an the updated definitions contained within [CashAppPayPaymentAction].
+   * Update an existing customer request given its [requestId] an the updated definitions contained within [CashAppPayAction].
    * Must be called from a background thread.
    *
    * @param requestId ID of the request we intent do update.
    * @param actions A wrapper class that contains all of the necessary ingredients for building a customer request.
-   *                      Look at [PayKitPaymentAction] for more details.
+   *                      Look at [CashAppPayAction] for more details.
    */
   @WorkerThread
   override fun updateCustomerRequest(
     requestId: String,
-    actions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
     referenceId: String?,
   ) {
     enforceRegisteredStateUpdatesListener()

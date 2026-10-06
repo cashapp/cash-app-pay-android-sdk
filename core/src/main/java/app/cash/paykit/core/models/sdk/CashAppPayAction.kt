@@ -20,7 +20,7 @@ import app.cash.paykit.core.CashAppPay
 /**
  * This class holds the information necessary for [CashAppPay.createCustomerRequest] to be executed.
  */
-sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referenceId: String?) {
+sealed class CashAppPayAction(open val scopeId: String?, open val referenceId: String?) {
 
   /**
    * Describes an intent for a client to charge a customer a given amount.
@@ -52,7 +52,7 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     val amount: Int?,
     override val scopeId: String? = null,
     override val referenceId: String? = null,
-  ) : CashAppPayPaymentAction(scopeId, referenceId)
+  ) : CashAppPayAction(scopeId, referenceId)
 
   /**
    * Describes an intent for a client to store a customer's account, allowing a client to create payments
@@ -77,7 +77,7 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     override val scopeId: String? = null,
     val accountReferenceId: String? = null,
     override val referenceId: String? = null,
-  ) : CashAppPayPaymentAction(scopeId, referenceId)
+  ) : CashAppPayAction(scopeId, referenceId)
 
   /**
    * Creates a payout to a customer. A payout allows a merchant to send money to a customer’s
@@ -102,7 +102,7 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
     val accountReferenceId: String? = null,
     override val scopeId: String? = null,
     override val referenceId: String? = null,
-  ) : CashAppPayPaymentAction(scopeId, referenceId)
+  ) : CashAppPayAction(scopeId, referenceId)
 
   /**
    * Asks the customer to share their Cash App profile information with the brand or merchant
@@ -119,5 +119,5 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
    */
   data class CustomerProfileSharingAction(
     override val scopeId: String,
-  ) : CashAppPayPaymentAction(scopeId, referenceId = null)
+  ) : CashAppPayAction(scopeId, referenceId = null)
 }

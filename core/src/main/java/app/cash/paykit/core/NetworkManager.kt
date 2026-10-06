@@ -18,7 +18,7 @@ package app.cash.paykit.core
 import app.cash.paykit.core.models.analytics.EventStream2Response
 import app.cash.paykit.core.models.common.NetworkResult
 import app.cash.paykit.core.models.response.CustomerTopLevelResponse
-import app.cash.paykit.core.models.sdk.CashAppPayPaymentAction
+import app.cash.paykit.core.models.sdk.CashAppPayAction
 import java.io.IOException
 
 internal interface NetworkManager {
@@ -26,7 +26,7 @@ internal interface NetworkManager {
   @Throws(IOException::class)
   fun createCustomerRequest(
     clientId: String,
-    actions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
     redirectUri: String?,
     referenceId: String?,
   ): NetworkResult<CustomerTopLevelResponse>
@@ -36,7 +36,7 @@ internal interface NetworkManager {
     clientId: String,
     requestId: String,
     referenceId: String?,
-    actions: List<CashAppPayPaymentAction>,
+    actions: List<CashAppPayAction>,
   ): NetworkResult<CustomerTopLevelResponse>
 
   fun retrieveUpdatedRequestData(
