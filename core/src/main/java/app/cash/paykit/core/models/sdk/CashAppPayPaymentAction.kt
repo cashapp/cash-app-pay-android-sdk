@@ -84,16 +84,15 @@ sealed class CashAppPayPaymentAction(open val scopeId: String?, open val referen
    * Cash App account.
    *
    * @param accountReferenceId Identifier of the account or customer associated to the on file action.
-   * @param scopeId ID of the client, brand, or merchant that will charge the customer.
+   * @param scopeId ID of the client or brand that will pay out to the customer. Defaults to the client ID.
    *
    * If a **client ID** is passed, the grant from this action can be used to create a
-   * payment for any merchant owned by the client.
+   * payout for any merchant owned by the client.
    *
    * If a **brand ID** is passed, the grant from this action can be used to create a
-   * payment for any merchant that has a matching brand ID.
+   * payout for any merchant that has a matching brand ID.
    *
-   * If a **merchant ID** is passed, the grant from this action can be used to create a
-   * payment for the merchant with a matching ID.
+   * Merchant IDs are not supported for payouts.
    *
    * @param referenceId A user-defined identifier for this request, typically used to
    * associate the resource with a record in an external system.
