@@ -34,7 +34,6 @@ android {
   }
 
   compileOptions {
-    isCoreLibraryDesugaringEnabled = true
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
   }
@@ -57,6 +56,7 @@ android {
     checkAllWarnings = true
     warningsAsErrors = true
     baseline = file("lint-baseline.xml")
+    lintConfig = file("lint.xml")
     // Disable version checks - versions are intentionally pinned
     disable += setOf("GradleDependency", "AndroidGradlePluginVersion", "NewerVersionAvailable")
   }
@@ -74,8 +74,6 @@ android {
 }
 
 dependencies {
-  coreLibraryDesugaring(libs.desugar.jdk.libs)
-
   ksp(libs.moshi.kotlin.codegen)
   implementation(libs.moshi.kotlin)
 

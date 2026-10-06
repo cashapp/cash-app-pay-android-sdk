@@ -17,7 +17,6 @@ compose-bom = "2025.01.01"
 compose-lints = "1.4.2"
 
 # Dependency Versions
-desugarJdkLibs = "2.1.5"
 lifecycle = "2.9.0"
 moshi = "1.15.2"
 okhttp = "5.3.2"
@@ -44,7 +43,6 @@ compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 
 # Core Dependencies
-desugar-jdk-libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugarJdkLibs" }
 lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 lifecycle-runtime-testing = { module = "androidx.lifecycle:lifecycle-runtime-testing", version.ref = "lifecycle" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }

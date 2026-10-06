@@ -2,14 +2,10 @@
 ## Breaking Changes
  - Our internal implementation no longer depends on `kotlinx-datetime`, and now uses Java 8 time classes,
 namely `java.time.Instant`.
-As a result, apps that depend on this SDK must enable
+As a result, if your app supports Android versions below API 26, you must enable
 **[coreLibraryDesugaring](https://developer.android.com/studio/write/java8-support-table)** if it isn't already enabled.
-This applies regardless of your app's `minSdk`, because the SDK's AAR metadata requires it. The build will fail
-with an error similar to the following:
-
-```
-Dependency XYZ requires core library desugaring to be enabled for :your-app-module.
-```
+Without it, the SDK will crash on those devices when it reads timestamps. Apps with a `minSdk` of 26 or higher don't
+need to change anything.
 
  - `CashAppPayButton` (the Cash App Pay–styled button) is **no longer** bundled with the core PayKit SDK.
 It has been moved to a separate, **optional dependency**: `group = "app.cash.paykit", name = "ui-views"`.
