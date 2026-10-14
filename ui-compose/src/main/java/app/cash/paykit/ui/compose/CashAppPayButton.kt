@@ -39,7 +39,8 @@ import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
  * Cash App Pay button composable.
  *
  * A stylized button for starting a Cash App Pay flow. Pick the [label] that matches the customer request,
- * for example with [CashAppPayButtonLabel.forActions].
+ * for example with [CashAppPayButtonLabel.forActions], or pass [CashAppPayButtonLabel.CheckoutWith] or
+ * [CashAppPayButtonLabel.ContinueWith] to override it.
  *
  * **Note**: This button is purely visual. Developers must handle click actions
  * and manage visibility/enabled states based on SDK state.
@@ -91,12 +92,16 @@ private fun labelDrawable(label: CashAppPayButtonLabel, style: CashAppPayButtonS
     CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_black
     CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_black
     CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_black
+    CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_black
+    CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_black
   }
 
   CashAppPayButtonStyle.White -> when (label) {
     CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_white
     CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_white
     CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_white
+    CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_white
+    CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_white
   }
 }
 
@@ -104,6 +109,8 @@ private fun labelText(label: CashAppPayButtonLabel): Int = when (label) {
   CashAppPayButtonLabel.PayWith -> R.string.cap_compose_a11_button_label_pay_with
   CashAppPayButtonLabel.CashOutWith -> R.string.cap_compose_a11_button_label_cash_out_with
   CashAppPayButtonLabel.Connect -> R.string.cap_compose_a11_button_label_connect
+  CashAppPayButtonLabel.CheckoutWith -> R.string.cap_compose_a11_button_label_checkout_with
+  CashAppPayButtonLabel.ContinueWith -> R.string.cap_compose_a11_button_label_continue_with
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFE8E8E8)

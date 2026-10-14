@@ -17,6 +17,9 @@ package app.cash.paykit.core.models.sdk
 
 /**
  * Call to action shown on the Cash App Pay button in the `ui-views` and `ui-compose` modules.
+ *
+ * [forActions] picks [PayWith], [CashOutWith], or [Connect] from a customer request. Pass [CheckoutWith] or
+ * [ContinueWith] directly to override it, for example when the button sits on a checkout screen.
  */
 enum class CashAppPayButtonLabel {
   /** "Pay with Cash App", for payments. */
@@ -27,6 +30,12 @@ enum class CashAppPayButtonLabel {
 
   /** "Connect Cash App", for profile sharing and for requests that combine different kinds of actions. */
   Connect,
+
+  /** "Checkout with Cash App". Never returned by [forActions]; set it explicitly. */
+  CheckoutWith,
+
+  /** "Continue with Cash App". Never returned by [forActions]; set it explicitly. */
+  ContinueWith,
   ;
 
   companion object {

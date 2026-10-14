@@ -7,6 +7,8 @@
       <enum name="pay_with" value="0" />
       <enum name="cash_out_with" value="1" />
       <enum name="connect" value="2" />
+      <enum name="checkout_with" value="3" />
+      <enum name="continue_with" value="4" />
     </attr>
     <!-- Color variant, set by the CAPButtonStyle.Black and CAPButtonStyle.White styles. -->
     <attr name="cap_variant" format="enum">

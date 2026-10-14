@@ -23,7 +23,8 @@ import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 /**
  * Cash App Pay button. Use it with either the `CAPButtonStyle.Black` or `CAPButtonStyle.White` style,
  * and set [label] (or the `cap_label` XML attribute) to match the customer request, for example with
- * [CashAppPayButtonLabel.forActions].
+ * [CashAppPayButtonLabel.forActions]. Set [CashAppPayButtonLabel.CheckoutWith] or [CashAppPayButtonLabel.ContinueWith]
+ * to override it.
  *
  * **Note**: Due to its unmanaged nature, the button is merely a stylized button, it's up to developers
  * to trigger the correct action on button press, as well as manage any visibility states of the
@@ -76,6 +77,8 @@ class CashAppPayButton @JvmOverloads constructor(
         CashAppPayButtonLabel.PayWith -> if (isWhite) R.drawable.cap_label_pay_with_white else R.drawable.cap_label_pay_with_black
         CashAppPayButtonLabel.CashOutWith -> if (isWhite) R.drawable.cap_label_cash_out_with_white else R.drawable.cap_label_cash_out_with_black
         CashAppPayButtonLabel.Connect -> if (isWhite) R.drawable.cap_label_connect_white else R.drawable.cap_label_connect_black
+        CashAppPayButtonLabel.CheckoutWith -> if (isWhite) R.drawable.cap_label_checkout_with_white else R.drawable.cap_label_checkout_with_black
+        CashAppPayButtonLabel.ContinueWith -> if (isWhite) R.drawable.cap_label_continue_with_white else R.drawable.cap_label_continue_with_black
       },
     )
     contentDescription = context.getString(
@@ -83,6 +86,8 @@ class CashAppPayButton @JvmOverloads constructor(
         CashAppPayButtonLabel.PayWith -> R.string.cap_a11_button_label_pay_with
         CashAppPayButtonLabel.CashOutWith -> R.string.cap_a11_button_label_cash_out_with
         CashAppPayButtonLabel.Connect -> R.string.cap_a11_button_label_connect
+        CashAppPayButtonLabel.CheckoutWith -> R.string.cap_a11_button_label_checkout_with
+        CashAppPayButtonLabel.ContinueWith -> R.string.cap_a11_button_label_continue_with
       },
     )
   }

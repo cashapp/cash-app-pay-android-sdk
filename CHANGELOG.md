@@ -9,6 +9,10 @@ Pick the label from the customer request's actions with `CashAppPayButtonLabel.f
 | Only payouts (`OnFilePayoutAction`) | `CashOutWith`, "Cash out with Cash App" |
 | Anything else, including profile sharing and mixed payments and payouts | `Connect`, "Connect Cash App" |
 
+ - To override the automatic label, pass `CheckoutWith` ("Checkout with Cash App") or `ContinueWith`
+("Continue with Cash App") as the label. `forActions` never returns these two. In XML, use `app:cap_label="checkout_with"`
+or `app:cap_label="continue_with"`.
+
  - The button comes in two styles, `Black` and `White`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and
 `Monochrome` styles are removed.
 
@@ -28,7 +32,7 @@ fun CashAppPayButton(
 ```
 
 **View API:** use `@style/CAPButtonStyle.Black` or `@style/CAPButtonStyle.White`, and set the label in XML with
-`app:cap_label` (`pay_with`, `cash_out_with`, or `connect`) or in code with `button.label`:
+`app:cap_label` (`pay_with`, `cash_out_with`, `connect`, `checkout_with`, or `continue_with`) or in code with `button.label`:
 
 ```xml
 <app.cash.paykit.ui.views.CashAppPayButton

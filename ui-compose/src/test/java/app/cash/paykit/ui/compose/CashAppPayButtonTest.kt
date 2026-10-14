@@ -58,6 +58,18 @@ class CashAppPayButtonTest {
   fun testConnectWhite() = snapshot(CashAppPayButtonLabel.Connect, CashAppPayButtonStyle.White)
 
   @Test
+  fun testCheckoutWithBlack() = snapshot(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonStyle.Black)
+
+  @Test
+  fun testCheckoutWithWhite() = snapshot(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonStyle.White)
+
+  @Test
+  fun testContinueWithBlack() = snapshot(CashAppPayButtonLabel.ContinueWith, CashAppPayButtonStyle.Black)
+
+  @Test
+  fun testContinueWithWhite() = snapshot(CashAppPayButtonLabel.ContinueWith, CashAppPayButtonStyle.White)
+
+  @Test
   fun testPayWithBlackDisabled() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Black, enabled = false)
 
   @Test

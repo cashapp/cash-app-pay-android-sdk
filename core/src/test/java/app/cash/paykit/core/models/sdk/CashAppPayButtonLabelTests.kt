@@ -44,4 +44,20 @@ class CashAppPayButtonLabelTests {
     assertThat(CashAppPayButtonLabel.forActions(listOf(payout, profile))).isEqualTo(CashAppPayButtonLabel.Connect)
     assertThat(CashAppPayButtonLabel.forActions(emptyList())).isEqualTo(CashAppPayButtonLabel.Connect)
   }
+
+  @Test
+  fun `Checkout with and Continue with are only set explicitly`() {
+    val requests = listOf(
+      emptyList(),
+      listOf(oneTime),
+      listOf(onFile),
+      listOf(payout),
+      listOf(profile),
+      listOf(onFile, payout),
+      listOf(oneTime, profile),
+      listOf(onFile, payout, profile),
+    )
+    val picked = requests.map { CashAppPayButtonLabel.forActions(it) }.toSet()
+    assertThat(picked).containsNoneOf(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonLabel.ContinueWith)
+  }
 }

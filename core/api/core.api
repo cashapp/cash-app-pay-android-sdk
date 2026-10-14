@@ -472,8 +472,10 @@ public final class app/cash/paykit/core/models/sdk/CashAppPayAction$OneTimeActio
 
 public final class app/cash/paykit/core/models/sdk/CashAppPayButtonLabel : java/lang/Enum {
 	public static final field CashOutWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field CheckoutWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final field Companion Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel$Companion;
 	public static final field Connect Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field ContinueWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final field PayWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final fun forActions (Ljava/util/List;)Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
