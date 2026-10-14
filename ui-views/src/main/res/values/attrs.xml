@@ -24,7 +24,7 @@
       <enum name="small" value="0" />
       <enum name="large" value="1" />
     </attr>
-    <!-- true for the green Cash App logo, false for the monochrome logo. -->
+    <!-- true for the green Cash App icon on a black background, false for the monochrome logo. -->
     <attr name="cap_use_polychrome_asset" format="boolean" />
   </declare-styleable>
 </resources>

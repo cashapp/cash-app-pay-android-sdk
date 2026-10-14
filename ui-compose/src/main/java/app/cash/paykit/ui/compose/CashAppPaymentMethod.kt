@@ -58,7 +58,8 @@ enum class CashAppPaymentMethodSize {
  * @param cashtag The customer's cashtag, for example from `CustomerResponseData.customerProfile`
  * @param modifier Modifier for the view
  * @param size Layout of the view (defaults to [CashAppPaymentMethodSize.Large])
- * @param usePolychromeAsset `true` for the green Cash App logo, `false` (default) for the monochrome logo
+ * @param usePolychromeAsset `true` for the green Cash App icon on a black background in light and dark mode,
+ *   `false` (default) for the monochrome logo
  * @param cashtagTextStyle Text style for the cashtag
  * @param cashtagColor Color of the cashtag (defaults to gray in light mode and white in dark mode)
  */
@@ -73,15 +74,9 @@ fun CashAppPaymentMethod(
   cashtagColor: Color = if (isSystemInDarkTheme()) Color(0xFFFAFAFA) else Color(0xFF999999),
 ) {
   val isDark = isSystemInDarkTheme()
-  val backgroundColor = when {
-    usePolychromeAsset && isDark -> Color(0xFF00D64F)
-    usePolychromeAsset -> Color.Black
-    isDark -> Color.Black
-    else -> Color.White
-  }
+  val backgroundColor = if (usePolychromeAsset || isDark) Color.Black else Color.White
   val logoRes = when {
-    usePolychromeAsset && isDark -> R.drawable.cap_compose_logo_cash_app_polychrome_light
-    usePolychromeAsset -> R.drawable.cap_compose_logo_cash_app_polychrome_dark
+    usePolychromeAsset -> R.drawable.cap_compose_logo_cash_app_polychrome
     isDark -> R.drawable.cap_compose_logo_cash_app_monochrome_dark
     else -> R.drawable.cap_compose_logo_cash_app_monochrome_light
   }

@@ -21,8 +21,8 @@ or `app:cap_label="continue_with"`.
 ## New
  - Added `CashAppPaymentMethod` to `ui-views` and `ui-compose`. It shows the Cash App logo and the customer's cashtag,
 for example after the customer approves a request, and matches the iOS `CashAppPaymentMethod`. It comes in `Large`
-(cashtag to the right) and `Small` (cashtag under the logo) layouts, has a monochrome or green (`usePolychromeAsset`)
-logo, and follows the system light or dark theme.
+(cashtag to the right) and `Small` (cashtag under the logo) layouts. The monochrome logo follows the system light or dark
+theme. `usePolychromeAsset` shows the green Cash App icon on a black background in both themes.
 
 ```kotlin
 CashAppPaymentMethod(cashtag = customerProfile.cashtag)

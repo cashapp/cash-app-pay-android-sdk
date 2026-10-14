@@ -70,7 +70,7 @@ class CashAppPaymentMethod @JvmOverloads constructor(
       updateLayout()
     }
 
-  /** `true` for the green Cash App logo, `false` (default) for the monochrome logo. */
+  /** `true` for the green Cash App icon on a black background in light and dark mode, `false` (default) for the monochrome logo. */
   var usePolychromeAsset: Boolean = false
     set(value) {
       field = value
@@ -130,18 +130,10 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   private fun updateColors() {
     val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-    background.setColor(
-      when {
-        usePolychromeAsset && isDark -> Color.rgb(0x00, 0xD6, 0x4F)
-        usePolychromeAsset -> Color.BLACK
-        isDark -> Color.BLACK
-        else -> Color.WHITE
-      },
-    )
+    background.setColor(if (usePolychromeAsset || isDark) Color.BLACK else Color.WHITE)
     logoView.setImageResource(
       when {
-        usePolychromeAsset && isDark -> R.drawable.cap_logo_cash_app_polychrome_light
-        usePolychromeAsset -> R.drawable.cap_logo_cash_app_polychrome_dark
+        usePolychromeAsset -> R.drawable.cap_logo_cash_app_polychrome
         isDark -> R.drawable.cap_logo_cash_app_monochrome_dark
         else -> R.drawable.cap_logo_cash_app_monochrome_light
       },
