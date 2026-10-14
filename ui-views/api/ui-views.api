@@ -3,6 +3,8 @@ public final class app/cash/paykit/ui/views/CashAppPayButton : android/widget/Im
 	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;)V
 	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;I)V
 	public synthetic fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getLabel ()Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public fun setEnabled (Z)V
+	public final fun setLabel (Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;)V
 }
 

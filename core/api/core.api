@@ -470,6 +470,21 @@ public final class app/cash/paykit/core/models/sdk/CashAppPayAction$OneTimeActio
 	public fun toString ()Ljava/lang/String;
 }
 
+public final class app/cash/paykit/core/models/sdk/CashAppPayButtonLabel : java/lang/Enum {
+	public static final field CashOutWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field Companion Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel$Companion;
+	public static final field Connect Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field PayWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final fun forActions (Ljava/util/List;)Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static fun values ()[Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+}
+
+public final class app/cash/paykit/core/models/sdk/CashAppPayButtonLabel$Companion {
+	public final fun forActions (Ljava/util/List;)Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+}
+
 public final class app/cash/paykit/core/models/sdk/CashAppPayCurrency : java/lang/Enum {
 	public static final field USD Lapp/cash/paykit/core/models/sdk/CashAppPayCurrency;
 	public final fun getBackendValue ()Ljava/lang/String;

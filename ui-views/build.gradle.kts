@@ -46,6 +46,7 @@ android {
 }
 
 dependencies {
+  api(project(":core"))
   testImplementation(libs.junit)
   testImplementation(libs.robolectric)
 }

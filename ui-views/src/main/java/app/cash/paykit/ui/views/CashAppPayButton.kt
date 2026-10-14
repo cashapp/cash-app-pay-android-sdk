@@ -18,10 +18,12 @@ package app.cash.paykit.ui.views
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageButton
+import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 
 /**
- * Cash App Pay button. Should be used in conjunction with either `CAPButtonStyle.Default`,
- * `CAPButtonStyle.Alt`, `CAPButtonStyle.MonochromeDark`, or `CAPButtonStyle.MonochromeLight` styles.
+ * Cash App Pay button. Use it with either the `CAPButtonStyle.Black` or `CAPButtonStyle.White` style,
+ * and set [label] (or the `cap_label` XML attribute) to match the customer request, for example with
+ * [CashAppPayButtonLabel.forActions].
  *
  * **Note**: Due to its unmanaged nature, the button is merely a stylized button, it's up to developers
  * to trigger the correct action on button press, as well as manage any visibility states of the
@@ -38,6 +40,27 @@ class CashAppPayButton @JvmOverloads constructor(
   style,
 ) {
 
+  private val isWhite: Boolean
+
+  /**
+   * Call to action shown on the button. Defaults to [CashAppPayButtonLabel.PayWith].
+   */
+  var label: CashAppPayButtonLabel = CashAppPayButtonLabel.PayWith
+    set(value) {
+      field = value
+      updateLabel()
+    }
+
+  init {
+    val attributes = context.obtainStyledAttributes(attrs, R.styleable.CashAppPayButton, 0, style)
+    try {
+      isWhite = attributes.getInt(R.styleable.CashAppPayButton_cap_variant, 0) == 1
+      label = CashAppPayButtonLabel.entries[attributes.getInt(R.styleable.CashAppPayButton_cap_label, 0)]
+    } finally {
+      attributes.recycle()
+    }
+  }
+
   override fun setEnabled(enabled: Boolean) {
     super.setEnabled(enabled)
     alpha = if (enabled) {
@@ -45,5 +68,22 @@ class CashAppPayButton @JvmOverloads constructor(
     } else {
       .3f
     }
+  }
+
+  private fun updateLabel() {
+    setImageResource(
+      when (label) {
+        CashAppPayButtonLabel.PayWith -> if (isWhite) R.drawable.cap_label_pay_with_white else R.drawable.cap_label_pay_with_black
+        CashAppPayButtonLabel.CashOutWith -> if (isWhite) R.drawable.cap_label_cash_out_with_white else R.drawable.cap_label_cash_out_with_black
+        CashAppPayButtonLabel.Connect -> if (isWhite) R.drawable.cap_label_connect_white else R.drawable.cap_label_connect_black
+      },
+    )
+    contentDescription = context.getString(
+      when (label) {
+        CashAppPayButtonLabel.PayWith -> R.string.cap_a11_button_label_pay_with
+        CashAppPayButtonLabel.CashOutWith -> R.string.cap_a11_button_label_cash_out_with
+        CashAppPayButtonLabel.Connect -> R.string.cap_a11_button_label_connect
+      },
+    )
   }
 }

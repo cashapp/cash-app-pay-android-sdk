@@ -3,27 +3,16 @@
   <style name="CAPButtonStyle" parent="android:Widget.ImageButton">
     <item name="android:minHeight">48dp</item>
     <item name="android:height">48dp</item>
-    <item name="android:contentDescription">@string/cap_a11_button_label</item>
   </style>
 
-  <style name="CAPButtonStyle.MonochromeLight">
-    <item name="android:src">@drawable/cap_logo_monochrome_dark</item>
-    <item name="android:background">@drawable/cap_btn_background_light_outlined</item>
-  </style>
-
-  <style name="CAPButtonStyle.MonochromeDark">
-    <item name="android:src">@drawable/cap_logo_monochrome_light</item>
+  <style name="CAPButtonStyle.Black">
     <item name="android:background">@drawable/cap_btn_background_dark</item>
+    <item name="cap_variant">black</item>
   </style>
 
-  <style name="CAPButtonStyle.Default">
-    <item name="android:src">@drawable/cap_logo_polychrome</item>
-    <item name="android:background">@drawable/cap_btn_background_dark</item>
-  </style>
-
-  <style name="CAPButtonStyle.Alt">
-    <item name="android:src">@drawable/cap_logo_monochrome_dark</item>
-    <item name="android:background">@drawable/cap_btn_background_green</item>
+  <style name="CAPButtonStyle.White">
+    <item name="android:background">@drawable/cap_btn_background_white</item>
+    <item name="cap_variant">white</item>
   </style>
 
 </resources>

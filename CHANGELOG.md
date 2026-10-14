@@ -1,3 +1,43 @@
+# NEXT RELEASE | WIP
+## Breaking Changes
+ - `CashAppPayButton` now shows a call to action instead of "Cash App Pay", in both `ui-views` and `ui-compose`.
+Pick the label from the customer request's actions with `CashAppPayButtonLabel.forActions(actions)`:
+
+| Actions | Label |
+|---|---|
+| Only payments (`OneTimeAction`, `OnFileAction`) | `PayWith`, "Pay with Cash App" |
+| Only payouts (`OnFilePayoutAction`) | `CashOutWith`, "Cash out with Cash App" |
+| Anything else, including profile sharing and mixed payments and payouts | `Connect`, "Connect Cash App" |
+
+ - The button comes in two styles, `Black` and `White`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and
+`Monochrome` styles are removed.
+
+ - `ui-views` and `ui-compose` now depend on `core`, since `CashAppPayButtonLabel` lives there.
+
+**Composable API:**
+
+```kotlin
+@Composable
+fun CashAppPayButton(
+  onClick: () -> Unit,
+  label: CashAppPayButtonLabel,
+  modifier: Modifier = Modifier,
+  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Black,
+  enabled: Boolean = true,
+)
+```
+
+**View API:** use `@style/CAPButtonStyle.Black` or `@style/CAPButtonStyle.White`, and set the label in XML with
+`app:cap_label` (`pay_with`, `cash_out_with`, or `connect`) or in code with `button.label`:
+
+```xml
+<app.cash.paykit.ui.views.CashAppPayButton
+      style="@style/CAPButtonStyle.Black"
+      app:cap_label="pay_with"
+      android:layout_height="48dp"
+      android:layout_width="match_parent"/>
+```
+
 # 3.0.0
 ## Breaking Changes
  - Our internal implementation no longer depends on `kotlinx-datetime`, and now uses Java 8 time classes,

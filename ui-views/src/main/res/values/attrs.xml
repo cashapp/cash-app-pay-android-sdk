@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!-- Named after the view, as declare-styleable convention requires; its attributes carry the cap_ prefix. -->
+  <declare-styleable name="CashAppPayButton" tools:ignore="ResourceName">
+    <!-- Call to action shown on the button. -->
+    <attr name="cap_label" format="enum">
+      <enum name="pay_with" value="0" />
+      <enum name="cash_out_with" value="1" />
+      <enum name="connect" value="2" />
+    </attr>
+    <!-- Color variant, set by the CAPButtonStyle.Black and CAPButtonStyle.White styles. -->
+    <attr name="cap_variant" format="enum">
+      <enum name="black" value="0" />
+      <enum name="white" value="1" />
+    </attr>
+  </declare-styleable>
+</resources>
