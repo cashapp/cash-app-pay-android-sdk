@@ -18,6 +18,24 @@ or `app:cap_label="continue_with"`.
 
  - `ui-views` and `ui-compose` now depend on `core`, since `CashAppPayButtonLabel` lives there.
 
+## New
+ - Added `CashAppPaymentMethod` to `ui-views` and `ui-compose`. It shows the Cash App logo and the customer's cashtag,
+for example after the customer approves a request, and matches the iOS `CashAppPaymentMethod`. It comes in `Large`
+(cashtag to the right) and `Small` (cashtag under the logo) layouts, has a monochrome or green (`usePolychromeAsset`)
+logo, and follows the system light or dark theme.
+
+```kotlin
+CashAppPaymentMethod(cashtag = customerProfile.cashtag)
+```
+
+```xml
+<app.cash.paykit.ui.views.CashAppPaymentMethod
+      app:cap_cashtag="$jack"
+      app:cap_size="large"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"/>
+```
+
 **Composable API:**
 
 ```kotlin
