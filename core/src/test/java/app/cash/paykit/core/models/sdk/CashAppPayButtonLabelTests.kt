@@ -46,7 +46,7 @@ class CashAppPayButtonLabelTests {
   }
 
   @Test
-  fun `Checkout with is only set explicitly`() {
+  fun `Checkout with and Buy with are only set explicitly`() {
     val requests = listOf(
       emptyList(),
       listOf(oneTime),
@@ -58,6 +58,6 @@ class CashAppPayButtonLabelTests {
       listOf(onFile, payout, profile),
     )
     val picked = requests.map { CashAppPayButtonLabel.forActions(it) }.toSet()
-    assertThat(picked).doesNotContain(CashAppPayButtonLabel.CheckoutWith)
+    assertThat(picked).containsNoneOf(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonLabel.BuyWith)
   }
 }

@@ -471,6 +471,7 @@ public final class app/cash/paykit/core/models/sdk/CashAppPayAction$OneTimeActio
 }
 
 public final class app/cash/paykit/core/models/sdk/CashAppPayButtonLabel : java/lang/Enum {
+	public static final field BuyWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final field CashOutWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final field CheckoutWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final field Companion Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel$Companion;

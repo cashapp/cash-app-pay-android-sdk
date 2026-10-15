@@ -19,11 +19,18 @@ package app.cash.paykit.core.models.sdk
  * Call to action shown on the Cash App Pay button in the `ui-views` and `ui-compose` modules.
  *
  * [forActions] picks [PayWith], [CashOutWith], or [ContinueWith] from a customer request. Pass any label directly
- * to override it, for example [CheckoutWith] when the button sits on a checkout screen.
+ * to override it, for example [CheckoutWith] when the button sits on a checkout screen, or [BuyWith] for a
+ * "Buy now" button.
  */
 enum class CashAppPayButtonLabel {
   /** "Pay with Cash App", for payments. */
   PayWith,
+
+  /**
+   * "Buy with Cash App", for buy-now payments, for example a "Buy now" button on a product page. Never returned by
+   * [forActions]; set it explicitly.
+   */
+  BuyWith,
 
   /** "Cash out with Cash App", for payouts. */
   CashOutWith,

@@ -5,6 +5,10 @@ public final class app/cash/paykit/ui/compose/CashAppPayButtonKt {
 public final class app/cash/paykit/ui/compose/CashAppPayButtonStyle : java/lang/Enum {
 	public static final field Auto Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static final field Black Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
+	public static final field Green Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
+	public static final field MonochromeAuto Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
+	public static final field MonochromeBlack Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
+	public static final field MonochromeWhite Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static final field White Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;

@@ -15,7 +15,25 @@
     <item name="cap_variant">white</item>
   </style>
 
+  <style name="CAPButtonStyle.MonochromeBlack">
+    <item name="android:background">@drawable/cap_btn_background_dark</item>
+    <item name="cap_variant">monochrome_black</item>
+  </style>
+
+  <style name="CAPButtonStyle.MonochromeWhite">
+    <item name="android:background">@drawable/cap_btn_background_white</item>
+    <item name="cap_variant">monochrome_white</item>
+  </style>
+
+  <style name="CAPButtonStyle.Green">
+    <item name="android:background">@drawable/cap_btn_background_green</item>
+    <item name="cap_variant">green</item>
+  </style>
+
   <!-- Follows the system UI mode: Black in light mode, White in dark mode (see values-night). -->
   <style name="CAPButtonStyle.Auto" parent="CAPButtonStyle.Black" />
+
+  <!-- Follows the system UI mode: MonochromeBlack in light mode, MonochromeWhite in dark mode (see values-night). -->
+  <style name="CAPButtonStyle.MonochromeAuto" parent="CAPButtonStyle.MonochromeBlack" />
 
 </resources>

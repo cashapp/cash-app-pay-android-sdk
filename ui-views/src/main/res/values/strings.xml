@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="cap_a11_button_label_pay_with">Pay with Cash App</string>
+  <string name="cap_a11_button_label_buy_with">Buy with Cash App</string>
   <string name="cap_a11_button_label_cash_out_with">Cash out with Cash App</string>
   <string name="cap_a11_button_label_checkout_with">Checkout with Cash App</string>
   <string name="cap_a11_button_label_continue_with">Continue with Cash App</string>

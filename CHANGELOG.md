@@ -9,12 +9,29 @@ Pick the label from the customer request's actions with `CashAppPayButtonLabel.f
 | Only payouts (`OnFilePayoutAction`) | `CashOutWith`, "Cash out with Cash App" |
 | Anything else, such as a mix of payments and payouts, or no actions | `ContinueWith`, "Continue with Cash App" |
 
- - To override the automatic label, pass any label directly, for example `CheckoutWith` ("Checkout with Cash App"), which
-`forActions` never returns. In XML, use `app:cap_label`, for example `app:cap_label="checkout_with"`.
+ - To override the automatic label, pass any label directly. `forActions` never returns these two:
 
- - The button comes in `Black` and `White` styles, plus `Auto`, which follows the system UI mode: `Black` in light mode
-and `White` in dark mode. `Auto` replaces `Monochrome`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and
-`Monochrome` styles are removed.
+| Label | Text | Use it for |
+|---|---|---|
+| `BuyWith` | "Buy with Cash App" | Buy-now payments, for example a "Buy now" button on a product page |
+| `CheckoutWith` | "Checkout with Cash App" | A checkout screen |
+
+In XML, use `app:cap_label`, for example `app:cap_label="buy_with"`.
+
+ - The button comes in these styles:
+
+| Style | Background | Label |
+|---|---|---|
+| `Black` | Black | White text, green Cash App icon |
+| `White` | White with a black outline | Black text, green Cash App icon |
+| `MonochromeBlack` | Black | White text and icon |
+| `MonochromeWhite` | White with a black outline | Black text and icon |
+| `Green` | Cash App green | Black text and icon |
+| `Auto` | `Black` in light mode, `White` in dark mode | |
+| `MonochromeAuto` | `MonochromeBlack` in light mode, `MonochromeWhite` in dark mode | |
+
+`MonochromeAuto` replaces `Monochrome`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and `Monochrome` styles
+are removed.
 
  - `ui-views` and `ui-compose` now depend on `core`, since `CashAppPayButtonLabel` lives there.
 
@@ -49,8 +66,9 @@ fun CashAppPayButton(
 )
 ```
 
-**View API:** use `@style/CAPButtonStyle.Black`, `@style/CAPButtonStyle.White`, or `@style/CAPButtonStyle.Auto`, and set the label in XML with
-`app:cap_label` (`pay_with`, `cash_out_with`, `checkout_with`, or `continue_with`) or in code with `button.label`:
+**View API:** use `@style/CAPButtonStyle.Black`, `.White`, `.MonochromeBlack`, `.MonochromeWhite`, `.Green`, `.Auto`, or
+`.MonochromeAuto`, and set the label in XML with `app:cap_label` (`pay_with`, `buy_with`, `cash_out_with`,
+`checkout_with`, or `continue_with`) or in code with `button.label`:
 
 ```xml
 <app.cash.paykit.ui.views.CashAppPayButton
