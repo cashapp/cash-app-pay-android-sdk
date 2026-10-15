@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 import com.android.resources.NightMode
 import org.junit.Rule
 import org.junit.Test
@@ -39,6 +38,29 @@ class CashAppPayButtonTest {
     theme = "android:Theme.Material3.Light",
     showSystemUi = false,
   )
+
+  /** No label shows the default, [CashAppPayButtonLabel.CashApp]. */
+  @Test
+  fun testDefaultLabel() = paparazzi.snapshot {
+    Box(modifier = Modifier.padding(16.dp)) {
+      CashAppPayButton(onClick = {}, modifier = Modifier.width(300.dp).height(54.dp))
+    }
+  }
+
+  @Test
+  fun testCashAppBlack() = snapshot(CashAppPayButtonLabel.CashApp, CashAppPayButtonStyle.Black)
+
+  @Test
+  fun testCashAppWhite() = snapshot(CashAppPayButtonLabel.CashApp, CashAppPayButtonStyle.White)
+
+  @Test
+  fun testCashAppMonochromeBlack() = snapshot(CashAppPayButtonLabel.CashApp, CashAppPayButtonStyle.MonochromeBlack)
+
+  @Test
+  fun testCashAppMonochromeWhite() = snapshot(CashAppPayButtonLabel.CashApp, CashAppPayButtonStyle.MonochromeWhite)
+
+  @Test
+  fun testCashAppGreen() = snapshot(CashAppPayButtonLabel.CashApp, CashAppPayButtonStyle.Green)
 
   @Test
   fun testPayWithBlack() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Black)

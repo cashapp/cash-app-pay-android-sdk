@@ -2,14 +2,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!-- Named after the view, as declare-styleable convention requires; its attributes carry the cap_ prefix. -->
   <declare-styleable name="CashAppPayButton" tools:ignore="ResourceName">
-    <!-- Call to action shown on the button. -->
+    <!-- Text shown on the button. Defaults to cash_app. -->
     <attr name="cap_label" format="enum">
-      <enum name="pay" value="0" />
-      <enum name="buy" value="1" />
-      <enum name="cash_out" value="2" />
-      <enum name="checkout" value="3" />
+      <enum name="cash_app" value="0" />
+      <enum name="pay" value="1" />
+      <enum name="buy" value="2" />
+      <enum name="cash_out" value="3" />
+      <enum name="checkout" value="4" />
       <!-- Not "continue": Android rejects reserved Java keywords as resource names. -->
-      <enum name="continue_with" value="4" />
+      <enum name="continue_with" value="5" />
     </attr>
     <!-- Color variant, set by the CAPButtonStyle styles. -->
     <attr name="cap_variant" format="enum">

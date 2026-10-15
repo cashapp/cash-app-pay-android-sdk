@@ -36,21 +36,19 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 
 /**
  * Cash App Pay button composable.
  *
- * A stylized button for starting a Cash App Pay flow. Pick the [label] that matches the customer request,
- * for example with [CashAppPayButtonLabel.forActions], or pass another label, such as [CashAppPayButtonLabel.Buy]
- * or [CashAppPayButtonLabel.Checkout], to override it.
+ * A stylized button for starting a Cash App Pay flow. By default it shows the Cash App icon and "Cash App". Pass
+ * another [label], such as [CashAppPayButtonLabel.Pay] or [CashAppPayButtonLabel.Checkout], to show a call to action.
  *
  * **Note**: This button is purely visual. Developers must handle click actions
  * and manage visibility/enabled states based on SDK state.
  *
  * @param onClick Callback invoked when the button is clicked
- * @param label Call to action shown on the button
  * @param modifier Modifier for the button
+ * @param label Text shown on the button (defaults to [CashAppPayButtonLabel.CashApp])
  * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Black]). [CashAppPayButtonStyle.Auto] and
  *   [CashAppPayButtonStyle.MonochromeAuto] follow the system UI mode.
  * @param enabled Whether the button is enabled (affects alpha and click handling)
@@ -59,8 +57,8 @@ import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 @Composable
 fun CashAppPayButton(
   onClick: () -> Unit,
-  label: CashAppPayButtonLabel,
   modifier: Modifier = Modifier,
+  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
   style: CashAppPayButtonStyle = CashAppPayButtonStyle.Black,
   enabled: Boolean = true,
 ) {
@@ -126,6 +124,7 @@ private enum class LabelArt { Black, White, Mono }
 
 private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = when (art) {
   LabelArt.Black -> when (label) {
+    CashAppPayButtonLabel.CashApp -> R.drawable.cap_compose_label_cash_app_black
     CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_black
     CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_black
     CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_black
@@ -134,6 +133,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
   }
 
   LabelArt.White -> when (label) {
+    CashAppPayButtonLabel.CashApp -> R.drawable.cap_compose_label_cash_app_white
     CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_white
     CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_white
     CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_white
@@ -142,6 +142,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
   }
 
   LabelArt.Mono -> when (label) {
+    CashAppPayButtonLabel.CashApp -> R.drawable.cap_compose_label_cash_app_mono
     CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_mono
     CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_mono
     CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_mono
@@ -151,6 +152,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
 }
 
 private fun labelText(label: CashAppPayButtonLabel): Int = when (label) {
+  CashAppPayButtonLabel.CashApp -> R.string.cap_compose_a11_logo_cash_app
   CashAppPayButtonLabel.Pay -> R.string.cap_compose_a11_button_label_pay_with
   CashAppPayButtonLabel.Buy -> R.string.cap_compose_a11_button_label_buy_with
   CashAppPayButtonLabel.CashOut -> R.string.cap_compose_a11_button_label_cash_out_with
@@ -181,7 +183,7 @@ private fun CashAppPayButtonDisabledPreview() {
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     CashAppPayButtonStyle.entries.forEach { style ->
-      CashAppPayButton(onClick = {}, label = CashAppPayButtonLabel.Pay, style = style, enabled = false)
+      CashAppPayButton(onClick = {}, style = style, enabled = false)
     }
   }
 }

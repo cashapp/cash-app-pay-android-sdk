@@ -1,20 +1,16 @@
 # NEXT RELEASE | WIP
 ## Breaking Changes
- - `CashAppPayButton` now shows a call to action instead of "Cash App Pay", in both `ui-views` and `ui-compose`.
-Pick the label from the customer request's actions with `CashAppPayButtonLabel.forActions(actions)`:
+ - `CashAppPayButton` now shows the Cash App icon and "Cash App" by default, replacing the previous artwork, in both
+`ui-views` and `ui-compose`. To show a call to action instead, set a `CashAppPayButtonLabel`:
 
-| Actions | Label |
+| Label | Text |
 |---|---|
-| Only payments (`OneTimeAction`, `OnFileAction`) | `Pay`, "Pay with Cash App" |
-| Only payouts (`OnFilePayoutAction`) | `CashOut`, "Cash out with Cash App" |
-| Anything else, such as a mix of payments and payouts, or no actions | `Continue`, "Continue with Cash App" |
-
- - To override the automatic label, pass any label directly. `forActions` never returns these two:
-
-| Label | Text | Use it for |
-|---|---|---|
-| `Buy` | "Buy with Cash App" | Buy-now payments, for example a "Buy now" button on a product page |
-| `Checkout` | "Checkout with Cash App" | A checkout screen |
+| `CashApp` (default) | Cash App icon and "Cash App" |
+| `Pay` | "Pay with Cash App" |
+| `Buy` | "Buy with Cash App", for example for a "Buy now" button on a product page |
+| `CashOut` | "Cash out with Cash App" |
+| `Checkout` | "Checkout with Cash App", for example on a checkout screen |
+| `Continue` | "Continue with Cash App" |
 
 In XML, use `app:cap_label`, for example `app:cap_label="buy"`.
 
@@ -33,7 +29,6 @@ In XML, use `app:cap_label`, for example `app:cap_label="buy"`.
 `MonochromeAuto` replaces `Monochrome`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and `Monochrome` styles
 are removed.
 
- - In `ui-compose`, `label` is now a required parameter of `CashAppPayButton`.
  - In `ui-views`, a `CashAppPayButton` without a style now uses `CAPButtonStyle.Black`.
  - These public resources are removed:
    - Strings: `cap_a11_button_label` (`ui-views`) and `cap_compose_a11_button_label` (`ui-compose`).
@@ -49,17 +44,17 @@ are removed.
 @Composable
 fun CashAppPayButton(
   onClick: () -> Unit,
-  label: CashAppPayButtonLabel,
   modifier: Modifier = Modifier,
+  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
   style: CashAppPayButtonStyle = CashAppPayButtonStyle.Black,
   enabled: Boolean = true,
 )
 ```
 
 **View API:** use `@style/CAPButtonStyle.Black`, `.White`, `.MonochromeBlack`, `.MonochromeWhite`, `.Green`, `.Auto`, or
-`.MonochromeAuto`, and set the label in XML with `app:cap_label` (`pay`, `buy`, `cash_out`, `checkout`, or
-`continue_with`, since Android doesn't allow the reserved Java keyword `continue` as a resource name) or in code with
-`button.label`:
+`.MonochromeAuto`. Without a label the button shows `cash_app`. Set another label in XML with `app:cap_label` (`cash_app`,
+`pay`, `buy`, `cash_out`, `checkout`, or `continue_with`, since Android doesn't allow the reserved Java keyword `continue`
+as a resource name) or in code with `button.label`:
 
 ```xml
 <app.cash.paykit.ui.views.CashAppPayButton
@@ -68,8 +63,6 @@ fun CashAppPayButton(
       android:layout_height="48dp"
       android:layout_width="match_parent"/>
 ```
-
- - `ui-views` and `ui-compose` now depend on `core`, since `CashAppPayButtonLabel` lives there.
 
 ## New
  - Added `CashAppPaymentMethod` to `ui-views` and `ui-compose`. It shows the Cash App logo and the customer's cashtag,

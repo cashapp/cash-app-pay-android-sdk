@@ -20,7 +20,6 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.util.AttributeSet
 import android.widget.ImageButton
-import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 
 /**
  * Cash App Pay button. Use it with one of these styles, or none for the default, `CAPButtonStyle.Black`:
@@ -33,9 +32,8 @@ import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
  * - `CAPButtonStyle.MonochromeAuto`: follows the system UI mode, `MonochromeBlack` in light mode and `MonochromeWhite`
  *   in dark mode.
  *
- * Set [label] (or the `cap_label` XML attribute) to match the customer request, for example with
- * [CashAppPayButtonLabel.forActions], or set another label, such as [CashAppPayButtonLabel.Buy] or
- * [CashAppPayButtonLabel.Checkout], to override it.
+ * By default the button shows the Cash App icon and "Cash App". Set [label] (or the `cap_label` XML attribute) to
+ * show a call to action instead, such as [CashAppPayButtonLabel.Pay] or [CashAppPayButtonLabel.Checkout].
  *
  * **Note**: Due to its unmanaged nature, the button is merely a stylized button, it's up to developers
  * to trigger the correct action on button press, as well as manage any visibility states of the
@@ -55,9 +53,9 @@ class CashAppPayButton @JvmOverloads constructor(
   private val variant: Variant
 
   /**
-   * Call to action shown on the button. Defaults to [CashAppPayButtonLabel.Pay].
+   * Text shown on the button. Defaults to [CashAppPayButtonLabel.CashApp].
    */
-  var label: CashAppPayButtonLabel = CashAppPayButtonLabel.Pay
+  var label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp
     set(value) {
       field = value
       updateLabel()
@@ -87,6 +85,7 @@ class CashAppPayButton @JvmOverloads constructor(
     setImageResource(
       when (variant.art) {
         LabelArt.Black -> when (label) {
+          CashAppPayButtonLabel.CashApp -> R.drawable.cap_label_cash_app_black
           CashAppPayButtonLabel.Pay -> R.drawable.cap_label_pay_with_black
           CashAppPayButtonLabel.Buy -> R.drawable.cap_label_buy_with_black
           CashAppPayButtonLabel.CashOut -> R.drawable.cap_label_cash_out_with_black
@@ -95,6 +94,7 @@ class CashAppPayButton @JvmOverloads constructor(
         }
 
         LabelArt.White -> when (label) {
+          CashAppPayButtonLabel.CashApp -> R.drawable.cap_label_cash_app_white
           CashAppPayButtonLabel.Pay -> R.drawable.cap_label_pay_with_white
           CashAppPayButtonLabel.Buy -> R.drawable.cap_label_buy_with_white
           CashAppPayButtonLabel.CashOut -> R.drawable.cap_label_cash_out_with_white
@@ -103,6 +103,7 @@ class CashAppPayButton @JvmOverloads constructor(
         }
 
         LabelArt.Mono -> when (label) {
+          CashAppPayButtonLabel.CashApp -> R.drawable.cap_label_cash_app_mono
           CashAppPayButtonLabel.Pay -> R.drawable.cap_label_pay_with_mono
           CashAppPayButtonLabel.Buy -> R.drawable.cap_label_buy_with_mono
           CashAppPayButtonLabel.CashOut -> R.drawable.cap_label_cash_out_with_mono
@@ -113,6 +114,7 @@ class CashAppPayButton @JvmOverloads constructor(
     )
     contentDescription = context.getString(
       when (label) {
+        CashAppPayButtonLabel.CashApp -> R.string.cap_a11_logo_cash_app
         CashAppPayButtonLabel.Pay -> R.string.cap_a11_button_label_pay_with
         CashAppPayButtonLabel.Buy -> R.string.cap_a11_button_label_buy_with
         CashAppPayButtonLabel.CashOut -> R.string.cap_a11_button_label_cash_out_with
