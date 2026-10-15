@@ -20,6 +20,13 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Start monitor
+        run: |
+          nohup bash -c 'i=0; while true; do
+            { echo "===== $(date -u +%T) load: $(cut -d" " -f1-3 /proc/loadavg)"; free -m; ps -eo pid,rss,pcpu,etime,comm --sort=-rss | head -8; } >> /tmp/monitor.log
+            if [ $((i % 3)) -eq 2 ]; then { echo "===== THREADS $(date -u +%T)"; for p in $(pgrep java); do echo "----- $p $(tr "\0" " " < /proc/$p/cmdline | cut -c1-200)"; timeout 20 ${JAVA_HOME_17_X64:-/usr}/bin/jcmd $p Thread.print -l 2>&1; done; } > /tmp/threads-latest.log; fi
+            i=$((i+1)); sleep 60; done' > /dev/null 2>&1 &
+
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -33,10 +40,18 @@ jobs:
           java-version: 17
 
       - name: Static Analysis
+        timeout-minutes: 12
         run: ./gradlew lint spotlessCheck
 
       - name: Unit Tests
+        timeout-minutes: 12
         run: ./gradlew testRelease testDebug --stacktrace
 
       - name: Build
         run: ./gradlew build
+
+      - name: Print monitor
+        if: always()
+        run: |
+          cat /tmp/monitor.log || true
+          cat /tmp/threads-latest.log || true
