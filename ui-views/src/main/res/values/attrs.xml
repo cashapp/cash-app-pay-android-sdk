@@ -10,7 +10,7 @@
       <enum name="checkout_with" value="3" />
       <enum name="continue_with" value="4" />
     </attr>
-    <!-- Color variant, set by the CAPButtonStyle.Black and CAPButtonStyle.White styles. -->
+    <!-- Color variant, set by the CAPButtonStyle.Black, CAPButtonStyle.White, and CAPButtonStyle.Auto styles. -->
     <attr name="cap_variant" format="enum">
       <enum name="black" value="0" />
       <enum name="white" value="1" />

@@ -21,8 +21,9 @@ import android.widget.ImageButton
 import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 
 /**
- * Cash App Pay button. Use it with either the `CAPButtonStyle.Black` or `CAPButtonStyle.White` style,
- * and set [label] (or the `cap_label` XML attribute) to match the customer request, for example with
+ * Cash App Pay button. Use it with the `CAPButtonStyle.Black`, `CAPButtonStyle.White`, or `CAPButtonStyle.Auto` style.
+ * `CAPButtonStyle.Auto` follows the system UI mode: `Black` in light mode and `White` in dark mode.
+ * Set [label] (or the `cap_label` XML attribute) to match the customer request, for example with
  * [CashAppPayButtonLabel.forActions]. Set [CashAppPayButtonLabel.CheckoutWith] or [CashAppPayButtonLabel.ContinueWith]
  * to override it.
  *

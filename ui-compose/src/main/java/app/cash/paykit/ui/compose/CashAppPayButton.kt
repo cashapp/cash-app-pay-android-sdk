@@ -16,6 +16,7 @@
 package app.cash.paykit.ui.compose
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
@@ -48,7 +49,8 @@ import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
  * @param onClick Callback invoked when the button is clicked
  * @param label Call to action shown on the button
  * @param modifier Modifier for the button
- * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Black])
+ * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Black]). [CashAppPayButtonStyle.Auto] follows
+ *   the system UI mode.
  * @param enabled Whether the button is enabled (affects alpha and click handling)
  */
 @Suppress("ktlint:standard:function-naming")
@@ -60,10 +62,12 @@ fun CashAppPayButton(
   style: CashAppPayButtonStyle = CashAppPayButtonStyle.Black,
   enabled: Boolean = true,
 ) {
-  val backgroundColor = when (style) {
-    CashAppPayButtonStyle.Black -> Color(0xFF101010)
-    CashAppPayButtonStyle.White -> Color.White
+  val isWhite = when (style) {
+    CashAppPayButtonStyle.Black -> false
+    CashAppPayButtonStyle.White -> true
+    CashAppPayButtonStyle.Auto -> isSystemInDarkTheme()
   }
+  val backgroundColor = if (isWhite) Color.White else Color(0xFF101010)
 
   Button(
     onClick = onClick,
@@ -81,27 +85,27 @@ fun CashAppPayButton(
     contentPadding = ButtonDefaults.ContentPadding,
   ) {
     Image(
-      painter = painterResource(labelDrawable(label, style)),
+      painter = painterResource(labelDrawable(label, isWhite)),
       contentDescription = stringResource(labelText(label)),
     )
   }
 }
 
-private fun labelDrawable(label: CashAppPayButtonLabel, style: CashAppPayButtonStyle): Int = when (style) {
-  CashAppPayButtonStyle.Black -> when (label) {
-    CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_black
-    CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_black
-    CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_black
-    CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_black
-    CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_black
-  }
-
-  CashAppPayButtonStyle.White -> when (label) {
+private fun labelDrawable(label: CashAppPayButtonLabel, isWhite: Boolean): Int = if (isWhite) {
+  when (label) {
     CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_white
     CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_white
     CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_white
     CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_white
     CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_white
+  }
+} else {
+  when (label) {
+    CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_black
+    CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_black
+    CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_black
+    CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_black
+    CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_black
   }
 }
 

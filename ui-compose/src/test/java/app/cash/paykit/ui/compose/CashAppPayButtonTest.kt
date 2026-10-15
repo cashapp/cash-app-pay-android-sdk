@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
+import com.android.resources.NightMode
 import org.junit.Rule
 import org.junit.Test
 
@@ -75,17 +76,49 @@ class CashAppPayButtonTest {
   @Test
   fun testPayWithWhiteDisabled() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.White, enabled = false)
 
-  private fun snapshot(label: CashAppPayButtonLabel, style: CashAppPayButtonStyle, enabled: Boolean = true) {
-    paparazzi.snapshot {
-      Box(modifier = Modifier.padding(16.dp)) {
-        CashAppPayButton(
-          onClick = {},
-          label = label,
-          style = style,
-          enabled = enabled,
-          modifier = Modifier.width(300.dp).height(54.dp),
-        )
-      }
+  /** Auto shows the black button in light mode. */
+  @Test
+  fun testPayWithAuto() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Auto)
+
+  private fun snapshot(label: CashAppPayButtonLabel, style: CashAppPayButtonStyle, enabled: Boolean = true) = snapshot(paparazzi, label, style, enabled)
+}
+
+/**
+ * Paparazzi snapshot tests for [CashAppPayButton] in dark mode.
+ */
+class CashAppPayButtonDarkModeTest {
+
+  @get:Rule
+  val paparazzi = Paparazzi(
+    deviceConfig = DeviceConfig.PIXEL_5.copy(nightMode = NightMode.NIGHT),
+    theme = "android:Theme.Material3.Dark",
+    showSystemUi = false,
+  )
+
+  /** Auto shows the white button in dark mode. */
+  @Test
+  fun testPayWithAuto() = snapshot(paparazzi, CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Auto)
+
+  /** Black and White don't follow the UI mode. */
+  @Test
+  fun testPayWithBlack() = snapshot(paparazzi, CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Black)
+}
+
+private fun snapshot(
+  paparazzi: Paparazzi,
+  label: CashAppPayButtonLabel,
+  style: CashAppPayButtonStyle,
+  enabled: Boolean = true,
+) {
+  paparazzi.snapshot {
+    Box(modifier = Modifier.padding(16.dp)) {
+      CashAppPayButton(
+        onClick = {},
+        label = label,
+        style = style,
+        enabled = enabled,
+        modifier = Modifier.width(300.dp).height(54.dp),
+      )
     }
   }
 }

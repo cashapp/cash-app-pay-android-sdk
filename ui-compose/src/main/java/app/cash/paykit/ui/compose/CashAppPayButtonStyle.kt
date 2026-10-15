@@ -24,4 +24,7 @@ enum class CashAppPayButtonStyle {
 
   /** Black label and green Cash App icon on a white background. */
   White,
+
+  /** Follows the system UI mode: [Black] in light mode and [White] in dark mode. */
+  Auto,
 }

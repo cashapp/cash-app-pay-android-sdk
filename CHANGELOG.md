@@ -13,7 +13,8 @@ Pick the label from the customer request's actions with `CashAppPayButtonLabel.f
 ("Continue with Cash App") as the label. `forActions` never returns these two. In XML, use `app:cap_label="checkout_with"`
 or `app:cap_label="continue_with"`.
 
- - The button comes in two styles, `Black` and `White`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and
+ - The button comes in `Black` and `White` styles, plus `Auto`, which follows the system UI mode: `Black` in light mode
+and `White` in dark mode. `Auto` replaces `Monochrome`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and
 `Monochrome` styles are removed.
 
  - `ui-views` and `ui-compose` now depend on `core`, since `CashAppPayButtonLabel` lives there.
@@ -49,7 +50,7 @@ fun CashAppPayButton(
 )
 ```
 
-**View API:** use `@style/CAPButtonStyle.Black` or `@style/CAPButtonStyle.White`, and set the label in XML with
+**View API:** use `@style/CAPButtonStyle.Black`, `@style/CAPButtonStyle.White`, or `@style/CAPButtonStyle.Auto`, and set the label in XML with
 `app:cap_label` (`pay_with`, `cash_out_with`, `connect`, `checkout_with`, or `continue_with`) or in code with `button.label`:
 
 ```xml
