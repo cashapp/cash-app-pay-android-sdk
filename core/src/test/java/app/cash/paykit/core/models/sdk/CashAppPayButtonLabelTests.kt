@@ -37,16 +37,16 @@ class CashAppPayButtonLabelTests {
   }
 
   @Test
-  fun `profile sharing, mixed actions, and no actions use Connect`() {
-    assertThat(CashAppPayButtonLabel.forActions(listOf(profile))).isEqualTo(CashAppPayButtonLabel.Connect)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(onFile, payout))).isEqualTo(CashAppPayButtonLabel.Connect)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime, profile))).isEqualTo(CashAppPayButtonLabel.Connect)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(payout, profile))).isEqualTo(CashAppPayButtonLabel.Connect)
-    assertThat(CashAppPayButtonLabel.forActions(emptyList())).isEqualTo(CashAppPayButtonLabel.Connect)
+  fun `profile sharing, mixed actions, and no actions use Continue with`() {
+    assertThat(CashAppPayButtonLabel.forActions(listOf(profile))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(onFile, payout))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime, profile))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(payout, profile))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
+    assertThat(CashAppPayButtonLabel.forActions(emptyList())).isEqualTo(CashAppPayButtonLabel.ContinueWith)
   }
 
   @Test
-  fun `Checkout with and Continue with are only set explicitly`() {
+  fun `Checkout with is only set explicitly`() {
     val requests = listOf(
       emptyList(),
       listOf(oneTime),
@@ -58,6 +58,6 @@ class CashAppPayButtonLabelTests {
       listOf(onFile, payout, profile),
     )
     val picked = requests.map { CashAppPayButtonLabel.forActions(it) }.toSet()
-    assertThat(picked).containsNoneOf(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonLabel.ContinueWith)
+    assertThat(picked).doesNotContain(CashAppPayButtonLabel.CheckoutWith)
   }
 }

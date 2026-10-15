@@ -77,7 +77,6 @@ class CashAppPayButton @JvmOverloads constructor(
       when (label) {
         CashAppPayButtonLabel.PayWith -> if (isWhite) R.drawable.cap_label_pay_with_white else R.drawable.cap_label_pay_with_black
         CashAppPayButtonLabel.CashOutWith -> if (isWhite) R.drawable.cap_label_cash_out_with_white else R.drawable.cap_label_cash_out_with_black
-        CashAppPayButtonLabel.Connect -> if (isWhite) R.drawable.cap_label_connect_white else R.drawable.cap_label_connect_black
         CashAppPayButtonLabel.CheckoutWith -> if (isWhite) R.drawable.cap_label_checkout_with_white else R.drawable.cap_label_checkout_with_black
         CashAppPayButtonLabel.ContinueWith -> if (isWhite) R.drawable.cap_label_continue_with_white else R.drawable.cap_label_continue_with_black
       },
@@ -86,7 +85,6 @@ class CashAppPayButton @JvmOverloads constructor(
       when (label) {
         CashAppPayButtonLabel.PayWith -> R.string.cap_a11_button_label_pay_with
         CashAppPayButtonLabel.CashOutWith -> R.string.cap_a11_button_label_cash_out_with
-        CashAppPayButtonLabel.Connect -> R.string.cap_a11_button_label_connect
         CashAppPayButtonLabel.CheckoutWith -> R.string.cap_a11_button_label_checkout_with
         CashAppPayButtonLabel.ContinueWith -> R.string.cap_a11_button_label_continue_with
       },

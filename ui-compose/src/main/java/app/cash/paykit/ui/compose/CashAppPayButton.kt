@@ -95,7 +95,6 @@ private fun labelDrawable(label: CashAppPayButtonLabel, isWhite: Boolean): Int =
   when (label) {
     CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_white
     CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_white
-    CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_white
     CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_white
     CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_white
   }
@@ -103,7 +102,6 @@ private fun labelDrawable(label: CashAppPayButtonLabel, isWhite: Boolean): Int =
   when (label) {
     CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_black
     CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_black
-    CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_black
     CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_black
     CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_black
   }
@@ -112,7 +110,6 @@ private fun labelDrawable(label: CashAppPayButtonLabel, isWhite: Boolean): Int =
 private fun labelText(label: CashAppPayButtonLabel): Int = when (label) {
   CashAppPayButtonLabel.PayWith -> R.string.cap_compose_a11_button_label_pay_with
   CashAppPayButtonLabel.CashOutWith -> R.string.cap_compose_a11_button_label_cash_out_with
-  CashAppPayButtonLabel.Connect -> R.string.cap_compose_a11_button_label_connect
   CashAppPayButtonLabel.CheckoutWith -> R.string.cap_compose_a11_button_label_checkout_with
   CashAppPayButtonLabel.ContinueWith -> R.string.cap_compose_a11_button_label_continue_with
 }

@@ -18,8 +18,8 @@ package app.cash.paykit.core.models.sdk
 /**
  * Call to action shown on the Cash App Pay button in the `ui-views` and `ui-compose` modules.
  *
- * [forActions] picks [PayWith], [CashOutWith], or [Connect] from a customer request. Pass [CheckoutWith] or
- * [ContinueWith] directly to override it, for example when the button sits on a checkout screen.
+ * [forActions] picks [PayWith], [CashOutWith], or [ContinueWith] from a customer request. Pass any label directly
+ * to override it, for example [CheckoutWith] when the button sits on a checkout screen.
  */
 enum class CashAppPayButtonLabel {
   /** "Pay with Cash App", for payments. */
@@ -28,27 +28,24 @@ enum class CashAppPayButtonLabel {
   /** "Cash out with Cash App", for payouts. */
   CashOutWith,
 
-  /** "Connect Cash App", for requests that combine different kinds of actions. */
-  Connect,
-
   /** "Checkout with Cash App". Never returned by [forActions]; set it explicitly. */
   CheckoutWith,
 
-  /** "Continue with Cash App". Never returned by [forActions]; set it explicitly. */
+  /** "Continue with Cash App", for any other request, such as one that combines payments and payouts. */
   ContinueWith,
   ;
 
   companion object {
     /**
      * Returns the label for a customer request made of [actions]: [PayWith] when every action is a payment,
-     * [CashOutWith] when every action is a payout, and [Connect] otherwise.
+     * [CashOutWith] when every action is a payout, and [ContinueWith] otherwise, including when [actions] is empty.
      */
     @JvmStatic
     fun forActions(actions: List<CashAppPayAction>): CashAppPayButtonLabel = when {
-      actions.isEmpty() -> Connect
+      actions.isEmpty() -> ContinueWith
       actions.all { it is CashAppPayAction.OneTimeAction || it is CashAppPayAction.OnFileAction } -> PayWith
       actions.all { it is CashAppPayAction.OnFilePayoutAction } -> CashOutWith
-      else -> Connect
+      else -> ContinueWith
     }
   }
 }
