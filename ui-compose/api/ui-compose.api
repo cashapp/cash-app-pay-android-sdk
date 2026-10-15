@@ -1,15 +1,42 @@
 public final class app/cash/paykit/ui/compose/CashAppPayButtonKt {
-	public static final fun CashAppPayButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;ZLandroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun CashAppPayButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;ZLandroidx/compose/runtime/Composer;II)V
+	public static final fun CashAppPayButton (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/Modifier;Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;ZLapp/cash/paykit/ui/compose/CashAppPayButtonLabel;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class app/cash/paykit/ui/compose/CashAppPayButtonLabel : java/lang/Enum {
+	public static final field Buy Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static final field CashApp Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static final field CashOut Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static final field Checkout Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static final field Continue Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static final field Pay Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static fun values ()[Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
 }
 
 public final class app/cash/paykit/ui/compose/CashAppPayButtonStyle : java/lang/Enum {
 	public static final field Alt Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
+	public static final field Auto Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static final field Default Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
+	public static final field Light Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static final field Monochrome Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static final field MonochromeDark Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static final field MonochromeLight Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
 	public static fun values ()[Lapp/cash/paykit/ui/compose/CashAppPayButtonStyle;
+}
+
+public final class app/cash/paykit/ui/compose/CashAppPaymentMethodKt {
+	public static final fun CashAppPaymentMethod-V-9fs2A (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;ZLandroidx/compose/ui/text/TextStyle;JLandroidx/compose/runtime/Composer;II)V
+}
+
+public final class app/cash/paykit/ui/compose/CashAppPaymentMethodSize : java/lang/Enum {
+	public static final field Large Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;
+	public static final field Small Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;
+	public static fun values ()[Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;
 }
 

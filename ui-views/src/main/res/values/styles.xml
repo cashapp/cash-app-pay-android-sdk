@@ -3,27 +3,42 @@
   <style name="CAPButtonStyle" parent="android:Widget.ImageButton">
     <item name="android:minHeight">48dp</item>
     <item name="android:height">48dp</item>
-    <item name="android:contentDescription">@string/cap_a11_button_label</item>
   </style>
 
+  <!-- Black Cash App icon and label on a white background with a dark outline. -->
   <style name="CAPButtonStyle.MonochromeLight">
-    <item name="android:src">@drawable/cap_logo_monochrome_dark</item>
-    <item name="android:background">@drawable/cap_btn_background_light_outlined</item>
+    <item name="android:background">@drawable/cap_btn_background_white</item>
+    <item name="cap_variant">monochrome_light</item>
   </style>
 
+  <!-- White Cash App icon and label on a dark background. -->
   <style name="CAPButtonStyle.MonochromeDark">
-    <item name="android:src">@drawable/cap_logo_monochrome_light</item>
     <item name="android:background">@drawable/cap_btn_background_dark</item>
+    <item name="cap_variant">monochrome_dark</item>
   </style>
 
+  <!-- Green Cash App icon and white label on a dark background. -->
   <style name="CAPButtonStyle.Default">
-    <item name="android:src">@drawable/cap_logo_polychrome</item>
     <item name="android:background">@drawable/cap_btn_background_dark</item>
+    <item name="cap_variant">default_style</item>
   </style>
 
+  <!-- Dark Cash App icon and label on a green background. -->
   <style name="CAPButtonStyle.Alt">
-    <item name="android:src">@drawable/cap_logo_monochrome_dark</item>
     <item name="android:background">@drawable/cap_btn_background_green</item>
+    <item name="cap_variant">alt</item>
   </style>
+
+  <!-- Green Cash App icon and black label on a white background with a dark outline. -->
+  <style name="CAPButtonStyle.Light">
+    <item name="android:background">@drawable/cap_btn_background_white</item>
+    <item name="cap_variant">light</item>
+  </style>
+
+  <!-- Follows the system UI mode: Default in light mode, Light in dark mode (see values-night). -->
+  <style name="CAPButtonStyle.Auto" parent="CAPButtonStyle.Default" />
+
+  <!-- Follows the system UI mode: MonochromeDark in light mode, MonochromeLight in dark mode (see values-night). -->
+  <style name="CAPButtonStyle.Monochrome" parent="CAPButtonStyle.MonochromeDark" />
 
 </resources>

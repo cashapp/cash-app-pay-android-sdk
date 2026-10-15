@@ -15,9 +15,9 @@
  */
 package app.cash.paykit.ui.compose
 
-import android.content.res.Configuration
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
@@ -28,11 +28,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,16 +40,18 @@ import androidx.compose.ui.unit.dp
 /**
  * Cash App Pay button composable.
  *
- * A stylized button for initiating Cash App Pay flows. The button handles its own
- * visual styling based on the [style] parameter.
+ * A stylized button for starting a Cash App Pay flow. By default it shows the Cash App icon and "Cash App". Pass
+ * another [label], such as [CashAppPayButtonLabel.Pay] or [CashAppPayButtonLabel.Checkout], to show a call to action.
  *
  * **Note**: This button is purely visual. Developers must handle click actions
  * and manage visibility/enabled states based on SDK state.
  *
  * @param onClick Callback invoked when the button is clicked
  * @param modifier Modifier for the button
- * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Default])
+ * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Default]). [CashAppPayButtonStyle.Auto] and
+ *   [CashAppPayButtonStyle.Monochrome] follow the system UI mode.
  * @param enabled Whether the button is enabled (affects alpha and click handling)
+ * @param label Text shown on the button (defaults to [CashAppPayButtonLabel.CashApp])
  */
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -59,54 +60,36 @@ fun CashAppPayButton(
   modifier: Modifier = Modifier,
   style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
   enabled: Boolean = true,
+  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
 ) {
-  val a11yLabel = stringResource(R.string.cap_compose_a11_button_label)
-  val shape = RoundedCornerShape(8.dp)
+  val darkTheme = isSystemInDarkTheme()
+  val resolved = when (style) {
+    CashAppPayButtonStyle.Auto -> if (darkTheme) CashAppPayButtonStyle.Light else CashAppPayButtonStyle.Default
 
-  // Resolve Monochrome style based on app's current UI mode configuration
-  val configuration = LocalConfiguration.current
-  val isDarkMode =
-    (configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-  val resolvedStyle = when (style) {
-    CashAppPayButtonStyle.Monochrome -> {
-      if (isDarkMode) {
-        CashAppPayButtonStyle.MonochromeLight
-      } else {
-        CashAppPayButtonStyle.MonochromeDark
-      }
-    }
+    CashAppPayButtonStyle.Monochrome ->
+      if (darkTheme) CashAppPayButtonStyle.MonochromeLight else CashAppPayButtonStyle.MonochromeDark
 
     else -> style
   }
-
-  val buttonProperties = remember(resolvedStyle) {
-    when (resolvedStyle) {
-      CashAppPayButtonStyle.Default -> ButtonProperties(
-        backgroundColor = Color(0xFF101010),
-        logoRes = R.drawable.cap_compose_logo_polychrome,
-        borderColor = null,
-      )
-
-      CashAppPayButtonStyle.Alt -> ButtonProperties(
-        backgroundColor = Color(0xFF00D64F),
-        logoRes = R.drawable.cap_compose_logo_monochrome_dark,
-        borderColor = null,
-      )
-
-      CashAppPayButtonStyle.MonochromeDark -> ButtonProperties(
-        backgroundColor = Color(0xFF101010),
-        logoRes = R.drawable.cap_compose_logo_monochrome_light,
-        borderColor = null,
-      )
-
-      CashAppPayButtonStyle.MonochromeLight -> ButtonProperties(
-        backgroundColor = Color(0xFFFFFFFF),
-        logoRes = R.drawable.cap_compose_logo_monochrome_dark,
-        borderColor = Color.Black,
-      )
-
-      CashAppPayButtonStyle.Monochrome -> error("Monochrome should be resolved before this point")
-    }
+  val backgroundColor = when (resolved) {
+    CashAppPayButtonStyle.Light, CashAppPayButtonStyle.MonochromeLight -> Color.White
+    CashAppPayButtonStyle.Alt -> CashAppGreen
+    else -> CashAppBlack
+  }
+  val border = when (resolved) {
+    CashAppPayButtonStyle.Light, CashAppPayButtonStyle.MonochromeLight -> BorderStroke(1.dp, CashAppBlack)
+    else -> null
+  }
+  val tint = when (resolved) {
+    CashAppPayButtonStyle.MonochromeDark -> Color.White
+    CashAppPayButtonStyle.MonochromeLight -> Color.Black
+    CashAppPayButtonStyle.Alt -> CashAppBlack
+    else -> null
+  }
+  val art = when (resolved) {
+    CashAppPayButtonStyle.Light -> LabelArt.White
+    CashAppPayButtonStyle.Default -> LabelArt.Black
+    else -> LabelArt.Mono
   }
 
   Button(
@@ -117,91 +100,111 @@ fun CashAppPayButton(
       .fillMaxWidth()
       .alpha(if (enabled) 1f else 0.3f),
     enabled = enabled,
-    shape = shape,
+    shape = RoundedCornerShape(8.dp),
     colors = ButtonDefaults.buttonColors(
-      containerColor = buttonProperties.backgroundColor,
-      disabledContainerColor = buttonProperties.backgroundColor,
+      containerColor = backgroundColor,
+      disabledContainerColor = backgroundColor,
     ),
-    border = buttonProperties.borderColor?.let { BorderStroke(1.dp, it) },
+    border = border,
     contentPadding = ButtonDefaults.ContentPadding,
   ) {
     Image(
-      painter = painterResource(buttonProperties.logoRes),
-      contentDescription = a11yLabel,
+      painter = painterResource(labelDrawable(label, art)),
+      contentDescription = stringResource(labelText(label)),
+      colorFilter = tint?.let { ColorFilter.tint(it) },
     )
   }
 }
 
-private data class ButtonProperties(
-  val backgroundColor: Color,
-  val logoRes: Int,
-  val borderColor: Color?,
-)
+/**
+ * The 3.0.0 signature of [CashAppPayButton], kept so code compiled against 3.0.0 keeps linking.
+ */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Suppress("ktlint:standard:function-naming")
+@Composable
+fun CashAppPayButton(
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
+  enabled: Boolean = true,
+) {
+  CashAppPayButton(
+    onClick = onClick,
+    modifier = modifier,
+    style = style,
+    enabled = enabled,
+    label = CashAppPayButtonLabel.CashApp,
+  )
+}
 
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
+private val CashAppBlack = Color(0xFF101010)
+private val CashAppGreen = Color(0xFF00D64F)
+
+/** Label artwork: color art for black or white backgrounds, or solid monochrome art meant to be tinted. */
+private enum class LabelArt { Black, White, Mono }
+
+private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = when (art) {
+  LabelArt.Black -> when (label) {
+    CashAppPayButtonLabel.CashApp -> R.drawable.cap_compose_label_cash_app_black
+    CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_black
+    CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_black
+    CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_black
+    CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_black
+    CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_black
+  }
+
+  LabelArt.White -> when (label) {
+    CashAppPayButtonLabel.CashApp -> R.drawable.cap_compose_label_cash_app_white
+    CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_white
+    CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_white
+    CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_white
+    CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_white
+    CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_white
+  }
+
+  LabelArt.Mono -> when (label) {
+    CashAppPayButtonLabel.CashApp -> R.drawable.cap_compose_label_cash_app_mono
+    CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_mono
+    CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_mono
+    CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_mono
+    CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_mono
+    CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_mono
+  }
+}
+
+private fun labelText(label: CashAppPayButtonLabel): Int = when (label) {
+  CashAppPayButtonLabel.CashApp -> R.string.cap_compose_a11_logo_cash_app
+  CashAppPayButtonLabel.Pay -> R.string.cap_compose_a11_button_label_pay_with
+  CashAppPayButtonLabel.Buy -> R.string.cap_compose_a11_button_label_buy_with
+  CashAppPayButtonLabel.CashOut -> R.string.cap_compose_a11_button_label_cash_out_with
+  CashAppPayButtonLabel.Checkout -> R.string.cap_compose_a11_button_label_checkout_with
+  CashAppPayButtonLabel.Continue -> R.string.cap_compose_a11_button_label_continue_with
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFE8E8E8)
 @Composable
 private fun CashAppPayButtonPreview() {
   Column(
     modifier = Modifier.padding(16.dp),
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Default)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Alt)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeDark)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeLight)
+    CashAppPayButtonStyle.entries.forEach { style ->
+      CashAppPayButtonLabel.entries.forEach { label ->
+        CashAppPayButton(onClick = {}, label = label, style = style)
+      }
+    }
   }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF111111)
-@Composable
-private fun CashAppPayButtonDarkBackgroundPreview() {
-  Column(
-    modifier = Modifier.padding(16.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp),
-  ) {
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Default)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Alt)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeDark)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeLight)
-  }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
+@Preview(showBackground = true, backgroundColor = 0xFFE8E8E8)
 @Composable
 private fun CashAppPayButtonDisabledPreview() {
   Column(
     modifier = Modifier.padding(16.dp),
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Default, enabled = false)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Alt, enabled = false)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeDark, enabled = false)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.MonochromeLight, enabled = false)
-  }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF, uiMode = Configuration.UI_MODE_NIGHT_NO)
-@Composable
-private fun CashAppPayButtonMonochromeLightThemePreview() {
-  Column(
-    modifier = Modifier.padding(16.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp),
-  ) {
-    // In light theme, Monochrome will resolve to MonochromeDark appearance
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome, enabled = false)
-  }
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFF111111, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun CashAppPayButtonMonochromeDarkThemePreview() {
-  Column(
-    modifier = Modifier.padding(16.dp),
-    verticalArrangement = Arrangement.spacedBy(8.dp),
-  ) {
-    // In dark theme, Monochrome will resolve to MonochromeLight appearance
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome)
-    CashAppPayButton(onClick = {}, style = CashAppPayButtonStyle.Monochrome, enabled = false)
+    CashAppPayButtonStyle.entries.forEach { style ->
+      CashAppPayButton(onClick = {}, style = style, enabled = false)
+    }
   }
 }

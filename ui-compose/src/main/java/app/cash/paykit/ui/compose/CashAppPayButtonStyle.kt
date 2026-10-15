@@ -20,34 +20,48 @@ package app.cash.paykit.ui.compose
  */
 enum class CashAppPayButtonStyle {
   /**
-   * Default style: Polychrome (green) Cash logo on dark background.
+   * Default style: green Cash App icon and white label on a dark (#101010) background.
    * Recommended for light app backgrounds.
    */
   Default,
 
   /**
-   * Alternative style: Dark monochrome Cash logo on green background.
+   * Alternative style: dark (#101010) Cash App icon and label on a green (#00D64F) background.
    * Works equally well in light and dark app backgrounds.
    */
   Alt,
 
   /**
-   * Monochrome dark style: Light Cash logo on dark background.
+   * Monochrome dark style: white Cash App icon and label on a dark (#101010) background.
    * For light app backgrounds.
    */
   MonochromeDark,
 
   /**
-   * Monochrome light style: Dark Cash logo on light outlined background.
+   * Monochrome light style: black Cash App icon and label on a white background with a dark outline.
    * For dark app backgrounds.
    */
   MonochromeLight,
 
   /**
-   * Theme-aware monochrome style that automatically picks MonochromeDark or MonochromeLight
+   * Theme-aware monochrome style that automatically picks [MonochromeDark] or [MonochromeLight]
    * based on the app's current UI mode configuration.
-   * - Light mode: Uses MonochromeDark appearance (light logo on dark background)
-   * - Dark mode: Uses MonochromeLight appearance (dark logo on light background)
+   * - Light mode: uses the [MonochromeDark] appearance (white icon and label on a dark background)
+   * - Dark mode: uses the [MonochromeLight] appearance (black icon and label on a white background)
    */
   Monochrome,
+
+  /**
+   * Light style: green Cash App icon and black label on a white background with a dark outline.
+   * For dark app backgrounds.
+   */
+  Light,
+
+  /**
+   * Theme-aware style that automatically picks [Default] or [Light] based on the app's current
+   * UI mode configuration.
+   * - Light mode: uses the [Default] appearance (green icon on a dark background)
+   * - Dark mode: uses the [Light] appearance (green icon on a white background)
+   */
+  Auto,
 }
