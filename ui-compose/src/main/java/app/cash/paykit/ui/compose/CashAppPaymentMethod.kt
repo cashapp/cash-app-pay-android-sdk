@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ enum class CashAppPaymentMethodSize {
  *
  * The colors follow the system light or dark theme, like the iOS `CashAppPaymentMethod`.
  *
- * @param cashtag The customer's cashtag, for example from `CustomerResponseData.customerProfile`
+ * @param cashtag The customer's cashtag, for example from `CustomerResponseData.customerProfile?.cashTag`
  * @param modifier Modifier for the view
  * @param size Layout of the view (defaults to [CashAppPaymentMethodSize.Large])
  * @param usePolychromeAsset `true` for the green Cash App icon on a black background in light and dark mode,
@@ -83,6 +84,8 @@ fun CashAppPaymentMethod(
   val containerModifier = modifier
     .clip(RoundedCornerShape(8.dp))
     .background(backgroundColor)
+    // TalkBack reads the logo and the cashtag together, as one focus target.
+    .semantics(mergeDescendants = true) {}
   val logo = @Composable {
     Image(
       painter = painterResource(logoRes),

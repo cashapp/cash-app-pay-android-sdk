@@ -33,25 +33,15 @@ In XML, use `app:cap_label`, for example `app:cap_label="buy"`.
 `MonochromeAuto` replaces `Monochrome`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and `Monochrome` styles
 are removed.
 
- - `ui-views` and `ui-compose` now depend on `core`, since `CashAppPayButtonLabel` lives there.
-
-## New
- - Added `CashAppPaymentMethod` to `ui-views` and `ui-compose`. It shows the Cash App logo and the customer's cashtag,
-for example after the customer approves a request, and matches the iOS `CashAppPaymentMethod`. It comes in `Large`
-(cashtag to the right) and `Small` (cashtag under the logo) layouts. The monochrome logo follows the system light or dark
-theme. `usePolychromeAsset` shows the green Cash App icon on a black background in both themes.
-
-```kotlin
-CashAppPaymentMethod(cashtag = customerProfile.cashtag)
-```
-
-```xml
-<app.cash.paykit.ui.views.CashAppPaymentMethod
-      app:cap_cashtag="$jack"
-      app:cap_size="large"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"/>
-```
+ - In `ui-compose`, `label` is now a required parameter of `CashAppPayButton`.
+ - In `ui-views`, a `CashAppPayButton` without a style now uses `CAPButtonStyle.Black`.
+ - These public resources are removed:
+   - Strings: `cap_a11_button_label` (`ui-views`) and `cap_compose_a11_button_label` (`ui-compose`).
+   - Drawables: `cap_logo_monochrome_dark`, `cap_logo_monochrome_light`, `cap_logo_polychrome`, and
+     `cap_btn_background_light_outlined` (`ui-views`), and `cap_compose_logo_monochrome_dark`,
+     `cap_compose_logo_monochrome_light`, and `cap_compose_logo_polychrome` (`ui-compose`).
+   - Styles: `CAPButtonStyle.Default`, `CAPButtonStyle.Alt`, `CAPButtonStyle.MonochromeDark`, and
+     `CAPButtonStyle.MonochromeLight` (`ui-views`).
 
 **Composable API:**
 
@@ -77,6 +67,26 @@ fun CashAppPayButton(
       app:cap_label="pay"
       android:layout_height="48dp"
       android:layout_width="match_parent"/>
+```
+
+ - `ui-views` and `ui-compose` now depend on `core`, since `CashAppPayButtonLabel` lives there.
+
+## New
+ - Added `CashAppPaymentMethod` to `ui-views` and `ui-compose`. It shows the Cash App logo and the customer's cashtag,
+for example after the customer approves a request, and matches the iOS `CashAppPaymentMethod`. It comes in `Large`
+(cashtag to the right) and `Small` (cashtag under the logo) layouts. The monochrome logo follows the system light or dark
+theme. `usePolychromeAsset` shows the green Cash App icon on a black background in both themes.
+
+```kotlin
+CashAppPaymentMethod(cashtag = customerResponseData.customerProfile?.cashTag?.toString().orEmpty())
+```
+
+```xml
+<app.cash.paykit.ui.views.CashAppPaymentMethod
+      app:cap_cashtag="$jack"
+      app:cap_size="large"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"/>
 ```
 
 # 3.0.0

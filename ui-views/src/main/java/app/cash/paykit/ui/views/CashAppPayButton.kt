@@ -23,8 +23,8 @@ import android.widget.ImageButton
 import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
 
 /**
- * Cash App Pay button. Use it with one of these styles:
- * - `CAPButtonStyle.Black`: white label and green Cash App icon on a black background.
+ * Cash App Pay button. Use it with one of these styles, or none for the default, `CAPButtonStyle.Black`:
+ * - `CAPButtonStyle.Black` (default): white label and green Cash App icon on a black background.
  * - `CAPButtonStyle.White`: black label and green Cash App icon on a white background with a black outline.
  * - `CAPButtonStyle.MonochromeBlack`: white label and icon on a black background.
  * - `CAPButtonStyle.MonochromeWhite`: black label and icon on a white background with a black outline.
@@ -49,7 +49,7 @@ class CashAppPayButton @JvmOverloads constructor(
   context,
   attrs,
   0,
-  style,
+  defaultStyleRes(style),
 ) {
 
   private val variant: Variant
@@ -64,7 +64,7 @@ class CashAppPayButton @JvmOverloads constructor(
     }
 
   init {
-    val attributes = context.obtainStyledAttributes(attrs, R.styleable.CashAppPayButton, 0, style)
+    val attributes = context.obtainStyledAttributes(attrs, R.styleable.CashAppPayButton, 0, defaultStyleRes(style))
     try {
       variant = Variant.entries[attributes.getInt(R.styleable.CashAppPayButton_cap_variant, 0)]
       imageTintList = variant.tint?.let { ColorStateList.valueOf(it) }
@@ -134,3 +134,9 @@ class CashAppPayButton @JvmOverloads constructor(
     Green(LabelArt.Mono, 0xFF101010.toInt()),
   }
 }
+
+/**
+ * Falls back to `CAPButtonStyle.Black` when no style resource is given. The default style resource has the lowest
+ * precedence, so a `style` set in XML (which arrives through the attribute set) still wins over it.
+ */
+internal fun defaultStyleRes(style: Int): Int = if (style == 0) R.style.CAPButtonStyle_Black else style

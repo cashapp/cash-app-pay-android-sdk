@@ -49,18 +49,22 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   private val logoView = ImageView(context).apply {
     adjustViewBounds = true
-    contentDescription = context.getString(R.string.cap_a11_logo_cash_app)
+    // The container announces the logo and the cashtag together, as one accessibility node.
+    importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
   }
   private val cashtagView = TextView(context).apply {
     setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+    importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
   }
   private val background = GradientDrawable().apply { cornerRadius = dp(8f) }
+  private var cashtagTextColorOverride: Int? = null
 
-  /** The customer's cashtag, for example from `CustomerResponseData.customerProfile`. */
+  /** The customer's cashtag, for example from `CustomerResponseData.customerProfile?.cashTag`. */
   var cashtag: CharSequence
     get() = cashtagView.text
     set(value) {
       cashtagView.text = value
+      updateContentDescription()
     }
 
   /** Layout of the view. Defaults to [Size.Large]. */
@@ -78,6 +82,7 @@ class CashAppPaymentMethod @JvmOverloads constructor(
     }
 
   init {
+    importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
     setBackground(background)
     val horizontal = dp(8f).toInt()
     val vertical = dp(12f).toInt()
@@ -87,7 +92,7 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
     val attributes = context.obtainStyledAttributes(attrs, R.styleable.CashAppPaymentMethod, defStyleAttr, 0)
     try {
-      cashtagView.text = attributes.getString(R.styleable.CashAppPaymentMethod_cap_cashtag).orEmpty()
+      cashtag = attributes.getString(R.styleable.CashAppPaymentMethod_cap_cashtag).orEmpty()
       size = Size.entries[attributes.getInt(R.styleable.CashAppPaymentMethod_cap_size, Size.Large.ordinal)]
       usePolychromeAsset = attributes.getBoolean(R.styleable.CashAppPaymentMethod_cap_use_polychrome_asset, false)
     } finally {
@@ -99,7 +104,14 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   /** Overrides the cashtag color, which defaults to gray in light mode and white in dark mode. */
   fun setCashtagTextColor(color: Int) {
-    cashtagView.setTextColor(color)
+    cashtagTextColorOverride = color
+    updateColors()
+  }
+
+  private fun updateContentDescription() {
+    contentDescription = listOf(context.getString(R.string.cap_a11_logo_cash_app), cashtag)
+      .filter { it.isNotBlank() }
+      .joinToString(separator = ", ")
   }
 
   private fun updateLayout() {
@@ -138,7 +150,8 @@ class CashAppPaymentMethod @JvmOverloads constructor(
         else -> R.drawable.cap_logo_cash_app_monochrome_light
       },
     )
-    cashtagView.setTextColor(if (isDark) Color.rgb(0xFA, 0xFA, 0xFA) else Color.rgb(0x99, 0x99, 0x99))
+    val defaultCashtagColor = if (isDark) Color.rgb(0xFA, 0xFA, 0xFA) else Color.rgb(0x99, 0x99, 0x99)
+    cashtagView.setTextColor(cashtagTextColorOverride ?: defaultCashtagColor)
   }
 
   private fun dp(value: Float): Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics)
