@@ -28,7 +28,7 @@ enum class CashAppPayButtonLabel {
   /** "Cash out with Cash App", for payouts. */
   CashOutWith,
 
-  /** "Connect Cash App", for profile sharing and for requests that combine different kinds of actions. */
+  /** "Connect Cash App", for requests that combine different kinds of actions. */
   Connect,
 
   /** "Checkout with Cash App". Never returned by [forActions]; set it explicitly. */

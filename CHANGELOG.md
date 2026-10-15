@@ -7,7 +7,7 @@ Pick the label from the customer request's actions with `CashAppPayButtonLabel.f
 |---|---|
 | Only payments (`OneTimeAction`, `OnFileAction`) | `PayWith`, "Pay with Cash App" |
 | Only payouts (`OnFilePayoutAction`) | `CashOutWith`, "Cash out with Cash App" |
-| Anything else, including profile sharing and mixed payments and payouts | `Connect`, "Connect Cash App" |
+| Anything else, such as a mix of payments and payouts | `Connect`, "Connect Cash App" |
 
  - To override the automatic label, pass `CheckoutWith` ("Checkout with Cash App") or `ContinueWith`
 ("Continue with Cash App") as the label. `forActions` never returns these two. In XML, use `app:cap_label="checkout_with"`
