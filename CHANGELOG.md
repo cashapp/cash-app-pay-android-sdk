@@ -1,4 +1,4 @@
-# NEXT RELEASE | WIP
+# 3.1.0
 ## New
  - `CashAppPayButton` in `ui-views` and `ui-compose` can now show a call to action. Set a `CashAppPayButtonLabel` with
 the new `label` parameter (Compose), the `label` property (Views), or the `app:cap_label` XML attribute:
