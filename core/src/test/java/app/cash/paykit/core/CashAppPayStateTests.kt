@@ -209,9 +209,7 @@ class CashAppPayStateTests {
 
     // Initiate polling routine, and wait for thread to return.
     mockLifecycleListener.simulateOnApplicationForegrounded()
-    synchronized(payKitListener) {
-      (payKitListener as Object).wait()
-    }
+    payKitListener.awaitState { it is Approved }
 
     // Verify we got the expected result.
     assertThat(payKitListener.state).isInstanceOf(Approved::class.java)
@@ -256,9 +254,7 @@ class CashAppPayStateTests {
 
     // Initiate polling routine, and wait for thread to return.
     mockLifecycleListener.simulateOnApplicationForegrounded()
-    synchronized(payKitListener) {
-      (payKitListener as Object).wait()
-    }
+    payKitListener.awaitState { it is Declined }
 
     // Verify we got the expected result.
     assertThat(payKitListener.state).isInstanceOf(Declined::class.java)
@@ -326,11 +322,29 @@ class CashAppPayStateTests {
    * Our own Mock [CashAppPayListener] listener, that allows us to wait on a new state before continuing test execution.
    */
   internal class MockCashAppPayListener : CashAppPayListener {
+    @Volatile
     var state: CashAppPayState? = null
 
     override fun cashAppPayStateDidChange(newState: CashAppPayState) {
-      state = newState
-      synchronized(this) { (this as Object).notifyAll() }
+      synchronized(this) {
+        state = newState
+        (this as Object).notifyAll()
+      }
+    }
+
+    /**
+     * Waits until [state] matches [predicate] or [timeoutMillis] passes. Checking the state before waiting means a
+     * state change that happens before this call isn't missed.
+     */
+    fun awaitState(timeoutMillis: Long = 5_000, predicate: (CashAppPayState?) -> Boolean) {
+      val deadline = System.currentTimeMillis() + timeoutMillis
+      synchronized(this) {
+        while (!predicate(state)) {
+          val remaining = deadline - System.currentTimeMillis()
+          if (remaining <= 0) return
+          (this as Object).wait(remaining)
+        }
+      }
     }
   }
 }
