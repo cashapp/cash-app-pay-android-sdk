@@ -26,23 +26,23 @@ class CashAppPayButtonLabelTests {
 
   @Test
   fun `payments use Pay with`() {
-    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime))).isEqualTo(CashAppPayButtonLabel.PayWith)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(onFile))).isEqualTo(CashAppPayButtonLabel.PayWith)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime, onFile))).isEqualTo(CashAppPayButtonLabel.PayWith)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime))).isEqualTo(CashAppPayButtonLabel.Pay)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(onFile))).isEqualTo(CashAppPayButtonLabel.Pay)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime, onFile))).isEqualTo(CashAppPayButtonLabel.Pay)
   }
 
   @Test
   fun `payouts use Cash out with`() {
-    assertThat(CashAppPayButtonLabel.forActions(listOf(payout))).isEqualTo(CashAppPayButtonLabel.CashOutWith)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(payout))).isEqualTo(CashAppPayButtonLabel.CashOut)
   }
 
   @Test
   fun `profile sharing, mixed actions, and no actions use Continue with`() {
-    assertThat(CashAppPayButtonLabel.forActions(listOf(profile))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(onFile, payout))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime, profile))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
-    assertThat(CashAppPayButtonLabel.forActions(listOf(payout, profile))).isEqualTo(CashAppPayButtonLabel.ContinueWith)
-    assertThat(CashAppPayButtonLabel.forActions(emptyList())).isEqualTo(CashAppPayButtonLabel.ContinueWith)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(profile))).isEqualTo(CashAppPayButtonLabel.Continue)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(onFile, payout))).isEqualTo(CashAppPayButtonLabel.Continue)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(oneTime, profile))).isEqualTo(CashAppPayButtonLabel.Continue)
+    assertThat(CashAppPayButtonLabel.forActions(listOf(payout, profile))).isEqualTo(CashAppPayButtonLabel.Continue)
+    assertThat(CashAppPayButtonLabel.forActions(emptyList())).isEqualTo(CashAppPayButtonLabel.Continue)
   }
 
   @Test
@@ -58,6 +58,6 @@ class CashAppPayButtonLabelTests {
       listOf(onFile, payout, profile),
     )
     val picked = requests.map { CashAppPayButtonLabel.forActions(it) }.toSet()
-    assertThat(picked).containsNoneOf(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonLabel.BuyWith)
+    assertThat(picked).containsNoneOf(CashAppPayButtonLabel.Checkout, CashAppPayButtonLabel.Buy)
   }
 }

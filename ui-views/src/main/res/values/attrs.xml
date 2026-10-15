@@ -4,10 +4,11 @@
   <declare-styleable name="CashAppPayButton" tools:ignore="ResourceName">
     <!-- Call to action shown on the button. -->
     <attr name="cap_label" format="enum">
-      <enum name="pay_with" value="0" />
-      <enum name="buy_with" value="1" />
-      <enum name="cash_out_with" value="2" />
-      <enum name="checkout_with" value="3" />
+      <enum name="pay" value="0" />
+      <enum name="buy" value="1" />
+      <enum name="cash_out" value="2" />
+      <enum name="checkout" value="3" />
+      <!-- Not "continue": Android rejects reserved Java keywords as resource names. -->
       <enum name="continue_with" value="4" />
     </attr>
     <!-- Color variant, set by the CAPButtonStyle styles. -->

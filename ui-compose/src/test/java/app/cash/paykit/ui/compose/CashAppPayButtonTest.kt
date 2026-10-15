@@ -41,57 +41,57 @@ class CashAppPayButtonTest {
   )
 
   @Test
-  fun testPayWithBlack() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Black)
+  fun testPayWithBlack() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Black)
 
   @Test
-  fun testPayWithWhite() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.White)
+  fun testPayWithWhite() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.White)
 
   @Test
-  fun testBuyWithBlack() = snapshot(CashAppPayButtonLabel.BuyWith, CashAppPayButtonStyle.Black)
+  fun testBuyWithBlack() = snapshot(CashAppPayButtonLabel.Buy, CashAppPayButtonStyle.Black)
 
   @Test
-  fun testBuyWithWhite() = snapshot(CashAppPayButtonLabel.BuyWith, CashAppPayButtonStyle.White)
+  fun testBuyWithWhite() = snapshot(CashAppPayButtonLabel.Buy, CashAppPayButtonStyle.White)
 
   @Test
-  fun testCashOutWithBlack() = snapshot(CashAppPayButtonLabel.CashOutWith, CashAppPayButtonStyle.Black)
+  fun testCashOutWithBlack() = snapshot(CashAppPayButtonLabel.CashOut, CashAppPayButtonStyle.Black)
 
   @Test
-  fun testCashOutWithWhite() = snapshot(CashAppPayButtonLabel.CashOutWith, CashAppPayButtonStyle.White)
+  fun testCashOutWithWhite() = snapshot(CashAppPayButtonLabel.CashOut, CashAppPayButtonStyle.White)
 
   @Test
-  fun testCheckoutWithBlack() = snapshot(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonStyle.Black)
+  fun testCheckoutWithBlack() = snapshot(CashAppPayButtonLabel.Checkout, CashAppPayButtonStyle.Black)
 
   @Test
-  fun testCheckoutWithWhite() = snapshot(CashAppPayButtonLabel.CheckoutWith, CashAppPayButtonStyle.White)
+  fun testCheckoutWithWhite() = snapshot(CashAppPayButtonLabel.Checkout, CashAppPayButtonStyle.White)
 
   @Test
-  fun testContinueWithBlack() = snapshot(CashAppPayButtonLabel.ContinueWith, CashAppPayButtonStyle.Black)
+  fun testContinueWithBlack() = snapshot(CashAppPayButtonLabel.Continue, CashAppPayButtonStyle.Black)
 
   @Test
-  fun testContinueWithWhite() = snapshot(CashAppPayButtonLabel.ContinueWith, CashAppPayButtonStyle.White)
+  fun testContinueWithWhite() = snapshot(CashAppPayButtonLabel.Continue, CashAppPayButtonStyle.White)
 
   @Test
-  fun testPayWithMonochromeBlack() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.MonochromeBlack)
+  fun testPayWithMonochromeBlack() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.MonochromeBlack)
 
   @Test
-  fun testPayWithMonochromeWhite() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.MonochromeWhite)
+  fun testPayWithMonochromeWhite() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.MonochromeWhite)
 
   @Test
-  fun testPayWithGreen() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Green)
+  fun testPayWithGreen() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Green)
 
   @Test
-  fun testPayWithBlackDisabled() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Black, enabled = false)
+  fun testPayWithBlackDisabled() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Black, enabled = false)
 
   @Test
-  fun testPayWithWhiteDisabled() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.White, enabled = false)
+  fun testPayWithWhiteDisabled() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.White, enabled = false)
 
   /** Auto shows the black button in light mode. */
   @Test
-  fun testPayWithAuto() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Auto)
+  fun testPayWithAuto() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Auto)
 
   /** MonochromeAuto shows the monochrome black button in light mode. */
   @Test
-  fun testPayWithMonochromeAuto() = snapshot(CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.MonochromeAuto)
+  fun testPayWithMonochromeAuto() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.MonochromeAuto)
 
   private fun snapshot(label: CashAppPayButtonLabel, style: CashAppPayButtonStyle, enabled: Boolean = true) = snapshot(paparazzi, label, style, enabled)
 }
@@ -110,15 +110,15 @@ class CashAppPayButtonDarkModeTest {
 
   /** Auto shows the white button in dark mode. */
   @Test
-  fun testPayWithAuto() = snapshot(paparazzi, CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Auto)
+  fun testPayWithAuto() = snapshot(paparazzi, CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Auto)
 
   /** MonochromeAuto shows the monochrome white button in dark mode. */
   @Test
-  fun testPayWithMonochromeAuto() = snapshot(paparazzi, CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.MonochromeAuto)
+  fun testPayWithMonochromeAuto() = snapshot(paparazzi, CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.MonochromeAuto)
 
   /** Black and White don't follow the UI mode. */
   @Test
-  fun testPayWithBlack() = snapshot(paparazzi, CashAppPayButtonLabel.PayWith, CashAppPayButtonStyle.Black)
+  fun testPayWithBlack() = snapshot(paparazzi, CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Black)
 }
 
 private fun snapshot(

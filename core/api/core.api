@@ -471,12 +471,12 @@ public final class app/cash/paykit/core/models/sdk/CashAppPayAction$OneTimeActio
 }
 
 public final class app/cash/paykit/core/models/sdk/CashAppPayButtonLabel : java/lang/Enum {
-	public static final field BuyWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
-	public static final field CashOutWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
-	public static final field CheckoutWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field Buy Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field CashOut Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field Checkout Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final field Companion Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel$Companion;
-	public static final field ContinueWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
-	public static final field PayWith Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field Continue Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
+	public static final field Pay Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static final fun forActions (Ljava/util/List;)Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/core/models/sdk/CashAppPayButtonLabel;

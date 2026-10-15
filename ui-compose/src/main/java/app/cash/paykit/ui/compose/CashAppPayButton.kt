@@ -42,8 +42,8 @@ import app.cash.paykit.core.models.sdk.CashAppPayButtonLabel
  * Cash App Pay button composable.
  *
  * A stylized button for starting a Cash App Pay flow. Pick the [label] that matches the customer request,
- * for example with [CashAppPayButtonLabel.forActions], or pass another label, such as [CashAppPayButtonLabel.BuyWith]
- * or [CashAppPayButtonLabel.CheckoutWith], to override it.
+ * for example with [CashAppPayButtonLabel.forActions], or pass another label, such as [CashAppPayButtonLabel.Buy]
+ * or [CashAppPayButtonLabel.Checkout], to override it.
  *
  * **Note**: This button is purely visual. Developers must handle click actions
  * and manage visibility/enabled states based on SDK state.
@@ -126,36 +126,36 @@ private enum class LabelArt { Black, White, Mono }
 
 private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = when (art) {
   LabelArt.Black -> when (label) {
-    CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_black
-    CashAppPayButtonLabel.BuyWith -> R.drawable.cap_compose_label_buy_with_black
-    CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_black
-    CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_black
-    CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_black
+    CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_black
+    CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_black
+    CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_black
+    CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_black
+    CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_black
   }
 
   LabelArt.White -> when (label) {
-    CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_white
-    CashAppPayButtonLabel.BuyWith -> R.drawable.cap_compose_label_buy_with_white
-    CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_white
-    CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_white
-    CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_white
+    CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_white
+    CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_white
+    CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_white
+    CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_white
+    CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_white
   }
 
   LabelArt.Mono -> when (label) {
-    CashAppPayButtonLabel.PayWith -> R.drawable.cap_compose_label_pay_with_mono
-    CashAppPayButtonLabel.BuyWith -> R.drawable.cap_compose_label_buy_with_mono
-    CashAppPayButtonLabel.CashOutWith -> R.drawable.cap_compose_label_cash_out_with_mono
-    CashAppPayButtonLabel.CheckoutWith -> R.drawable.cap_compose_label_checkout_with_mono
-    CashAppPayButtonLabel.ContinueWith -> R.drawable.cap_compose_label_continue_with_mono
+    CashAppPayButtonLabel.Pay -> R.drawable.cap_compose_label_pay_with_mono
+    CashAppPayButtonLabel.Buy -> R.drawable.cap_compose_label_buy_with_mono
+    CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_mono
+    CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_mono
+    CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_mono
   }
 }
 
 private fun labelText(label: CashAppPayButtonLabel): Int = when (label) {
-  CashAppPayButtonLabel.PayWith -> R.string.cap_compose_a11_button_label_pay_with
-  CashAppPayButtonLabel.BuyWith -> R.string.cap_compose_a11_button_label_buy_with
-  CashAppPayButtonLabel.CashOutWith -> R.string.cap_compose_a11_button_label_cash_out_with
-  CashAppPayButtonLabel.CheckoutWith -> R.string.cap_compose_a11_button_label_checkout_with
-  CashAppPayButtonLabel.ContinueWith -> R.string.cap_compose_a11_button_label_continue_with
+  CashAppPayButtonLabel.Pay -> R.string.cap_compose_a11_button_label_pay_with
+  CashAppPayButtonLabel.Buy -> R.string.cap_compose_a11_button_label_buy_with
+  CashAppPayButtonLabel.CashOut -> R.string.cap_compose_a11_button_label_cash_out_with
+  CashAppPayButtonLabel.Checkout -> R.string.cap_compose_a11_button_label_checkout_with
+  CashAppPayButtonLabel.Continue -> R.string.cap_compose_a11_button_label_continue_with
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFE8E8E8)
@@ -181,7 +181,7 @@ private fun CashAppPayButtonDisabledPreview() {
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
     CashAppPayButtonStyle.entries.forEach { style ->
-      CashAppPayButton(onClick = {}, label = CashAppPayButtonLabel.PayWith, style = style, enabled = false)
+      CashAppPayButton(onClick = {}, label = CashAppPayButtonLabel.Pay, style = style, enabled = false)
     }
   }
 }

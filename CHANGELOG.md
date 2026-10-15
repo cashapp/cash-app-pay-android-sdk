@@ -5,18 +5,18 @@ Pick the label from the customer request's actions with `CashAppPayButtonLabel.f
 
 | Actions | Label |
 |---|---|
-| Only payments (`OneTimeAction`, `OnFileAction`) | `PayWith`, "Pay with Cash App" |
-| Only payouts (`OnFilePayoutAction`) | `CashOutWith`, "Cash out with Cash App" |
-| Anything else, such as a mix of payments and payouts, or no actions | `ContinueWith`, "Continue with Cash App" |
+| Only payments (`OneTimeAction`, `OnFileAction`) | `Pay`, "Pay with Cash App" |
+| Only payouts (`OnFilePayoutAction`) | `CashOut`, "Cash out with Cash App" |
+| Anything else, such as a mix of payments and payouts, or no actions | `Continue`, "Continue with Cash App" |
 
  - To override the automatic label, pass any label directly. `forActions` never returns these two:
 
 | Label | Text | Use it for |
 |---|---|---|
-| `BuyWith` | "Buy with Cash App" | Buy-now payments, for example a "Buy now" button on a product page |
-| `CheckoutWith` | "Checkout with Cash App" | A checkout screen |
+| `Buy` | "Buy with Cash App" | Buy-now payments, for example a "Buy now" button on a product page |
+| `Checkout` | "Checkout with Cash App" | A checkout screen |
 
-In XML, use `app:cap_label`, for example `app:cap_label="buy_with"`.
+In XML, use `app:cap_label`, for example `app:cap_label="buy"`.
 
  - The button comes in these styles:
 
@@ -67,13 +67,14 @@ fun CashAppPayButton(
 ```
 
 **View API:** use `@style/CAPButtonStyle.Black`, `.White`, `.MonochromeBlack`, `.MonochromeWhite`, `.Green`, `.Auto`, or
-`.MonochromeAuto`, and set the label in XML with `app:cap_label` (`pay_with`, `buy_with`, `cash_out_with`,
-`checkout_with`, or `continue_with`) or in code with `button.label`:
+`.MonochromeAuto`, and set the label in XML with `app:cap_label` (`pay`, `buy`, `cash_out`, `checkout`, or
+`continue_with`, since Android doesn't allow the reserved Java keyword `continue` as a resource name) or in code with
+`button.label`:
 
 ```xml
 <app.cash.paykit.ui.views.CashAppPayButton
       style="@style/CAPButtonStyle.Black"
-      app:cap_label="pay_with"
+      app:cap_label="pay"
       android:layout_height="48dp"
       android:layout_width="match_parent"/>
 ```
