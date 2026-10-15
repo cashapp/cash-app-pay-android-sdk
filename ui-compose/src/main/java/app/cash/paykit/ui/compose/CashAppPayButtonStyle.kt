@@ -19,24 +19,49 @@ package app.cash.paykit.ui.compose
  * Visual style variants for the Cash App Pay button.
  */
 enum class CashAppPayButtonStyle {
-  /** White label and green Cash App icon on a black background. */
-  Black,
+  /**
+   * Default style: green Cash App icon and white label on a dark (#101010) background.
+   * Recommended for light app backgrounds.
+   */
+  Default,
 
-  /** Black label and green Cash App icon on a white background with a black outline. */
-  White,
+  /**
+   * Alternative style: dark (#101010) Cash App icon and label on a green (#00D64F) background.
+   * Works equally well in light and dark app backgrounds.
+   */
+  Alt,
 
-  /** White label and white Cash App icon on a black background. */
-  MonochromeBlack,
+  /**
+   * Monochrome dark style: white Cash App icon and label on a dark (#101010) background.
+   * For light app backgrounds.
+   */
+  MonochromeDark,
 
-  /** Black label and black Cash App icon on a white background with a black outline. */
-  MonochromeWhite,
+  /**
+   * Monochrome light style: black Cash App icon and label on a white background with a dark outline.
+   * For dark app backgrounds.
+   */
+  MonochromeLight,
 
-  /** Black label and black Cash App icon on a green background. */
-  Green,
+  /**
+   * Theme-aware monochrome style that automatically picks [MonochromeDark] or [MonochromeLight]
+   * based on the app's current UI mode configuration.
+   * - Light mode: uses the [MonochromeDark] appearance (white icon and label on a dark background)
+   * - Dark mode: uses the [MonochromeLight] appearance (black icon and label on a white background)
+   */
+  Monochrome,
 
-  /** Follows the system UI mode: [Black] in light mode and [White] in dark mode. */
+  /**
+   * Light style: green Cash App icon and black label on a white background with a dark outline.
+   * For dark app backgrounds.
+   */
+  Light,
+
+  /**
+   * Theme-aware style that automatically picks [Default] or [Light] based on the app's current
+   * UI mode configuration.
+   * - Light mode: uses the [Default] appearance (green icon on a dark background)
+   * - Dark mode: uses the [Light] appearance (green icon on a white background)
+   */
   Auto,
-
-  /** Follows the system UI mode: [MonochromeBlack] in light mode and [MonochromeWhite] in dark mode. */
-  MonochromeAuto,
 }

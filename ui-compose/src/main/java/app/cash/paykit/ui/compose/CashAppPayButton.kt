@@ -48,47 +48,47 @@ import androidx.compose.ui.unit.dp
  *
  * @param onClick Callback invoked when the button is clicked
  * @param modifier Modifier for the button
- * @param label Text shown on the button (defaults to [CashAppPayButtonLabel.CashApp])
- * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Black]). [CashAppPayButtonStyle.Auto] and
- *   [CashAppPayButtonStyle.MonochromeAuto] follow the system UI mode.
+ * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Default]). [CashAppPayButtonStyle.Auto] and
+ *   [CashAppPayButtonStyle.Monochrome] follow the system UI mode.
  * @param enabled Whether the button is enabled (affects alpha and click handling)
+ * @param label Text shown on the button (defaults to [CashAppPayButtonLabel.CashApp])
  */
 @Suppress("ktlint:standard:function-naming")
 @Composable
 fun CashAppPayButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
-  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
-  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Black,
+  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
   enabled: Boolean = true,
+  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
 ) {
   val darkTheme = isSystemInDarkTheme()
   val resolved = when (style) {
-    CashAppPayButtonStyle.Auto -> if (darkTheme) CashAppPayButtonStyle.White else CashAppPayButtonStyle.Black
+    CashAppPayButtonStyle.Auto -> if (darkTheme) CashAppPayButtonStyle.Light else CashAppPayButtonStyle.Default
 
-    CashAppPayButtonStyle.MonochromeAuto ->
-      if (darkTheme) CashAppPayButtonStyle.MonochromeWhite else CashAppPayButtonStyle.MonochromeBlack
+    CashAppPayButtonStyle.Monochrome ->
+      if (darkTheme) CashAppPayButtonStyle.MonochromeLight else CashAppPayButtonStyle.MonochromeDark
 
     else -> style
   }
   val backgroundColor = when (resolved) {
-    CashAppPayButtonStyle.White, CashAppPayButtonStyle.MonochromeWhite -> Color.White
-    CashAppPayButtonStyle.Green -> CashAppGreen
+    CashAppPayButtonStyle.Light, CashAppPayButtonStyle.MonochromeLight -> Color.White
+    CashAppPayButtonStyle.Alt -> CashAppGreen
     else -> CashAppBlack
   }
   val border = when (resolved) {
-    CashAppPayButtonStyle.White, CashAppPayButtonStyle.MonochromeWhite -> BorderStroke(1.dp, CashAppBlack)
+    CashAppPayButtonStyle.Light, CashAppPayButtonStyle.MonochromeLight -> BorderStroke(1.dp, CashAppBlack)
     else -> null
   }
   val tint = when (resolved) {
-    CashAppPayButtonStyle.MonochromeBlack -> Color.White
-    CashAppPayButtonStyle.MonochromeWhite -> Color.Black
-    CashAppPayButtonStyle.Green -> CashAppBlack
+    CashAppPayButtonStyle.MonochromeDark -> Color.White
+    CashAppPayButtonStyle.MonochromeLight -> Color.Black
+    CashAppPayButtonStyle.Alt -> CashAppBlack
     else -> null
   }
   val art = when (resolved) {
-    CashAppPayButtonStyle.White -> LabelArt.White
-    CashAppPayButtonStyle.Black -> LabelArt.Black
+    CashAppPayButtonStyle.Light -> LabelArt.White
+    CashAppPayButtonStyle.Default -> LabelArt.Black
     else -> LabelArt.Mono
   }
 
@@ -114,6 +114,27 @@ fun CashAppPayButton(
       colorFilter = tint?.let { ColorFilter.tint(it) },
     )
   }
+}
+
+/**
+ * The 3.0.0 signature of [CashAppPayButton], kept so code compiled against 3.0.0 keeps linking.
+ */
+@Deprecated("Kept for binary compatibility.", level = DeprecationLevel.HIDDEN)
+@Suppress("ktlint:standard:function-naming")
+@Composable
+fun CashAppPayButton(
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
+  enabled: Boolean = true,
+) {
+  CashAppPayButton(
+    onClick = onClick,
+    modifier = modifier,
+    style = style,
+    enabled = enabled,
+    label = CashAppPayButtonLabel.CashApp,
+  )
 }
 
 private val CashAppBlack = Color(0xFF101010)

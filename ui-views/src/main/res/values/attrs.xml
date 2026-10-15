@@ -14,11 +14,12 @@
     </attr>
     <!-- Color variant, set by the CAPButtonStyle styles. -->
     <attr name="cap_variant" format="enum">
-      <enum name="black" value="0" />
-      <enum name="white" value="1" />
-      <enum name="monochrome_black" value="2" />
-      <enum name="monochrome_white" value="3" />
-      <enum name="green" value="4" />
+      <!-- Not "default": Android rejects reserved Java keywords as resource names. -->
+      <enum name="default_style" value="0" />
+      <enum name="alt" value="1" />
+      <enum name="monochrome_dark" value="2" />
+      <enum name="monochrome_light" value="3" />
+      <enum name="light" value="4" />
     </attr>
   </declare-styleable>
   <declare-styleable name="CashAppPaymentMethod" tools:ignore="ResourceName">

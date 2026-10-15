@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <style name="CAPButtonStyle.Auto" parent="CAPButtonStyle.White" />
-  <style name="CAPButtonStyle.MonochromeAuto" parent="CAPButtonStyle.MonochromeWhite" />
+  <style name="CAPButtonStyle.Auto" parent="CAPButtonStyle.Light" />
+  <style name="CAPButtonStyle.Monochrome" parent="CAPButtonStyle.MonochromeLight" />
 </resources>

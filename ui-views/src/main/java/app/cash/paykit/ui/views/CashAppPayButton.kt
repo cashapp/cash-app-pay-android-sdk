@@ -22,15 +22,15 @@ import android.util.AttributeSet
 import android.widget.ImageButton
 
 /**
- * Cash App Pay button. Use it with one of these styles, or none for the default, `CAPButtonStyle.Black`:
- * - `CAPButtonStyle.Black` (default): white label and green Cash App icon on a black background.
- * - `CAPButtonStyle.White`: black label and green Cash App icon on a white background with a black outline.
- * - `CAPButtonStyle.MonochromeBlack`: white label and icon on a black background.
- * - `CAPButtonStyle.MonochromeWhite`: black label and icon on a white background with a black outline.
- * - `CAPButtonStyle.Green`: black label and icon on a green background.
- * - `CAPButtonStyle.Auto`: follows the system UI mode, `Black` in light mode and `White` in dark mode.
- * - `CAPButtonStyle.MonochromeAuto`: follows the system UI mode, `MonochromeBlack` in light mode and `MonochromeWhite`
- *   in dark mode.
+ * Cash App Pay button. Use it with one of these styles, or none for the default, `CAPButtonStyle.Default`:
+ * - `CAPButtonStyle.Default` (default): white label and green Cash App icon on a dark background.
+ * - `CAPButtonStyle.Alt`: dark label and icon on a green background.
+ * - `CAPButtonStyle.MonochromeDark`: white label and icon on a dark background.
+ * - `CAPButtonStyle.MonochromeLight`: black label and icon on a white background with a dark outline.
+ * - `CAPButtonStyle.Light`: black label and green Cash App icon on a white background with a dark outline.
+ * - `CAPButtonStyle.Auto`: follows the system UI mode, `Default` in light mode and `Light` in dark mode.
+ * - `CAPButtonStyle.Monochrome`: follows the system UI mode, `MonochromeDark` in light mode and `MonochromeLight` in
+ *   dark mode.
  *
  * By default the button shows the Cash App icon and "Cash App". Set [label] (or the `cap_label` XML attribute) to
  * show a call to action instead, such as [CashAppPayButtonLabel.Pay] or [CashAppPayButtonLabel.Checkout].
@@ -129,16 +129,16 @@ class CashAppPayButton @JvmOverloads constructor(
 
   /** Values of the `cap_variant` XML enum, in the same order. [tint] is null for the color art. */
   private enum class Variant(val art: LabelArt, val tint: Int?) {
-    Black(LabelArt.Black, null),
-    White(LabelArt.White, null),
-    MonochromeBlack(LabelArt.Mono, Color.WHITE),
-    MonochromeWhite(LabelArt.Mono, Color.BLACK),
-    Green(LabelArt.Mono, 0xFF101010.toInt()),
+    Default(LabelArt.Black, null),
+    Alt(LabelArt.Mono, 0xFF101010.toInt()),
+    MonochromeDark(LabelArt.Mono, Color.WHITE),
+    MonochromeLight(LabelArt.Mono, Color.BLACK),
+    Light(LabelArt.White, null),
   }
 }
 
 /**
- * Falls back to `CAPButtonStyle.Black` when no style resource is given. The default style resource has the lowest
+ * Falls back to `CAPButtonStyle.Default` when no style resource is given. The default style resource has the lowest
  * precedence, so a `style` set in XML (which arrives through the attribute set) still wins over it.
  */
-internal fun defaultStyleRes(style: Int): Int = if (style == 0) R.style.CAPButtonStyle_Black else style
+internal fun defaultStyleRes(style: Int): Int = if (style == 0) R.style.CAPButtonStyle_Default else style

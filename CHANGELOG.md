@@ -1,7 +1,7 @@
 # NEXT RELEASE | WIP
-## Breaking Changes
- - `CashAppPayButton` now shows the Cash App icon and "Cash App" by default, replacing the previous artwork, in both
-`ui-views` and `ui-compose`. To show a call to action instead, set a `CashAppPayButtonLabel`:
+## New
+ - `CashAppPayButton` in `ui-views` and `ui-compose` can now show a call to action. Set a `CashAppPayButtonLabel` with
+the new `label` parameter (Compose), the `label` property (Views), or the `app:cap_label` XML attribute:
 
 | Label | Text |
 |---|---|
@@ -12,66 +12,53 @@
 | `Checkout` | "Checkout with Cash App", for example on a checkout screen |
 | `Continue` | "Continue with Cash App" |
 
-In XML, use `app:cap_label`, for example `app:cap_label="buy"`.
+In XML the values are `cash_app`, `pay`, `buy`, `cash_out`, `checkout`, and `continue_with` (Android doesn't allow the
+reserved Java keyword `continue` as a resource name), for example `app:cap_label="buy"`.
 
- - The button comes in these styles:
+ - New button styles: `Light` and `Auto` in both modules, and `CAPButtonStyle.Monochrome` in `ui-views` (matching the
+existing Compose `Monochrome`). All styles:
 
 | Style | Background | Label |
 |---|---|---|
-| `Black` | Black | White text, green Cash App icon |
-| `White` | White with a black outline | Black text, green Cash App icon |
-| `MonochromeBlack` | Black | White text and icon |
-| `MonochromeWhite` | White with a black outline | Black text and icon |
-| `Green` | Cash App green | Black text and icon |
-| `Auto` | `Black` in light mode, `White` in dark mode | |
-| `MonochromeAuto` | `MonochromeBlack` in light mode, `MonochromeWhite` in dark mode | |
+| `Default` (default) | Dark (#101010) | White text, green Cash App icon |
+| `Alt` | Cash App green | Dark text and icon |
+| `MonochromeDark` | Dark (#101010) | White text and icon |
+| `MonochromeLight` | White with a dark outline | Black text and icon |
+| `Monochrome` | `MonochromeDark` in light mode, `MonochromeLight` in dark mode | |
+| `Light` (new) | White with a dark outline | Black text, green Cash App icon |
+| `Auto` (new) | `Default` in light mode, `Light` in dark mode | |
 
-`MonochromeAuto` replaces `Monochrome`. The `Default`, `Alt`, `MonochromeDark`, `MonochromeLight`, and `Monochrome` styles
-are removed.
-
- - In `ui-views`, a `CashAppPayButton` without a style now uses `CAPButtonStyle.Black`.
- - These public resources are removed:
-   - Strings: `cap_a11_button_label` (`ui-views`) and `cap_compose_a11_button_label` (`ui-compose`).
-   - Drawables: `cap_logo_monochrome_dark`, `cap_logo_monochrome_light`, `cap_logo_polychrome`, and
-     `cap_btn_background_light_outlined` (`ui-views`), and `cap_compose_logo_monochrome_dark`,
-     `cap_compose_logo_monochrome_light`, and `cap_compose_logo_polychrome` (`ui-compose`).
-   - Styles: `CAPButtonStyle.Default`, `CAPButtonStyle.Alt`, `CAPButtonStyle.MonochromeDark`, and
-     `CAPButtonStyle.MonochromeLight` (`ui-views`).
-
-**Composable API:**
+**Composable API:** `label` is a new last parameter, so existing calls keep compiling.
 
 ```kotlin
 @Composable
 fun CashAppPayButton(
   onClick: () -> Unit,
   modifier: Modifier = Modifier,
-  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
-  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Black,
+  style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
   enabled: Boolean = true,
+  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
 )
 ```
 
-**View API:** use `@style/CAPButtonStyle.Black`, `.White`, `.MonochromeBlack`, `.MonochromeWhite`, `.Green`, `.Auto`, or
-`.MonochromeAuto`. Without a label the button shows `cash_app`. Set another label in XML with `app:cap_label` (`cash_app`,
-`pay`, `buy`, `cash_out`, `checkout`, or `continue_with`, since Android doesn't allow the reserved Java keyword `continue`
-as a resource name) or in code with `button.label`:
+**View API:** use `@style/CAPButtonStyle.Default`, `.Alt`, `.MonochromeDark`, `.MonochromeLight`, `.Light`, `.Auto`,
+or `.Monochrome`, and set the label in XML with `app:cap_label` or in code with `button.label`:
 
 ```xml
 <app.cash.paykit.ui.views.CashAppPayButton
-      style="@style/CAPButtonStyle.Black"
+      style="@style/CAPButtonStyle.Default"
       app:cap_label="pay"
       android:layout_height="48dp"
       android:layout_width="match_parent"/>
 ```
 
-## New
  - Added `CashAppPaymentMethod` to `ui-views` and `ui-compose`. It shows the Cash App logo and the customer's cashtag,
 for example after the customer approves a request, and matches the iOS `CashAppPaymentMethod`. It comes in `Large`
 (cashtag to the right) and `Small` (cashtag under the logo) layouts. The monochrome logo follows the system light or dark
 theme. `usePolychromeAsset` shows the green Cash App icon on a black background in both themes.
 
 ```kotlin
-CashAppPaymentMethod(cashtag = customerResponseData.customerProfile?.cashTag?.toString().orEmpty())
+CashAppPaymentMethod(cashtag = "\$jack")
 ```
 
 ```xml
@@ -81,6 +68,16 @@ CashAppPaymentMethod(cashtag = customerResponseData.customerProfile?.cashTag?.to
       android:layout_width="match_parent"
       android:layout_height="wrap_content"/>
 ```
+
+## Changes
+ - Every `CashAppPayButton` style now draws the new Cash App artwork, and by default the button shows the Cash App icon
+and "Cash App". The style names and their colors are unchanged.
+ - In `ui-views`, a `CashAppPayButton` without a style now shows `CAPButtonStyle.Default` instead of an empty button.
+ - The button's content description now matches its label.
+ - Removed the old button artwork and its strings. These were internal resources, not public API:
+`cap_logo_monochrome_dark`, `cap_logo_monochrome_light`, `cap_logo_polychrome`, `cap_btn_background_light_outlined`, and
+`cap_a11_button_label` (`ui-views`), and `cap_compose_logo_monochrome_dark`, `cap_compose_logo_monochrome_light`,
+`cap_compose_logo_polychrome`, and `cap_compose_a11_button_label` (`ui-compose`).
 
 # 3.0.0
 ## Breaking Changes
