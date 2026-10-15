@@ -13,7 +13,7 @@ plugins {
 
 subprojects {
   group = "app.cash.paykit"
-  version = "3.0.0"
+  version = "3.1.0"
 
   apply(plugin = "com.diffplug.spotless")
   extensions.configure<SpotlessExtension> {
