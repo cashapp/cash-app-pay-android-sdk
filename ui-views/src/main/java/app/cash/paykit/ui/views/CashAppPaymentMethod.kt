@@ -25,6 +25,7 @@ import android.view.Gravity
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlin.math.roundToInt
 
 /**
  * Shows that the customer paid, or will pay, with Cash App: the "Cash App Pay" (default) or "Cash App" logo and the
@@ -65,6 +66,8 @@ class CashAppPaymentMethod @JvmOverloads constructor(
   }
   private val cashtagView = TextView(context).apply {
     setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+    // Matches the Compose cashtag's line height, which is closer to iOS.
+    includeFontPadding = false
     importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
   }
   private val background = GradientDrawable().apply { cornerRadius = dp(8f) }
@@ -107,10 +110,7 @@ class CashAppPaymentMethod @JvmOverloads constructor(
   init {
     importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
     setBackground(background)
-    val horizontal = dp(8f).toInt()
-    val vertical = dp(12f).toInt()
-    setPadding(horizontal, vertical, horizontal, vertical)
-    addView(logoView, LayoutParams(LayoutParams.WRAP_CONTENT, dp(LOGO_HEIGHT_DP).toInt()))
+    addView(logoView, LayoutParams(LayoutParams.WRAP_CONTENT, dp(LOGO_HEIGHT_DP).roundToInt()))
     addView(cashtagView)
 
     val attributes = context.obtainStyledAttributes(attrs, R.styleable.CashAppPaymentMethod, defStyleAttr, 0)
@@ -144,8 +144,16 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   private fun updateLayout() {
     val cashtagParams = cashtagView.layoutParams as LayoutParams
+    val logoParams = logoView.layoutParams as LayoutParams
+    val horizontal = dp(8f).roundToInt()
+    val vertical = dp(12f).roundToInt()
+    // Like iOS, the logo takes up a LOGO_SLOT_HEIGHT_DP row and is drawn slightly taller, overflowing it evenly.
+    val logoOverflow = (logoParams.height - dp(LOGO_SLOT_HEIGHT_DP).roundToInt()) / 2
     when (size) {
       Size.Small -> {
+        setPadding(horizontal, vertical, horizontal, vertical)
+        logoParams.topMargin = -logoOverflow
+        logoParams.bottomMargin = -logoOverflow
         orientation = VERTICAL
         gravity = Gravity.START
         cashtagParams.width = LayoutParams.WRAP_CONTENT
@@ -153,9 +161,14 @@ class CashAppPaymentMethod @JvmOverloads constructor(
         cashtagParams.topMargin = dp(2f).toInt()
         cashtagParams.marginStart = dp(CASHTAG_INSET_DP).toInt()
         cashtagView.gravity = Gravity.START
+        logoView.translationY = dp(SMALL_LOGO_OFFSET_DP)
       }
 
       Size.Large -> {
+        // As on iOS, only the logo has vertical padding, so the logo row alone sets the height.
+        setPadding(horizontal, 0, horizontal, 0)
+        logoParams.topMargin = vertical - logoOverflow
+        logoParams.bottomMargin = vertical - logoOverflow
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         cashtagParams.width = 0
@@ -163,9 +176,11 @@ class CashAppPaymentMethod @JvmOverloads constructor(
         cashtagParams.topMargin = 0
         cashtagParams.marginStart = 0
         cashtagView.gravity = Gravity.END
+        logoView.translationY = 0f
       }
     }
     cashtagView.layoutParams = cashtagParams
+    logoView.layoutParams = logoParams
   }
 
   private fun updateColors() {
@@ -210,6 +225,12 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 // Both logos are drawn at the same size as the iOS payment method, which draws the "Cash App Pay" and "Cash App"
 // logos at the same height: a 22.6dp icon tile and wordmark.
 private const val LOGO_HEIGHT_DP = 22.6f
+
+// The height the logo takes up in the layout, as on iOS.
+private const val LOGO_SLOT_HEIGHT_DP = 20f
+
+// In the small layout, iOS draws the logo 2dp lower without moving the cashtag.
+private const val SMALL_LOGO_OFFSET_DP = 2f
 
 // Lines the cashtag up with the start of the "Cash App Pay" or "Cash App" wordmark, after the icon tile.
 private const val CASHTAG_INSET_DP = 30f

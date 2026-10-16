@@ -19,12 +19,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -125,12 +128,15 @@ fun CashAppPaymentMethod(
     .background(backgroundColor)
     // TalkBack reads the logo and the cashtag together, as one focus target.
     .semantics(mergeDescendants = true) {}
-  val logoImage = @Composable {
-    Image(
-      painter = painterResource(logoRes),
-      contentDescription = stringResource(logoDescription),
-      modifier = Modifier.height(LOGO_HEIGHT),
-    )
+  // Like iOS, the logo takes up a LOGO_SLOT_HEIGHT row and is drawn slightly taller, overflowing it evenly.
+  val logoImage = @Composable { slotModifier: Modifier ->
+    Box(modifier = slotModifier.height(LOGO_SLOT_HEIGHT), contentAlignment = Alignment.CenterStart) {
+      Image(
+        painter = painterResource(logoRes),
+        contentDescription = stringResource(logoDescription),
+        modifier = Modifier.requiredHeight(LOGO_HEIGHT),
+      )
+    }
   }
 
   when (size) {
@@ -138,7 +144,7 @@ fun CashAppPaymentMethod(
       modifier = containerModifier.padding(horizontal = 8.dp, vertical = 12.dp),
       verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-      logoImage()
+      logoImage(Modifier.offset(y = SMALL_LOGO_OFFSET))
       Text(
         text = cashtag,
         style = cashtagTextStyle,
@@ -150,10 +156,11 @@ fun CashAppPaymentMethod(
     CashAppPaymentMethodSize.Large -> Row(
       modifier = containerModifier
         .fillMaxWidth()
-        .padding(horizontal = 8.dp, vertical = 12.dp),
+        .padding(horizontal = 8.dp),
       verticalAlignment = Alignment.CenterVertically,
     ) {
-      logoImage()
+      // As on iOS, only the logo has vertical padding, so the logo row alone sets the height.
+      logoImage(Modifier.padding(vertical = 12.dp))
       Spacer(modifier = Modifier.weight(1f))
       Text(text = cashtag, style = cashtagTextStyle, color = cashtagColor)
     }
@@ -190,6 +197,12 @@ private val CashAppGreen = Color(0xFF00D64F)
 // Both logos are drawn at the same size as the iOS payment method, which draws the "Cash App Pay" and "Cash App"
 // logos at the same height: a 22.6dp icon tile and wordmark.
 private val LOGO_HEIGHT = 22.6.dp
+
+// The height the logo takes up in the layout, as on iOS.
+private val LOGO_SLOT_HEIGHT = 20.dp
+
+// In the small layout, iOS draws the logo 2dp lower without moving the cashtag.
+private val SMALL_LOGO_OFFSET = 2.dp
 
 // Lines the cashtag up with the start of the "Cash App Pay" or "Cash App" wordmark, after the icon tile.
 private val CASHTAG_INSET = 30.dp
