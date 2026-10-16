@@ -30,7 +30,16 @@ public final class app/cash/paykit/ui/compose/CashAppPayButtonStyle : java/lang/
 }
 
 public final class app/cash/paykit/ui/compose/CashAppPaymentMethodKt {
-	public static final fun CashAppPaymentMethod-V-9fs2A (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;ZLandroidx/compose/ui/text/TextStyle;JLandroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun CashAppPaymentMethod-V-9fs2A (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;ZLandroidx/compose/ui/text/TextStyle;JLandroidx/compose/runtime/Composer;II)V
+	public static final fun CashAppPaymentMethod-cd68TDI (Ljava/lang/String;Landroidx/compose/ui/Modifier;Lapp/cash/paykit/ui/compose/CashAppPaymentMethodSize;ZLandroidx/compose/ui/text/TextStyle;JLapp/cash/paykit/ui/compose/CashAppPaymentMethodLogo;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class app/cash/paykit/ui/compose/CashAppPaymentMethodLogo : java/lang/Enum {
+	public static final field CashApp Lapp/cash/paykit/ui/compose/CashAppPaymentMethodLogo;
+	public static final field CashAppPay Lapp/cash/paykit/ui/compose/CashAppPaymentMethodLogo;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/ui/compose/CashAppPaymentMethodLogo;
+	public static fun values ()[Lapp/cash/paykit/ui/compose/CashAppPaymentMethodLogo;
 }
 
 public final class app/cash/paykit/ui/compose/CashAppPaymentMethodSize : java/lang/Enum {

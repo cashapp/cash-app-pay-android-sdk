@@ -27,10 +27,12 @@ import android.widget.LinearLayout
 import android.widget.TextView
 
 /**
- * Shows that the customer paid, or will pay, with Cash App: the Cash App logo and the customer's cashtag.
+ * Shows that the customer paid, or will pay, with Cash App: the "Cash App Pay" (default) or "Cash App" logo and the
+ * customer's cashtag.
  *
  * The colors follow the system light or dark theme, like the iOS `CashAppPaymentMethod`. Set [cashtag], [size],
- * and [usePolychromeAsset] in code, or `app:cap_cashtag`, `app:cap_size`, and `app:cap_use_polychrome_asset` in XML.
+ * [usePolychromeAsset], and [logo] in code, or `app:cap_cashtag`, `app:cap_size`, `app:cap_use_polychrome_asset`, and
+ * `app:cap_logo` (`cash_app_pay` or `cash_app`) in XML.
  */
 class CashAppPaymentMethod @JvmOverloads constructor(
   context: Context,
@@ -40,11 +42,20 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   /** Layout of the view. */
   enum class Size {
-    /** The cashtag sits under the Cash App logo. */
+    /** The cashtag sits under the logo. */
     Small,
 
-    /** The cashtag sits to the right of the Cash App logo. */
+    /** The cashtag sits to the right of the logo. */
     Large,
+  }
+
+  /** Logo shown by the view. */
+  enum class Logo {
+    /** The Cash App icon and "Cash App Pay", matching the iOS `CashAppPaymentMethod`. The default. */
+    CashAppPay,
+
+    /** The Cash App icon and "Cash App". */
+    CashApp,
   }
 
   private val logoView = ImageView(context).apply {
@@ -74,11 +85,23 @@ class CashAppPaymentMethod @JvmOverloads constructor(
       updateLayout()
     }
 
-  /** `true` for the green Cash App icon on a black background in light and dark mode, `false` (default) for the monochrome logo. */
+  /**
+   * `true` for the polychrome logo, `false` (default) for the monochrome logo. With [Logo.CashAppPay], the polychrome
+   * logo is the green Cash App icon on a black background in light mode, and the black icon on a green background in
+   * dark mode. With [Logo.CashApp], it is the green Cash App icon on a black background in light and dark mode.
+   */
   var usePolychromeAsset: Boolean = false
     set(value) {
       field = value
       updateColors()
+    }
+
+  /** Logo to show. Defaults to [Logo.CashAppPay]. */
+  var logo: Logo = Logo.CashAppPay
+    set(value) {
+      field = value
+      updateColors()
+      updateContentDescription()
     }
 
   init {
@@ -95,6 +118,7 @@ class CashAppPaymentMethod @JvmOverloads constructor(
       cashtag = attributes.getString(R.styleable.CashAppPaymentMethod_cap_cashtag).orEmpty()
       size = Size.entries[attributes.getInt(R.styleable.CashAppPaymentMethod_cap_size, Size.Large.ordinal)]
       usePolychromeAsset = attributes.getBoolean(R.styleable.CashAppPaymentMethod_cap_use_polychrome_asset, false)
+      logo = Logo.entries[attributes.getInt(R.styleable.CashAppPaymentMethod_cap_logo, Logo.CashAppPay.ordinal)]
     } finally {
       attributes.recycle()
     }
@@ -109,7 +133,11 @@ class CashAppPaymentMethod @JvmOverloads constructor(
   }
 
   private fun updateContentDescription() {
-    contentDescription = listOf(context.getString(R.string.cap_a11_logo_cash_app), cashtag)
+    val logoDescription = when (logo) {
+      Logo.CashAppPay -> R.string.cap_a11_logo_cash_app_pay
+      Logo.CashApp -> R.string.cap_a11_logo_cash_app
+    }
+    contentDescription = listOf(context.getString(logoDescription), cashtag)
       .filter { it.isNotBlank() }
       .joinToString(separator = ", ")
   }
@@ -142,14 +170,36 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   private fun updateColors() {
     val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-    background.setColor(if (usePolychromeAsset || isDark) Color.BLACK else Color.WHITE)
-    logoView.setImageResource(
-      when {
-        usePolychromeAsset -> R.drawable.cap_logo_cash_app_polychrome
-        isDark -> R.drawable.cap_logo_cash_app_monochrome_dark
-        else -> R.drawable.cap_logo_cash_app_monochrome_light
-      },
-    )
+    when (logo) {
+      Logo.CashAppPay -> {
+        background.setColor(
+          when {
+            usePolychromeAsset && isDark -> CASH_APP_GREEN
+            usePolychromeAsset || isDark -> Color.BLACK
+            else -> Color.WHITE
+          },
+        )
+        logoView.setImageResource(
+          when {
+            usePolychromeAsset && isDark -> R.drawable.cap_logo_cash_app_pay_polychrome_dark
+            usePolychromeAsset -> R.drawable.cap_logo_cash_app_pay_polychrome
+            isDark -> R.drawable.cap_logo_cash_app_pay_monochrome_dark
+            else -> R.drawable.cap_logo_cash_app_pay_monochrome_light
+          },
+        )
+      }
+
+      Logo.CashApp -> {
+        background.setColor(if (usePolychromeAsset || isDark) Color.BLACK else Color.WHITE)
+        logoView.setImageResource(
+          when {
+            usePolychromeAsset -> R.drawable.cap_logo_cash_app_polychrome
+            isDark -> R.drawable.cap_logo_cash_app_monochrome_dark
+            else -> R.drawable.cap_logo_cash_app_monochrome_light
+          },
+        )
+      }
+    }
     val defaultCashtagColor = if (isDark) Color.rgb(0xFA, 0xFA, 0xFA) else Color.rgb(0x99, 0x99, 0x99)
     cashtagView.setTextColor(cashtagTextColorOverride ?: defaultCashtagColor)
   }
@@ -157,8 +207,11 @@ class CashAppPaymentMethod @JvmOverloads constructor(
   private fun dp(value: Float): Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics)
 }
 
-// The logo is drawn at the same size as the iOS payment method: a 22.6dp icon tile and wordmark.
+// Both logos are drawn at the same size as the iOS payment method, which draws the "Cash App Pay" and "Cash App"
+// logos at the same height: a 22.6dp icon tile and wordmark.
 private const val LOGO_HEIGHT_DP = 22.6f
 
-// Lines the cashtag up with the start of the "Cash App" wordmark, after the icon tile.
+// Lines the cashtag up with the start of the "Cash App Pay" or "Cash App" wordmark, after the icon tile.
 private const val CASHTAG_INSET_DP = 30f
+
+private val CASH_APP_GREEN = Color.rgb(0x00, 0xD6, 0x4F)

@@ -45,6 +45,15 @@ class CashAppPaymentMethodTest {
 
   @Test
   fun testLargePolychrome() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true)
+
+  @Test
+  fun testLargeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = false, CashAppPaymentMethodLogo.CashApp)
+
+  @Test
+  fun testSmallCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Small, usePolychromeAsset = false, CashAppPaymentMethodLogo.CashApp)
+
+  @Test
+  fun testLargePolychromeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true, CashAppPaymentMethodLogo.CashApp)
 }
 
 /**
@@ -63,12 +72,23 @@ class CashAppPaymentMethodDarkModeTest {
 
   @Test
   fun testLargePolychrome() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true)
+
+  @Test
+  fun testLargeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = false, CashAppPaymentMethodLogo.CashApp)
+
+  @Test
+  fun testLargePolychromeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true, CashAppPaymentMethodLogo.CashApp)
 }
 
-private fun snapshot(paparazzi: Paparazzi, size: CashAppPaymentMethodSize, usePolychromeAsset: Boolean) {
+private fun snapshot(
+  paparazzi: Paparazzi,
+  size: CashAppPaymentMethodSize,
+  usePolychromeAsset: Boolean,
+  logo: CashAppPaymentMethodLogo = CashAppPaymentMethodLogo.CashAppPay,
+) {
   paparazzi.snapshot {
     Box(modifier = Modifier.padding(16.dp).width(320.dp)) {
-      CashAppPaymentMethod(cashtag = "\$jack", size = size, usePolychromeAsset = usePolychromeAsset)
+      CashAppPaymentMethod(cashtag = "\$jack", size = size, usePolychromeAsset = usePolychromeAsset, logo = logo)
     }
   }
 }
