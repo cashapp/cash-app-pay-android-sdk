@@ -39,4 +39,7 @@ enum class CashAppPayButtonLabel {
 
   /** The Cash App icon and "Cash App Pay". The default. */
   CashAppPay,
+
+  /** "Connect to Cash App", for linking the customer's Cash App account, such as saving it for future payments. */
+  Connect,
 }

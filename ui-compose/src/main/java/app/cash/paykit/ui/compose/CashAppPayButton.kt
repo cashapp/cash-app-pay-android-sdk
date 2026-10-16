@@ -152,6 +152,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
     CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_black
     CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_black
     CashAppPayButtonLabel.CashAppPay -> R.drawable.cap_compose_label_cash_app_pay_black
+    CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_to_black
   }
 
   LabelArt.White -> when (label) {
@@ -162,6 +163,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
     CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_white
     CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_white
     CashAppPayButtonLabel.CashAppPay -> R.drawable.cap_compose_label_cash_app_pay_white
+    CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_to_white
   }
 
   LabelArt.Mono -> when (label) {
@@ -172,6 +174,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
     CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_mono
     CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_mono
     CashAppPayButtonLabel.CashAppPay -> R.drawable.cap_compose_label_cash_app_pay_mono
+    CashAppPayButtonLabel.Connect -> R.drawable.cap_compose_label_connect_to_mono
   }
 }
 
@@ -183,6 +186,7 @@ private fun labelText(label: CashAppPayButtonLabel): Int = when (label) {
   CashAppPayButtonLabel.Checkout -> R.string.cap_compose_a11_button_label_checkout_with
   CashAppPayButtonLabel.Continue -> R.string.cap_compose_a11_button_label_continue_with
   CashAppPayButtonLabel.CashAppPay -> R.string.cap_compose_a11_logo_cash_app_pay
+  CashAppPayButtonLabel.Connect -> R.string.cap_compose_a11_button_label_connect_to
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFE8E8E8)

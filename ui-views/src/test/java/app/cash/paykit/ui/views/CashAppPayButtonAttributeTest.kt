@@ -45,6 +45,7 @@ class CashAppPayButtonAttributeTest {
       "checkout" to CashAppPayButtonLabel.Checkout,
       "continue_with" to CashAppPayButtonLabel.Continue,
       "cash_app_pay" to CashAppPayButtonLabel.CashAppPay,
+      "connect" to CashAppPayButtonLabel.Connect,
     )
     expected.forEach { (xmlValue, label) ->
       assertEquals(xmlValue, label, inflate(xmlValue).label)

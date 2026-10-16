@@ -1,3 +1,8 @@
+# NEXT RELEASE | WIP
+## Changes
+ - `CashAppPayButton` in `ui-views` and `ui-compose` has a new `CashAppPayButtonLabel.Connect` label ("Connect to Cash
+App", `app:cap_label="connect"` in XML) for linking the customer's Cash App account. No breaking changes.
+
 # 3.2.0
 ## Changes
  - `CashAppPayButton` in `ui-views` and `ui-compose` now shows the Cash App icon and "Cash App Pay" by default, using the
