@@ -1,4 +1,4 @@
-# NEXT RELEASE | WIP
+# 3.2.0
 ## Changes
  - `CashAppPayButton` in `ui-views` and `ui-compose` now shows the Cash App icon and "Cash App Pay" by default, using the
 new `CashAppPayButtonLabel.CashAppPay` label (`app:cap_label="cash_app_pay"` in XML). `CashAppPayButtonLabel.CashApp`
