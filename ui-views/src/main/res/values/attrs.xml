@@ -35,10 +35,7 @@
          green Cash App icon on a black background in light mode, and the black icon on a green background in dark
          mode. With cash_app, it is the green Cash App icon on a black background in light and dark mode. -->
     <attr name="cap_use_polychrome_asset" format="boolean" />
-    <!-- Logo shown. Defaults to cash_app_pay. -->
-    <attr name="cap_logo" format="enum">
-      <enum name="cash_app_pay" value="0" />
-      <enum name="cash_app" value="1" />
-    </attr>
+    <!-- Label shown, drawn as a logo: cash_app_pay (default) or cash_app. Shared with CashAppPayButton. -->
+    <attr name="cap_label" />
   </declare-styleable>
 </resources>

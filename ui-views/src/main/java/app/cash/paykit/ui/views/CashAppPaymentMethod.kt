@@ -32,8 +32,8 @@ import kotlin.math.roundToInt
  * customer's cashtag.
  *
  * The colors follow the system light or dark theme, like the iOS `CashAppPaymentMethod`. Set [cashtag], [size],
- * [usePolychromeAsset], and [logo] in code, or `app:cap_cashtag`, `app:cap_size`, `app:cap_use_polychrome_asset`, and
- * `app:cap_logo` (`cash_app_pay` or `cash_app`) in XML.
+ * [usePolychromeAsset], and [label] in code, or `app:cap_cashtag`, `app:cap_size`, `app:cap_use_polychrome_asset`, and
+ * `app:cap_label` (`cash_app_pay` or `cash_app`) in XML.
  */
 class CashAppPaymentMethod @JvmOverloads constructor(
   context: Context,
@@ -50,8 +50,8 @@ class CashAppPaymentMethod @JvmOverloads constructor(
     Large,
   }
 
-  /** Logo shown by the view. */
-  enum class Logo {
+  /** Label shown by the view, drawn as a logo. */
+  enum class Label {
     /** The Cash App icon and "Cash App Pay", matching the iOS `CashAppPaymentMethod`. The default. */
     CashAppPay,
 
@@ -89,9 +89,9 @@ class CashAppPaymentMethod @JvmOverloads constructor(
     }
 
   /**
-   * `true` for the polychrome logo, `false` (default) for the monochrome logo. With [Logo.CashAppPay], the polychrome
+   * `true` for the polychrome logo, `false` (default) for the monochrome logo. With [Label.CashAppPay], the polychrome
    * logo is the green Cash App icon on a black background in light mode, and the black icon on a green background in
-   * dark mode. With [Logo.CashApp], it is the green Cash App icon on a black background in light and dark mode.
+   * dark mode. With [Label.CashApp], it is the green Cash App icon on a black background in light and dark mode.
    */
   var usePolychromeAsset: Boolean = false
     set(value) {
@@ -99,8 +99,8 @@ class CashAppPaymentMethod @JvmOverloads constructor(
       updateColors()
     }
 
-  /** Logo to show. Defaults to [Logo.CashAppPay]. */
-  var logo: Logo = Logo.CashAppPay
+  /** Label to show. Defaults to [Label.CashAppPay]. */
+  var label: Label = Label.CashAppPay
     set(value) {
       field = value
       updateColors()
@@ -118,7 +118,11 @@ class CashAppPaymentMethod @JvmOverloads constructor(
       cashtag = attributes.getString(R.styleable.CashAppPaymentMethod_cap_cashtag).orEmpty()
       size = Size.entries[attributes.getInt(R.styleable.CashAppPaymentMethod_cap_size, Size.Large.ordinal)]
       usePolychromeAsset = attributes.getBoolean(R.styleable.CashAppPaymentMethod_cap_use_polychrome_asset, false)
-      logo = Logo.entries[attributes.getInt(R.styleable.CashAppPaymentMethod_cap_logo, Logo.CashAppPay.ordinal)]
+      // Shares the button's cap_label attribute; only cash_app_pay and cash_app apply here.
+      label = when (attributes.getInt(R.styleable.CashAppPaymentMethod_cap_label, CAP_LABEL_CASH_APP_PAY)) {
+        CAP_LABEL_CASH_APP -> Label.CashApp
+        else -> Label.CashAppPay
+      }
     } finally {
       attributes.recycle()
     }
@@ -133,9 +137,9 @@ class CashAppPaymentMethod @JvmOverloads constructor(
   }
 
   private fun updateContentDescription() {
-    val logoDescription = when (logo) {
-      Logo.CashAppPay -> R.string.cap_a11_logo_cash_app_pay
-      Logo.CashApp -> R.string.cap_a11_logo_cash_app
+    val logoDescription = when (label) {
+      Label.CashAppPay -> R.string.cap_a11_logo_cash_app_pay
+      Label.CashApp -> R.string.cap_a11_logo_cash_app
     }
     contentDescription = listOf(context.getString(logoDescription), cashtag)
       .filter { it.isNotBlank() }
@@ -185,8 +189,8 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   private fun updateColors() {
     val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-    when (logo) {
-      Logo.CashAppPay -> {
+    when (label) {
+      Label.CashAppPay -> {
         background.setColor(
           when {
             usePolychromeAsset && isDark -> CASH_APP_GREEN
@@ -204,7 +208,7 @@ class CashAppPaymentMethod @JvmOverloads constructor(
         )
       }
 
-      Logo.CashApp -> {
+      Label.CashApp -> {
         background.setColor(if (usePolychromeAsset || isDark) Color.BLACK else Color.WHITE)
         logoView.setImageResource(
           when {
@@ -234,5 +238,9 @@ private const val SMALL_LOGO_OFFSET_DP = 2f
 
 // Lines the cashtag up with the start of the "Cash App Pay" or "Cash App" wordmark, after the icon tile.
 private const val CASHTAG_INSET_DP = 30f
+
+// The cap_label XML values for cash_app and cash_app_pay, declared in attrs.xml.
+private const val CAP_LABEL_CASH_APP = 0
+private const val CAP_LABEL_CASH_APP_PAY = 6
 
 private val CASH_APP_GREEN = Color.rgb(0x00, 0xD6, 0x4F)

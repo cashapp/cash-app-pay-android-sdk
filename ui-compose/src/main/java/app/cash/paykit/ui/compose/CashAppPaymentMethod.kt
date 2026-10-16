@@ -55,9 +55,9 @@ enum class CashAppPaymentMethodSize {
 }
 
 /**
- * Logo shown by the [CashAppPaymentMethod].
+ * Label shown by the [CashAppPaymentMethod], drawn as a logo.
  */
-enum class CashAppPaymentMethodLogo {
+enum class CashAppPaymentMethodLabel {
   /** The Cash App icon and "Cash App Pay", matching the iOS `CashAppPaymentMethod`. The default. */
   CashAppPay,
 
@@ -75,12 +75,12 @@ enum class CashAppPaymentMethodLogo {
  * @param modifier Modifier for the view
  * @param size Layout of the view (defaults to [CashAppPaymentMethodSize.Large])
  * @param usePolychromeAsset `true` for the polychrome logo, `false` (default) for the monochrome logo. With
- *   [CashAppPaymentMethodLogo.CashAppPay], the polychrome logo is the green Cash App icon on a black background in
- *   light mode, and the black icon on a green background in dark mode. With [CashAppPaymentMethodLogo.CashApp], it is
+ *   [CashAppPaymentMethodLabel.CashAppPay], the polychrome logo is the green Cash App icon on a black background in
+ *   light mode, and the black icon on a green background in dark mode. With [CashAppPaymentMethodLabel.CashApp], it is
  *   the green Cash App icon on a black background in light and dark mode.
  * @param cashtagTextStyle Text style for the cashtag
  * @param cashtagColor Color of the cashtag (defaults to gray in light mode and white in dark mode)
- * @param logo Logo to show (defaults to [CashAppPaymentMethodLogo.CashAppPay])
+ * @param label Label to show (defaults to [CashAppPaymentMethodLabel.CashAppPay])
  */
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -91,14 +91,14 @@ fun CashAppPaymentMethod(
   usePolychromeAsset: Boolean = false,
   cashtagTextStyle: TextStyle = TextStyle(fontSize = 14.sp),
   cashtagColor: Color = if (isSystemInDarkTheme()) Color(0xFFFAFAFA) else Color(0xFF999999),
-  logo: CashAppPaymentMethodLogo = CashAppPaymentMethodLogo.CashAppPay,
+  label: CashAppPaymentMethodLabel = CashAppPaymentMethodLabel.CashAppPay,
 ) {
   val isDark = isSystemInDarkTheme()
   val backgroundColor: Color
   val logoRes: Int
   val logoDescription: Int
-  when (logo) {
-    CashAppPaymentMethodLogo.CashAppPay -> {
+  when (label) {
+    CashAppPaymentMethodLabel.CashAppPay -> {
       backgroundColor = when {
         usePolychromeAsset && isDark -> CashAppGreen
         usePolychromeAsset || isDark -> Color.Black
@@ -113,7 +113,7 @@ fun CashAppPaymentMethod(
       logoDescription = R.string.cap_compose_a11_logo_cash_app_pay
     }
 
-    CashAppPaymentMethodLogo.CashApp -> {
+    CashAppPaymentMethodLabel.CashApp -> {
       backgroundColor = if (usePolychromeAsset || isDark) Color.Black else Color.White
       logoRes = when {
         usePolychromeAsset -> R.drawable.cap_compose_logo_cash_app_polychrome
@@ -188,7 +188,7 @@ fun CashAppPaymentMethod(
     usePolychromeAsset = usePolychromeAsset,
     cashtagTextStyle = cashtagTextStyle,
     cashtagColor = cashtagColor,
-    logo = CashAppPaymentMethodLogo.CashAppPay,
+    label = CashAppPaymentMethodLabel.CashAppPay,
   )
 }
 
@@ -214,10 +214,10 @@ private fun CashAppPaymentMethodPreview() {
     modifier = Modifier.padding(16.dp),
     verticalArrangement = Arrangement.spacedBy(8.dp),
   ) {
-    CashAppPaymentMethodLogo.entries.forEach { logo ->
-      CashAppPaymentMethod(cashtag = "\$jack", logo = logo)
-      CashAppPaymentMethod(cashtag = "\$jack", size = CashAppPaymentMethodSize.Small, logo = logo)
-      CashAppPaymentMethod(cashtag = "\$jack", usePolychromeAsset = true, logo = logo)
+    CashAppPaymentMethodLabel.entries.forEach { label ->
+      CashAppPaymentMethod(cashtag = "\$jack", label = label)
+      CashAppPaymentMethod(cashtag = "\$jack", size = CashAppPaymentMethodSize.Small, label = label)
+      CashAppPaymentMethod(cashtag = "\$jack", usePolychromeAsset = true, label = label)
     }
   }
 }

@@ -2,8 +2,8 @@
 ## Changes
  - `CashAppPaymentMethod` in `ui-views` and `ui-compose` now shows the "Cash App Pay" logo by default again, matching
 the iOS SDK. With `usePolychromeAsset`, it shows the green Cash App icon on a black background in light mode, and the
-black icon on a green background in dark mode. Set `logo = CashAppPaymentMethodLogo.CashApp` (Compose), the `logo`
-property to `CashAppPaymentMethod.Logo.CashApp` (Views), or `app:cap_logo="cash_app"` (XML) for the "Cash App" logo.
+black icon on a green background in dark mode. Set `label = CashAppPaymentMethodLabel.CashApp` (Compose), the `label`
+property to `CashAppPaymentMethod.Label.CashApp` (Views), or `app:cap_label="cash_app"` (XML) for the "Cash App" logo.
 No breaking changes.
  - `CashAppPaymentMethod` now uses the same layout as the iOS SDK: the large layout is 44dp tall instead of 46.6dp, and
 the small layout places the logo and cashtag like iOS.

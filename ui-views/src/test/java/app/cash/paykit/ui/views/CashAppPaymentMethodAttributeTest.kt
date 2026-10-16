@@ -23,7 +23,7 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 /**
- * Checks how the `cap_logo` XML attribute maps to [CashAppPaymentMethod.Logo].
+ * Checks how the `cap_label` XML attribute maps to [CashAppPaymentMethod.Label].
  */
 @RunWith(RobolectricTestRunner::class)
 class CashAppPaymentMethodAttributeTest {
@@ -31,29 +31,31 @@ class CashAppPaymentMethodAttributeTest {
   private val activity = Robolectric.buildActivity(Activity::class.java).get()
 
   @Test
-  fun unsetLogoIsCashAppPay() {
+  fun unsetLabelIsCashAppPay() {
     val view = inflate(null)
-    assertEquals(CashAppPaymentMethod.Logo.CashAppPay, view.logo)
+    assertEquals(CashAppPaymentMethod.Label.CashAppPay, view.label)
     assertEquals("Cash App Pay, \$jack", view.contentDescription)
   }
 
   @Test
-  fun xmlValuesMapToLogos() {
-    assertEquals(CashAppPaymentMethod.Logo.CashAppPay, inflate("cash_app_pay").logo)
-    assertEquals(CashAppPaymentMethod.Logo.CashApp, inflate("cash_app").logo)
+  fun xmlValuesMapToLabels() {
+    assertEquals(CashAppPaymentMethod.Label.CashAppPay, inflate("cash_app_pay").label)
+    assertEquals(CashAppPaymentMethod.Label.CashApp, inflate("cash_app").label)
+    // Button-only values fall back to the default.
+    assertEquals(CashAppPaymentMethod.Label.CashAppPay, inflate("pay").label)
   }
 
   @Test
-  fun contentDescriptionMatchesLogo() {
+  fun contentDescriptionMatchesLabel() {
     val view = inflate(null)
-    view.logo = CashAppPaymentMethod.Logo.CashApp
+    view.label = CashAppPaymentMethod.Label.CashApp
     assertEquals("Cash App, \$jack", view.contentDescription)
   }
 
-  private fun inflate(logo: String?): CashAppPaymentMethod {
+  private fun inflate(label: String?): CashAppPaymentMethod {
     val attributes = Robolectric.buildAttributeSet()
     attributes.addAttribute(R.attr.cap_cashtag, "\$jack")
-    if (logo != null) attributes.addAttribute(R.attr.cap_logo, logo)
+    if (label != null) attributes.addAttribute(R.attr.cap_label, label)
     return CashAppPaymentMethod(activity, attributes.build())
   }
 }
