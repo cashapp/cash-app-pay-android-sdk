@@ -5,6 +5,8 @@ the iOS SDK. With `usePolychromeAsset`, it shows the green Cash App icon on a bl
 black icon on a green background in dark mode. Set `logo = CashAppPaymentMethodLogo.CashApp` (Compose), the `logo`
 property to `CashAppPaymentMethod.Logo.CashApp` (Views), or `app:cap_logo="cash_app"` (XML) for the "Cash App" logo.
 No breaking changes.
+ - `CashAppPaymentMethod` now uses the same layout as the iOS SDK: the large layout is 44dp tall instead of 46.6dp, and
+the small layout places the logo and cashtag like iOS.
 
 # 3.2.0
 ## Changes
