@@ -16,10 +16,10 @@
 package app.cash.paykit.ui.views
 
 /**
- * Text shown on the [CashAppPayButton], also set with the `cap_label` XML attribute. [CashApp] is the default.
+ * Text shown on the [CashAppPayButton], also set with the `cap_label` XML attribute. [CashAppPay] is the default.
  */
 enum class CashAppPayButtonLabel {
-  /** The Cash App icon and "Cash App". The default. */
+  /** The Cash App icon and "Cash App". */
   CashApp,
 
   /** "Pay with Cash App". */
@@ -36,4 +36,7 @@ enum class CashAppPayButtonLabel {
 
   /** "Continue with Cash App". */
   Continue,
+
+  /** The Cash App icon and "Cash App Pay". The default. */
+  CashAppPay,
 }

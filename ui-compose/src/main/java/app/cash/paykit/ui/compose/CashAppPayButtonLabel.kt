@@ -16,10 +16,10 @@
 package app.cash.paykit.ui.compose
 
 /**
- * Text shown on the [CashAppPayButton]. [CashApp] is the default.
+ * Text shown on the [CashAppPayButton]. [CashAppPay] is the default.
  */
 enum class CashAppPayButtonLabel {
-  /** The Cash App icon and "Cash App". The default. */
+  /** The Cash App icon and "Cash App". */
   CashApp,
 
   /** "Pay with Cash App". */
@@ -36,4 +36,7 @@ enum class CashAppPayButtonLabel {
 
   /** "Continue with Cash App". */
   Continue,
+
+  /** The Cash App icon and "Cash App Pay". The default. */
+  CashAppPay,
 }
