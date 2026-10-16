@@ -79,7 +79,8 @@ enum class CashAppPaymentMethodLabel {
  *   light mode, and the black icon on a green background in dark mode. With [CashAppPaymentMethodLabel.CashApp], it is
  *   the green Cash App icon on a black background in light and dark mode.
  * @param cashtagTextStyle Text style for the cashtag
- * @param cashtagColor Color of the cashtag (defaults to gray in light mode and white in dark mode)
+ * @param cashtagColor Color of the cashtag (defaults to gray in light mode and white in dark mode, or near-black on the
+ *   green [CashAppPaymentMethodLabel.CashAppPay] polychrome background in dark mode)
  * @param label Label to show (defaults to [CashAppPaymentMethodLabel.CashAppPay])
  */
 @Suppress("ktlint:standard:function-naming")
@@ -90,7 +91,7 @@ fun CashAppPaymentMethod(
   size: CashAppPaymentMethodSize = CashAppPaymentMethodSize.Large,
   usePolychromeAsset: Boolean = false,
   cashtagTextStyle: TextStyle = TextStyle(fontSize = 14.sp),
-  cashtagColor: Color = if (isSystemInDarkTheme()) Color(0xFFFAFAFA) else Color(0xFF999999),
+  cashtagColor: Color = if (isSystemInDarkTheme()) CashtagColorDark else CashtagColorLight,
   label: CashAppPaymentMethodLabel = CashAppPaymentMethodLabel.CashAppPay,
 ) {
   val isDark = isSystemInDarkTheme()
@@ -123,6 +124,9 @@ fun CashAppPaymentMethod(
       logoDescription = R.string.cap_compose_a11_logo_cash_app
     }
   }
+  // Like the logo's wordmark, the default cashtag is near-black on the green background. A custom color is used as set.
+  val isOnGreen = label == CashAppPaymentMethodLabel.CashAppPay && usePolychromeAsset && isDark
+  val resolvedCashtagColor = if (isOnGreen && cashtagColor == CashtagColorDark) CashtagColorOnGreen else cashtagColor
   val containerModifier = modifier
     .clip(RoundedCornerShape(8.dp))
     .background(backgroundColor)
@@ -148,7 +152,7 @@ fun CashAppPaymentMethod(
       Text(
         text = cashtag,
         style = cashtagTextStyle,
-        color = cashtagColor,
+        color = resolvedCashtagColor,
         modifier = Modifier.padding(start = CASHTAG_INSET),
       )
     }
@@ -162,7 +166,7 @@ fun CashAppPaymentMethod(
       // As on iOS, only the logo has vertical padding, so the logo row alone sets the height.
       logoImage(Modifier.padding(vertical = 12.dp))
       Spacer(modifier = Modifier.weight(1f))
-      Text(text = cashtag, style = cashtagTextStyle, color = cashtagColor)
+      Text(text = cashtag, style = cashtagTextStyle, color = resolvedCashtagColor)
     }
   }
 }
@@ -179,7 +183,7 @@ fun CashAppPaymentMethod(
   size: CashAppPaymentMethodSize = CashAppPaymentMethodSize.Large,
   usePolychromeAsset: Boolean = false,
   cashtagTextStyle: TextStyle = TextStyle(fontSize = 14.sp),
-  cashtagColor: Color = if (isSystemInDarkTheme()) Color(0xFFFAFAFA) else Color(0xFF999999),
+  cashtagColor: Color = if (isSystemInDarkTheme()) CashtagColorDark else CashtagColorLight,
 ) {
   CashAppPaymentMethod(
     cashtag = cashtag,
@@ -193,6 +197,9 @@ fun CashAppPaymentMethod(
 }
 
 private val CashAppGreen = Color(0xFF00D64F)
+private val CashtagColorLight = Color(0xFF999999)
+private val CashtagColorDark = Color(0xFFFAFAFA)
+private val CashtagColorOnGreen = Color(0xFF101010)
 
 // Both logos are drawn at the same size as the iOS payment method, which draws the "Cash App Pay" and "Cash App"
 // logos at the same height: a 22.6dp icon tile and wordmark.

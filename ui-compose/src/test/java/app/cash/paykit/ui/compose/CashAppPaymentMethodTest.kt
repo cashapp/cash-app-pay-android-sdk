@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
@@ -78,6 +79,13 @@ class CashAppPaymentMethodDarkModeTest {
 
   @Test
   fun testLargePolychromeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true, CashAppPaymentMethodLabel.CashApp)
+
+  @Test
+  fun testLargePolychromeCustomCashtagColor() = paparazzi.snapshot {
+    Box(modifier = Modifier.padding(16.dp).width(320.dp)) {
+      CashAppPaymentMethod(cashtag = "\$jack", usePolychromeAsset = true, cashtagColor = Color.White)
+    }
+  }
 }
 
 private fun snapshot(

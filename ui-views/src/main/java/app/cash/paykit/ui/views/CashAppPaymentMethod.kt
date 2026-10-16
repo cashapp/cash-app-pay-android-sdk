@@ -130,7 +130,10 @@ class CashAppPaymentMethod @JvmOverloads constructor(
     updateColors()
   }
 
-  /** Overrides the cashtag color, which defaults to gray in light mode and white in dark mode. */
+  /**
+   * Overrides the cashtag color, which defaults to gray in light mode and white in dark mode, or near-black on the
+   * green [Label.CashAppPay] polychrome background in dark mode.
+   */
   fun setCashtagTextColor(color: Int) {
     cashtagTextColorOverride = color
     updateColors()
@@ -219,7 +222,12 @@ class CashAppPaymentMethod @JvmOverloads constructor(
         )
       }
     }
-    val defaultCashtagColor = if (isDark) Color.rgb(0xFA, 0xFA, 0xFA) else Color.rgb(0x99, 0x99, 0x99)
+    // Like the logo's wordmark, the default cashtag is near-black on the green background.
+    val defaultCashtagColor = when {
+      label == Label.CashAppPay && usePolychromeAsset && isDark -> Color.rgb(0x10, 0x10, 0x10)
+      isDark -> Color.rgb(0xFA, 0xFA, 0xFA)
+      else -> Color.rgb(0x99, 0x99, 0x99)
+    }
     cashtagView.setTextColor(cashtagTextColorOverride ?: defaultCashtagColor)
   }
 

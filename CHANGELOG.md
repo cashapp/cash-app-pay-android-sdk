@@ -7,6 +7,8 @@ property to `CashAppPaymentMethod.Label.CashApp` (Views), or `app:cap_label="cas
 No breaking changes.
  - `CashAppPaymentMethod` now uses the same layout as the iOS SDK: the large layout is 44dp tall instead of 46.6dp, and
 the small layout places the logo and cashtag like iOS.
+ - With `usePolychromeAsset` in dark mode, the default cashtag color on the green background is now near-black, like the
+logo, instead of white, matching iOS. A custom cashtag color is used as set.
 
 # 3.2.0
 ## Changes
