@@ -25,12 +25,15 @@ import android.view.Gravity
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlin.math.roundToInt
 
 /**
- * Shows that the customer paid, or will pay, with Cash App: the Cash App logo and the customer's cashtag.
+ * Shows that the customer paid, or will pay, with Cash App: the "Cash App Pay" (default) or "Cash App" logo and the
+ * customer's cashtag.
  *
  * The colors follow the system light or dark theme, like the iOS `CashAppPaymentMethod`. Set [cashtag], [size],
- * and [usePolychromeAsset] in code, or `app:cap_cashtag`, `app:cap_size`, and `app:cap_use_polychrome_asset` in XML.
+ * [usePolychromeAsset], and [label] in code, or `app:cap_cashtag`, `app:cap_size`, `app:cap_use_polychrome_asset`, and
+ * `app:cap_label` (`cash_app_pay` or `cash_app`) in XML.
  */
 class CashAppPaymentMethod @JvmOverloads constructor(
   context: Context,
@@ -40,11 +43,20 @@ class CashAppPaymentMethod @JvmOverloads constructor(
 
   /** Layout of the view. */
   enum class Size {
-    /** The cashtag sits under the Cash App logo. */
+    /** The cashtag sits under the logo. */
     Small,
 
-    /** The cashtag sits to the right of the Cash App logo. */
+    /** The cashtag sits to the right of the logo. */
     Large,
+  }
+
+  /** Label shown by the view, drawn as a logo. */
+  enum class Label {
+    /** The Cash App icon and "Cash App Pay", matching the iOS `CashAppPaymentMethod`. The default. */
+    CashAppPay,
+
+    /** The Cash App icon and "Cash App". */
+    CashApp,
   }
 
   private val logoView = ImageView(context).apply {
@@ -54,6 +66,8 @@ class CashAppPaymentMethod @JvmOverloads constructor(
   }
   private val cashtagView = TextView(context).apply {
     setTextSize(TypedValue.COMPLEX_UNIT_SP, 14f)
+    // Matches the Compose cashtag's line height, which is closer to iOS.
+    includeFontPadding = false
     importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
   }
   private val background = GradientDrawable().apply { cornerRadius = dp(8f) }
@@ -74,20 +88,29 @@ class CashAppPaymentMethod @JvmOverloads constructor(
       updateLayout()
     }
 
-  /** `true` for the green Cash App icon on a black background in light and dark mode, `false` (default) for the monochrome logo. */
+  /**
+   * `true` for the polychrome logo, `false` (default) for the monochrome logo. With [Label.CashAppPay], the polychrome
+   * logo is the green Cash App icon on a black background in light mode, and the black icon on a green background in
+   * dark mode. With [Label.CashApp], it is the green Cash App icon on a black background in light and dark mode.
+   */
   var usePolychromeAsset: Boolean = false
     set(value) {
       field = value
       updateColors()
     }
 
+  /** Label to show. Defaults to [Label.CashAppPay]. */
+  var label: Label = Label.CashAppPay
+    set(value) {
+      field = value
+      updateColors()
+      updateContentDescription()
+    }
+
   init {
     importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
     setBackground(background)
-    val horizontal = dp(8f).toInt()
-    val vertical = dp(12f).toInt()
-    setPadding(horizontal, vertical, horizontal, vertical)
-    addView(logoView, LayoutParams(LayoutParams.WRAP_CONTENT, dp(LOGO_HEIGHT_DP).toInt()))
+    addView(logoView, LayoutParams(LayoutParams.WRAP_CONTENT, dp(LOGO_HEIGHT_DP).roundToInt()))
     addView(cashtagView)
 
     val attributes = context.obtainStyledAttributes(attrs, R.styleable.CashAppPaymentMethod, defStyleAttr, 0)
@@ -95,6 +118,11 @@ class CashAppPaymentMethod @JvmOverloads constructor(
       cashtag = attributes.getString(R.styleable.CashAppPaymentMethod_cap_cashtag).orEmpty()
       size = Size.entries[attributes.getInt(R.styleable.CashAppPaymentMethod_cap_size, Size.Large.ordinal)]
       usePolychromeAsset = attributes.getBoolean(R.styleable.CashAppPaymentMethod_cap_use_polychrome_asset, false)
+      // Shares the button's cap_label attribute; only cash_app_pay and cash_app apply here.
+      label = when (attributes.getInt(R.styleable.CashAppPaymentMethod_cap_label, CAP_LABEL_CASH_APP_PAY)) {
+        CAP_LABEL_CASH_APP -> Label.CashApp
+        else -> Label.CashAppPay
+      }
     } finally {
       attributes.recycle()
     }
@@ -102,22 +130,37 @@ class CashAppPaymentMethod @JvmOverloads constructor(
     updateColors()
   }
 
-  /** Overrides the cashtag color, which defaults to gray in light mode and white in dark mode. */
+  /**
+   * Overrides the cashtag color, which defaults to gray in light mode and white in dark mode, or near-black on the
+   * green [Label.CashAppPay] polychrome background in dark mode.
+   */
   fun setCashtagTextColor(color: Int) {
     cashtagTextColorOverride = color
     updateColors()
   }
 
   private fun updateContentDescription() {
-    contentDescription = listOf(context.getString(R.string.cap_a11_logo_cash_app), cashtag)
+    val logoDescription = when (label) {
+      Label.CashAppPay -> R.string.cap_a11_logo_cash_app_pay
+      Label.CashApp -> R.string.cap_a11_logo_cash_app
+    }
+    contentDescription = listOf(context.getString(logoDescription), cashtag)
       .filter { it.isNotBlank() }
       .joinToString(separator = ", ")
   }
 
   private fun updateLayout() {
     val cashtagParams = cashtagView.layoutParams as LayoutParams
+    val logoParams = logoView.layoutParams as LayoutParams
+    val horizontal = dp(8f).roundToInt()
+    val vertical = dp(12f).roundToInt()
+    // Like iOS, the logo takes up a LOGO_SLOT_HEIGHT_DP row and is drawn slightly taller, overflowing it evenly.
+    val logoOverflow = (logoParams.height - dp(LOGO_SLOT_HEIGHT_DP).roundToInt()) / 2
     when (size) {
       Size.Small -> {
+        setPadding(horizontal, vertical, horizontal, vertical)
+        logoParams.topMargin = -logoOverflow
+        logoParams.bottomMargin = -logoOverflow
         orientation = VERTICAL
         gravity = Gravity.START
         cashtagParams.width = LayoutParams.WRAP_CONTENT
@@ -125,9 +168,14 @@ class CashAppPaymentMethod @JvmOverloads constructor(
         cashtagParams.topMargin = dp(2f).toInt()
         cashtagParams.marginStart = dp(CASHTAG_INSET_DP).toInt()
         cashtagView.gravity = Gravity.START
+        logoView.translationY = dp(SMALL_LOGO_OFFSET_DP)
       }
 
       Size.Large -> {
+        // As on iOS, only the logo has vertical padding, so the logo row alone sets the height.
+        setPadding(horizontal, 0, horizontal, 0)
+        logoParams.topMargin = vertical - logoOverflow
+        logoParams.bottomMargin = vertical - logoOverflow
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         cashtagParams.width = 0
@@ -135,30 +183,72 @@ class CashAppPaymentMethod @JvmOverloads constructor(
         cashtagParams.topMargin = 0
         cashtagParams.marginStart = 0
         cashtagView.gravity = Gravity.END
+        logoView.translationY = 0f
       }
     }
     cashtagView.layoutParams = cashtagParams
+    logoView.layoutParams = logoParams
   }
 
   private fun updateColors() {
     val isDark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-    background.setColor(if (usePolychromeAsset || isDark) Color.BLACK else Color.WHITE)
-    logoView.setImageResource(
-      when {
-        usePolychromeAsset -> R.drawable.cap_logo_cash_app_polychrome
-        isDark -> R.drawable.cap_logo_cash_app_monochrome_dark
-        else -> R.drawable.cap_logo_cash_app_monochrome_light
-      },
-    )
-    val defaultCashtagColor = if (isDark) Color.rgb(0xFA, 0xFA, 0xFA) else Color.rgb(0x99, 0x99, 0x99)
+    when (label) {
+      Label.CashAppPay -> {
+        background.setColor(
+          when {
+            usePolychromeAsset && isDark -> CASH_APP_GREEN
+            usePolychromeAsset || isDark -> Color.BLACK
+            else -> Color.WHITE
+          },
+        )
+        logoView.setImageResource(
+          when {
+            usePolychromeAsset && isDark -> R.drawable.cap_logo_cash_app_pay_polychrome_dark
+            usePolychromeAsset -> R.drawable.cap_logo_cash_app_pay_polychrome
+            isDark -> R.drawable.cap_logo_cash_app_pay_monochrome_dark
+            else -> R.drawable.cap_logo_cash_app_pay_monochrome_light
+          },
+        )
+      }
+
+      Label.CashApp -> {
+        background.setColor(if (usePolychromeAsset || isDark) Color.BLACK else Color.WHITE)
+        logoView.setImageResource(
+          when {
+            usePolychromeAsset -> R.drawable.cap_logo_cash_app_polychrome
+            isDark -> R.drawable.cap_logo_cash_app_monochrome_dark
+            else -> R.drawable.cap_logo_cash_app_monochrome_light
+          },
+        )
+      }
+    }
+    // Like the logo's wordmark, the default cashtag is near-black on the green background.
+    val defaultCashtagColor = when {
+      label == Label.CashAppPay && usePolychromeAsset && isDark -> Color.rgb(0x10, 0x10, 0x10)
+      isDark -> Color.rgb(0xFA, 0xFA, 0xFA)
+      else -> Color.rgb(0x99, 0x99, 0x99)
+    }
     cashtagView.setTextColor(cashtagTextColorOverride ?: defaultCashtagColor)
   }
 
   private fun dp(value: Float): Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, resources.displayMetrics)
 }
 
-// The logo is drawn at the same size as the iOS payment method: a 22.6dp icon tile and wordmark.
+// Both logos are drawn at the same size as the iOS payment method, which draws the "Cash App Pay" and "Cash App"
+// logos at the same height: a 22.6dp icon tile and wordmark.
 private const val LOGO_HEIGHT_DP = 22.6f
 
-// Lines the cashtag up with the start of the "Cash App" wordmark, after the icon tile.
+// The height the logo takes up in the layout, as on iOS.
+private const val LOGO_SLOT_HEIGHT_DP = 20f
+
+// In the small layout, iOS draws the logo 2dp lower without moving the cashtag.
+private const val SMALL_LOGO_OFFSET_DP = 2f
+
+// Lines the cashtag up with the start of the "Cash App Pay" or "Cash App" wordmark, after the icon tile.
 private const val CASHTAG_INSET_DP = 30f
+
+// The cap_label XML values for cash_app and cash_app_pay, declared in attrs.xml.
+private const val CAP_LABEL_CASH_APP = 0
+private const val CAP_LABEL_CASH_APP_PAY = 6
+
+private val CASH_APP_GREEN = Color.rgb(0x00, 0xD6, 0x4F)

@@ -27,12 +27,22 @@ public final class app/cash/paykit/ui/views/CashAppPaymentMethod : android/widge
 	public fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;I)V
 	public synthetic fun <init> (Landroid/content/Context;Landroid/util/AttributeSet;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getCashtag ()Ljava/lang/CharSequence;
+	public final fun getLabel ()Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Label;
 	public final fun getSize ()Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Size;
 	public final fun getUsePolychromeAsset ()Z
 	public final fun setCashtag (Ljava/lang/CharSequence;)V
 	public final fun setCashtagTextColor (I)V
+	public final fun setLabel (Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Label;)V
 	public final fun setSize (Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Size;)V
 	public final fun setUsePolychromeAsset (Z)V
+}
+
+public final class app/cash/paykit/ui/views/CashAppPaymentMethod$Label : java/lang/Enum {
+	public static final field CashApp Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Label;
+	public static final field CashAppPay Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Label;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Label;
+	public static fun values ()[Lapp/cash/paykit/ui/views/CashAppPaymentMethod$Label;
 }
 
 public final class app/cash/paykit/ui/views/CashAppPaymentMethod$Size : java/lang/Enum {

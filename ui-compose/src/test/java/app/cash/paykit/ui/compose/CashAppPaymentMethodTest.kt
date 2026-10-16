@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
@@ -45,6 +46,15 @@ class CashAppPaymentMethodTest {
 
   @Test
   fun testLargePolychrome() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true)
+
+  @Test
+  fun testLargeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = false, CashAppPaymentMethodLabel.CashApp)
+
+  @Test
+  fun testSmallCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Small, usePolychromeAsset = false, CashAppPaymentMethodLabel.CashApp)
+
+  @Test
+  fun testLargePolychromeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true, CashAppPaymentMethodLabel.CashApp)
 }
 
 /**
@@ -63,12 +73,30 @@ class CashAppPaymentMethodDarkModeTest {
 
   @Test
   fun testLargePolychrome() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true)
+
+  @Test
+  fun testLargeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = false, CashAppPaymentMethodLabel.CashApp)
+
+  @Test
+  fun testLargePolychromeCashApp() = snapshot(paparazzi, CashAppPaymentMethodSize.Large, usePolychromeAsset = true, CashAppPaymentMethodLabel.CashApp)
+
+  @Test
+  fun testLargePolychromeCustomCashtagColor() = paparazzi.snapshot {
+    Box(modifier = Modifier.padding(16.dp).width(320.dp)) {
+      CashAppPaymentMethod(cashtag = "\$jack", usePolychromeAsset = true, cashtagColor = Color.White)
+    }
+  }
 }
 
-private fun snapshot(paparazzi: Paparazzi, size: CashAppPaymentMethodSize, usePolychromeAsset: Boolean) {
+private fun snapshot(
+  paparazzi: Paparazzi,
+  size: CashAppPaymentMethodSize,
+  usePolychromeAsset: Boolean,
+  label: CashAppPaymentMethodLabel = CashAppPaymentMethodLabel.CashAppPay,
+) {
   paparazzi.snapshot {
     Box(modifier = Modifier.padding(16.dp).width(320.dp)) {
-      CashAppPaymentMethod(cashtag = "\$jack", size = size, usePolychromeAsset = usePolychromeAsset)
+      CashAppPaymentMethod(cashtag = "\$jack", size = size, usePolychromeAsset = usePolychromeAsset, label = label)
     }
   }
 }
