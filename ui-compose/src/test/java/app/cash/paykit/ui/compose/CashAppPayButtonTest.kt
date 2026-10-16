@@ -39,7 +39,7 @@ class CashAppPayButtonTest {
     showSystemUi = false,
   )
 
-  /** No label shows the default, [CashAppPayButtonLabel.CashApp]. */
+  /** No label shows the default, [CashAppPayButtonLabel.CashAppPay]. */
   @Test
   fun testDefaultLabel() = paparazzi.snapshot {
     Box(modifier = Modifier.padding(16.dp)) {
@@ -54,6 +54,21 @@ class CashAppPayButtonTest {
       CashAppPayButton({}, Modifier.width(300.dp).height(54.dp), CashAppPayButtonStyle.MonochromeDark, true)
     }
   }
+
+  @Test
+  fun testCashAppPayDefault() = snapshot(CashAppPayButtonLabel.CashAppPay, CashAppPayButtonStyle.Default)
+
+  @Test
+  fun testCashAppPayLight() = snapshot(CashAppPayButtonLabel.CashAppPay, CashAppPayButtonStyle.Light)
+
+  @Test
+  fun testCashAppPayMonochromeDark() = snapshot(CashAppPayButtonLabel.CashAppPay, CashAppPayButtonStyle.MonochromeDark)
+
+  @Test
+  fun testCashAppPayMonochromeLight() = snapshot(CashAppPayButtonLabel.CashAppPay, CashAppPayButtonStyle.MonochromeLight)
+
+  @Test
+  fun testCashAppPayAlt() = snapshot(CashAppPayButtonLabel.CashAppPay, CashAppPayButtonStyle.Alt)
 
   @Test
   fun testCashAppDefault() = snapshot(CashAppPayButtonLabel.CashApp, CashAppPayButtonStyle.Default)

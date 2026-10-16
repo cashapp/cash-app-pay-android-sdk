@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.dp
 /**
  * Cash App Pay button composable.
  *
- * A stylized button for starting a Cash App Pay flow. By default it shows the Cash App icon and "Cash App". Pass
+ * A stylized button for starting a Cash App Pay flow. By default it shows the Cash App icon and "Cash App Pay". Pass
  * another [label], such as [CashAppPayButtonLabel.Pay] or [CashAppPayButtonLabel.Checkout], to show a call to action.
  *
  * **Note**: This button is purely visual. Developers must handle click actions
@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.dp
  * @param style Visual style variant (defaults to [CashAppPayButtonStyle.Default]). [CashAppPayButtonStyle.Auto] and
  *   [CashAppPayButtonStyle.Monochrome] follow the system UI mode.
  * @param enabled Whether the button is enabled (affects alpha and click handling)
- * @param label Text shown on the button (defaults to [CashAppPayButtonLabel.CashApp])
+ * @param label Text shown on the button (defaults to [CashAppPayButtonLabel.CashAppPay])
  */
 @Suppress("ktlint:standard:function-naming")
 @Composable
@@ -60,7 +60,7 @@ fun CashAppPayButton(
   modifier: Modifier = Modifier,
   style: CashAppPayButtonStyle = CashAppPayButtonStyle.Default,
   enabled: Boolean = true,
-  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashApp,
+  label: CashAppPayButtonLabel = CashAppPayButtonLabel.CashAppPay,
 ) {
   val darkTheme = isSystemInDarkTheme()
   val resolved = when (style) {
@@ -133,7 +133,7 @@ fun CashAppPayButton(
     modifier = modifier,
     style = style,
     enabled = enabled,
-    label = CashAppPayButtonLabel.CashApp,
+    label = CashAppPayButtonLabel.CashAppPay,
   )
 }
 
@@ -151,6 +151,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
     CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_black
     CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_black
     CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_black
+    CashAppPayButtonLabel.CashAppPay -> R.drawable.cap_compose_label_cash_app_pay_black
   }
 
   LabelArt.White -> when (label) {
@@ -160,6 +161,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
     CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_white
     CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_white
     CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_white
+    CashAppPayButtonLabel.CashAppPay -> R.drawable.cap_compose_label_cash_app_pay_white
   }
 
   LabelArt.Mono -> when (label) {
@@ -169,6 +171,7 @@ private fun labelDrawable(label: CashAppPayButtonLabel, art: LabelArt): Int = wh
     CashAppPayButtonLabel.CashOut -> R.drawable.cap_compose_label_cash_out_with_mono
     CashAppPayButtonLabel.Checkout -> R.drawable.cap_compose_label_checkout_with_mono
     CashAppPayButtonLabel.Continue -> R.drawable.cap_compose_label_continue_with_mono
+    CashAppPayButtonLabel.CashAppPay -> R.drawable.cap_compose_label_cash_app_pay_mono
   }
 }
 
@@ -179,6 +182,7 @@ private fun labelText(label: CashAppPayButtonLabel): Int = when (label) {
   CashAppPayButtonLabel.CashOut -> R.string.cap_compose_a11_button_label_cash_out_with
   CashAppPayButtonLabel.Checkout -> R.string.cap_compose_a11_button_label_checkout_with
   CashAppPayButtonLabel.Continue -> R.string.cap_compose_a11_button_label_continue_with
+  CashAppPayButtonLabel.CashAppPay -> R.string.cap_compose_a11_logo_cash_app_pay
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFE8E8E8)

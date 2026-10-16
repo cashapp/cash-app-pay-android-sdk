@@ -10,6 +10,11 @@ plugins {
 android {
   namespace = "app.cash.paykit.ui.views"
   compileSdk = libs.versions.compileSdk.get().toInt()
+  testOptions {
+    unitTests {
+      isIncludeAndroidResources = true
+    }
+  }
 
   defaultConfig {
     minSdk = libs.versions.minSdk.get().toInt()
