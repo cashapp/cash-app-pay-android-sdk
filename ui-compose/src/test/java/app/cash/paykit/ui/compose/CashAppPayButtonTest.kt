@@ -116,6 +116,12 @@ class CashAppPayButtonTest {
   fun testContinueWithLight() = snapshot(CashAppPayButtonLabel.Continue, CashAppPayButtonStyle.Light)
 
   @Test
+  fun testConnectToDefault() = snapshot(CashAppPayButtonLabel.Connect, CashAppPayButtonStyle.Default)
+
+  @Test
+  fun testConnectToLight() = snapshot(CashAppPayButtonLabel.Connect, CashAppPayButtonStyle.Light)
+
+  @Test
   fun testPayWithMonochromeDark() = snapshot(CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.MonochromeDark)
 
   @Test
