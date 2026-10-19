@@ -1,5 +1,7 @@
 # NEXT RELEASE | WIP
 ## Changes
+ - `CashAppPayButton` in `ui-views` and `ui-compose` has a new `CashAppPayButtonLabel.Connect` label ("Connect to Cash
+App", `app:cap_label="connect"` in XML) for linking the customer's Cash App account. No breaking changes.
  - `CashAppPaymentMethod` in `ui-views` and `ui-compose` now shows the "Cash App Pay" logo by default again, matching
 the iOS SDK. With `usePolychromeAsset`, it shows the green Cash App icon on a black background in light mode, and the
 black icon on a green background in dark mode. Set `label = CashAppPaymentMethodLabel.CashApp` (Compose), the `label`

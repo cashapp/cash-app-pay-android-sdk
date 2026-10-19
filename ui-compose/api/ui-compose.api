@@ -9,6 +9,7 @@ public final class app/cash/paykit/ui/compose/CashAppPayButtonLabel : java/lang/
 	public static final field CashAppPay Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
 	public static final field CashOut Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
 	public static final field Checkout Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
+	public static final field Connect Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
 	public static final field Continue Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
 	public static final field Pay Lapp/cash/paykit/ui/compose/CashAppPayButtonLabel;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;

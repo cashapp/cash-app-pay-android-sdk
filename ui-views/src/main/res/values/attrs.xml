@@ -12,6 +12,7 @@
       <!-- Not "continue": Android rejects reserved Java keywords as resource names. -->
       <enum name="continue_with" value="5" />
       <enum name="cash_app_pay" value="6" />
+      <enum name="connect" value="7" />
     </attr>
     <!-- Color variant, set by the CAPButtonStyle styles. -->
     <attr name="cap_variant" format="enum">
