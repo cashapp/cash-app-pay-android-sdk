@@ -8,7 +8,8 @@ No breaking changes.
  - `CashAppPaymentMethod` now uses the same layout as the iOS SDK: the large layout is 44dp tall instead of 46.6dp, and
 the small layout places the logo and cashtag like iOS.
  - With `usePolychromeAsset` in dark mode, the default cashtag color on the green background is now near-black, like the
-logo, instead of white, matching iOS. A custom cashtag color is used as set.
+logo, instead of white, matching iOS. A custom cashtag color is used as set. In Compose, `cashtagColor` now defaults to
+`Color.Unspecified`, which selects the default color.
 
 # 3.2.0
 ## Changes

@@ -83,7 +83,7 @@ class CashAppPaymentMethodDarkModeTest {
   @Test
   fun testLargePolychromeCustomCashtagColor() = paparazzi.snapshot {
     Box(modifier = Modifier.padding(16.dp).width(320.dp)) {
-      CashAppPaymentMethod(cashtag = "\$jack", usePolychromeAsset = true, cashtagColor = Color.White)
+      CashAppPaymentMethod(cashtag = "\$jack", usePolychromeAsset = true, cashtagColor = Color(0xFFFAFAFA))
     }
   }
 }

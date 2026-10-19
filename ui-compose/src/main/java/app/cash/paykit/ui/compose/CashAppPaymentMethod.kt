@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -79,8 +80,9 @@ enum class CashAppPaymentMethodLabel {
  *   light mode, and the black icon on a green background in dark mode. With [CashAppPaymentMethodLabel.CashApp], it is
  *   the green Cash App icon on a black background in light and dark mode.
  * @param cashtagTextStyle Text style for the cashtag
- * @param cashtagColor Color of the cashtag (defaults to gray in light mode and white in dark mode, or near-black on the
- *   green [CashAppPaymentMethodLabel.CashAppPay] polychrome background in dark mode)
+ * @param cashtagColor Color of the cashtag. When [Color.Unspecified] (default), the cashtag is gray in light mode and
+ *   white in dark mode, or near-black on the green [CashAppPaymentMethodLabel.CashAppPay] polychrome background in dark
+ *   mode. Any other color is used as set.
  * @param label Label to show (defaults to [CashAppPaymentMethodLabel.CashAppPay])
  */
 @Suppress("ktlint:standard:function-naming")
@@ -91,7 +93,7 @@ fun CashAppPaymentMethod(
   size: CashAppPaymentMethodSize = CashAppPaymentMethodSize.Large,
   usePolychromeAsset: Boolean = false,
   cashtagTextStyle: TextStyle = TextStyle(fontSize = 14.sp),
-  cashtagColor: Color = if (isSystemInDarkTheme()) CashtagColorDark else CashtagColorLight,
+  cashtagColor: Color = Color.Unspecified,
   label: CashAppPaymentMethodLabel = CashAppPaymentMethodLabel.CashAppPay,
 ) {
   val isDark = isSystemInDarkTheme()
@@ -124,9 +126,15 @@ fun CashAppPaymentMethod(
       logoDescription = R.string.cap_compose_a11_logo_cash_app
     }
   }
-  // Like the logo's wordmark, the default cashtag is near-black on the green background. A custom color is used as set.
+  // Like the logo's wordmark, the default cashtag is near-black on the green background.
   val isOnGreen = label == CashAppPaymentMethodLabel.CashAppPay && usePolychromeAsset && isDark
-  val resolvedCashtagColor = if (isOnGreen && cashtagColor == CashtagColorDark) CashtagColorOnGreen else cashtagColor
+  val resolvedCashtagColor = cashtagColor.takeOrElse {
+    when {
+      isOnGreen -> CashtagColorOnGreen
+      isDark -> CashtagColorDark
+      else -> CashtagColorLight
+    }
+  }
   val containerModifier = modifier
     .clip(RoundedCornerShape(8.dp))
     .background(backgroundColor)
@@ -183,7 +191,7 @@ fun CashAppPaymentMethod(
   size: CashAppPaymentMethodSize = CashAppPaymentMethodSize.Large,
   usePolychromeAsset: Boolean = false,
   cashtagTextStyle: TextStyle = TextStyle(fontSize = 14.sp),
-  cashtagColor: Color = if (isSystemInDarkTheme()) CashtagColorDark else CashtagColorLight,
+  cashtagColor: Color = Color.Unspecified,
 ) {
   CashAppPaymentMethod(
     cashtag = cashtag,
