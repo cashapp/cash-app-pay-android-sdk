@@ -1,4 +1,4 @@
-# NEXT RELEASE | WIP
+# 3.4.0
 ## Changes
  - The call-to-action labels of `CashAppPayButton` in `ui-views` and `ui-compose` and their accessibility descriptions
 are now available in Spanish ("Pagar con", "Comprar con", "Retirar con", "Finalizar compra con", "Continuar con", and
