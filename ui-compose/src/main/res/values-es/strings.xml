@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="cap_compose_a11_button_label_pay_with">Pagar con Cash App</string>
+  <string name="cap_compose_a11_button_label_buy_with">Comprar con Cash App</string>
+  <string name="cap_compose_a11_button_label_cash_out_with">Retirar con Cash App</string>
+  <string name="cap_compose_a11_button_label_checkout_with">Finalizar compra con Cash App</string>
+  <string name="cap_compose_a11_button_label_continue_with">Continuar con Cash App</string>
+  <string name="cap_compose_a11_button_label_connect_to">Conectar con Cash App</string>
+</resources>

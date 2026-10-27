@@ -172,6 +172,37 @@ class CashAppPayButtonDarkModeTest {
   fun testPayWithDefault() = snapshot(paparazzi, CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Default)
 }
 
+/**
+ * Paparazzi snapshot tests for [CashAppPayButton] with a Spanish locale, which shows the `drawable-es` label artwork.
+ */
+class CashAppPayButtonSpanishTest {
+
+  @get:Rule
+  val paparazzi = Paparazzi(
+    deviceConfig = DeviceConfig.PIXEL_5.copy(locale = "es"),
+    theme = "android:Theme.Material3.Light",
+    showSystemUi = false,
+  )
+
+  @Test
+  fun testPayWithDefault() = snapshot(paparazzi, CashAppPayButtonLabel.Pay, CashAppPayButtonStyle.Default)
+
+  @Test
+  fun testBuyWithDefault() = snapshot(paparazzi, CashAppPayButtonLabel.Buy, CashAppPayButtonStyle.Default)
+
+  @Test
+  fun testCashOutWithDefault() = snapshot(paparazzi, CashAppPayButtonLabel.CashOut, CashAppPayButtonStyle.Default)
+
+  @Test
+  fun testCheckoutWithDefault() = snapshot(paparazzi, CashAppPayButtonLabel.Checkout, CashAppPayButtonStyle.Default)
+
+  @Test
+  fun testContinueWithDefault() = snapshot(paparazzi, CashAppPayButtonLabel.Continue, CashAppPayButtonStyle.Default)
+
+  @Test
+  fun testConnectToDefault() = snapshot(paparazzi, CashAppPayButtonLabel.Connect, CashAppPayButtonStyle.Default)
+}
+
 private fun snapshot(
   paparazzi: Paparazzi,
   label: CashAppPayButtonLabel,

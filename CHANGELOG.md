@@ -1,3 +1,11 @@
+# NEXT RELEASE | WIP
+## Changes
+ - The call-to-action labels of `CashAppPayButton` in `ui-views` and `ui-compose` and their accessibility descriptions
+are now available in Spanish ("Pagar con", "Comprar con", "Retirar con", "Finalizar compra con", "Continuar con", and
+"Conectar con", followed by the Cash App icon and wordmark). Android resources choose them automatically from the app's
+locale. Apps that limit their locales with `androidResources.localeFilters` (or `resourceConfigurations`) keep only the
+locales they ship. No breaking changes.
+
 # 3.3.0
 ## Changes
  - `CashAppPayButton` in `ui-views` and `ui-compose` has a new `CashAppPayButtonLabel.Connect` label ("Connect to Cash
